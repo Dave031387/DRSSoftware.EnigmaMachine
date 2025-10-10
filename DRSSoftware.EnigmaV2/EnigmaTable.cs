@@ -7,6 +7,7 @@ internal static class EnigmaTable
     internal const char MaxChar = '\u007f';
     internal const int MaxIndex = MaxChar - MinChar;
     internal const char MinChar = '\u0020';
+    internal const int NumberOfWheels = 4;
     internal const int TableSize = MaxIndex + 1;
 
     internal static int CharToInt(char c) => c - MinChar;

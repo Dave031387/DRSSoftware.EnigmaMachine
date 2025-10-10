@@ -4,54 +4,48 @@
 
 namespace DRSSoftware.EnigmaV2;
 
+/// <summary>
+/// The <see cref="EnigmaMachine" /> class is an electronic implementation of the German Enigma
+/// machine which was used for encrypting messages during World War 2.
+/// </summary>
+/// <remarks>
+/// This implementation is a variation on the original Enigma machine. The plugboard feature isn't
+/// implemented, and there are four cipher wheels (rotors) instead of the usual three. <br /> Also,
+/// upper and lowercase letters as well as numbers, special characters and CRLF are allowed, whereas
+/// the original Enigma machine only supported uppercase characters.
+/// </remarks>
 public class EnigmaMachine
 {
     internal readonly EnigmaReflector _reflector = new();
-    internal readonly EnigmaWheel _wheel1 = new();
-    internal readonly EnigmaWheel _wheel2 = new();
-    internal readonly EnigmaWheel _wheel3 = new();
-    internal readonly EnigmaWheel _wheel4 = new();
+    internal readonly List<EnigmaWheel> _wheels = [];
     internal bool _isInitialized;
 
-    public EnigmaMachine()
-    {
-        _wheel1.ConnectOutgoingWheel(_wheel2);
-
-        _wheel2.ConnectIncomingWheel(_wheel1);
-        _wheel2.ConnectOutgoingWheel(_wheel3);
-
-        _wheel3.ConnectIncomingWheel(_wheel2);
-        _wheel3.ConnectOutgoingWheel(_wheel4);
-
-        _wheel4.ConnectIncomingWheel(_wheel3);
-        _wheel4.ConnectOutgoingWheel(_reflector);
-
-        _reflector.ConnectOutgoingWheel(_wheel4);
-    }
+    public EnigmaMachine() => BuildEnigmaMachine();
 
     public void Initialize(string seed)
     {
+        // TODO: validate seed parameter
         char[] chars = seed.ToCharArray();
-        string seed1 = GenerateNewSeed(chars, 2);
-        string seed2 = GenerateNewSeed(chars, 3);
-        string seed3 = GenerateNewSeed(chars, 4);
-        string seed4 = GenerateNewSeed(chars, 5);
         _reflector.Initialize(seed);
-        _wheel1.Initialize(seed1);
-        _wheel2.Initialize(seed2);
-        _wheel3.Initialize(seed3);
-        _wheel4.Initialize(seed4);
+
+        for (int i = 0; i < NumberOfWheels; i++)
+        {
+            string alteredSeed = GenerateNewSeed(chars, i + 2);
+            _wheels[i].Initialize(alteredSeed);
+        }
+
         _isInitialized = true;
     }
 
-    public void SetWheelIndexes(int index1, int index2, int index3, int index4)
+    public void SetWheelIndexes(params int[] indexes)
     {
+        // TODO: validate indexes parameter
         if (_isInitialized)
         {
-            _wheel1.SetWheelIndex(index1);
-            _wheel2.SetWheelIndex(index2);
-            _wheel3.SetWheelIndex(index3);
-            _wheel4.SetWheelIndex(index4);
+            for (int i = 0; i < NumberOfWheels; ++i)
+            {
+                _wheels[i].SetWheelIndex(indexes[i]);
+            }
         }
         else
         {
@@ -61,6 +55,7 @@ public class EnigmaMachine
 
     public string Transform(string text)
     {
+        // TODO: validate text parameter
         if (_isInitialized)
         {
             char[] inChars = text.ToCharArray();
@@ -77,7 +72,7 @@ public class EnigmaMachine
 
                 char c = nextChar is LineFeed ? MaxChar : nextChar is < MinChar or >= MaxChar ? MinChar : nextChar;
                 int original = CharToInt(c);
-                int transformed = _wheel1.TransformIn(original, true);
+                int transformed = _wheels[0].TransformIn(original, true);
 
                 if (transformed == MaxIndex)
                 {
@@ -117,5 +112,35 @@ public class EnigmaMachine
         }
 
         return new(seedChars);
+    }
+
+    private void BuildEnigmaMachine()
+    {
+        _wheels.Clear();
+
+        for (int i = 0; i < NumberOfWheels; i++)
+        {
+            _wheels[i] = new EnigmaWheel();
+        }
+
+        for (int i = 0; i < NumberOfWheels; i++)
+        {
+            if (i is not 0)
+            {
+                _wheels[i].ConnectIncomingWheel(_wheels[i - 1]);
+            }
+
+            if (i < NumberOfWheels - 1)
+            {
+                _wheels[i].ConnectOutgoingWheel(_wheels[i + 1]);
+            }
+            else
+            {
+                _wheels[i].ConnectOutgoingWheel(_reflector);
+            }
+        }
+
+        _reflector.ConnectOutgoingWheel(_wheels[NumberOfWheels - 1]);
+        _isInitialized = false;
     }
 }
