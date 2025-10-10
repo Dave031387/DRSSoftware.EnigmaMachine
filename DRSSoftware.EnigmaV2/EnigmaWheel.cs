@@ -62,7 +62,6 @@ internal class EnigmaWheel : IEnigmaWheel
 
     public void SetWheelIndex(int indexValue)
     {
-        // TODO: check for indexValue in correct range
         if (_isInitialized)
         {
             if (indexValue is < 0 or > MaxIndex)
@@ -70,7 +69,8 @@ internal class EnigmaWheel : IEnigmaWheel
                 throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetWheelIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
             }
 
-            int rotateAmount = indexValue >= _wheelIndex ? indexValue - _wheelIndex : TableSize - _wheelIndex + indexValue;
+            int delta = indexValue - _wheelIndex;
+            int rotateAmount = delta < 0 ? TableSize + delta : delta;
             RotateWheel(rotateAmount);
         }
         else

@@ -17,14 +17,16 @@ namespace DRSSoftware.EnigmaV2;
 public class EnigmaMachine
 {
     internal readonly EnigmaReflector _reflector = new();
-    internal readonly List<EnigmaWheel> _wheels = [];
+    internal readonly int[] _wheelIndexes = new int[NumberOfWheels + 1];
+    internal readonly EnigmaWheel[] _wheels = new EnigmaWheel[NumberOfWheels];
     internal bool _isInitialized;
 
     public EnigmaMachine() => BuildEnigmaMachine();
 
     public void Initialize(string seed)
     {
-        // TODO: validate seed parameter
+        ArgumentNullException.ThrowIfNull(seed, nameof(seed));
+
         char[] chars = seed.ToCharArray();
         _reflector.Initialize(seed);
 
@@ -37,15 +39,36 @@ public class EnigmaMachine
         _isInitialized = true;
     }
 
-    public void SetWheelIndexes(params int[] indexes)
+    public void ResetWheelIndexes()
     {
-        // TODO: validate indexes parameter
         if (_isInitialized)
         {
-            for (int i = 0; i < NumberOfWheels; ++i)
+            for (int i = 0; i < NumberOfWheels; i++)
             {
-                _wheels[i].SetWheelIndex(indexes[i]);
+                _wheels[i].SetWheelIndex(_wheelIndexes[i]);
             }
+
+            _reflector.SetWheelIndex(_wheelIndexes[NumberOfWheels]);
+        }
+    }
+
+    public void SetWheelIndexes(params int[] indexes)
+    {
+        ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
+
+        if (indexes.Length is not NumberOfWheels + 1)
+        {
+            throw new ArgumentException($"Exactly {NumberOfWheels + 1} index values must be passed into the SetWheelIndexes method.", nameof(indexes));
+        }
+
+        if (_isInitialized)
+        {
+            for (int i = 0; i < NumberOfWheels + 1; i++)
+            {
+                _wheelIndexes[i] = indexes[i];
+            }
+
+            ResetWheelIndexes();
         }
         else
         {
@@ -55,7 +78,8 @@ public class EnigmaMachine
 
     public string Transform(string text)
     {
-        // TODO: validate text parameter
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
         if (_isInitialized)
         {
             char[] inChars = text.ToCharArray();
@@ -74,7 +98,7 @@ public class EnigmaMachine
                 int original = CharToInt(c);
                 int transformed = _wheels[0].TransformIn(original, true);
 
-                if (transformed == MaxIndex)
+                if (transformed is MaxIndex)
                 {
                     outChars.AddRange(Environment.NewLine);
                 }
@@ -116,8 +140,6 @@ public class EnigmaMachine
 
     private void BuildEnigmaMachine()
     {
-        _wheels.Clear();
-
         for (int i = 0; i < NumberOfWheels; i++)
         {
             _wheels[i] = new EnigmaWheel();
