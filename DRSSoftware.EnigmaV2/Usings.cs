@@ -1,0 +1,1 @@
+﻿global using static DRSSoftware.EnigmaV2.EnigmaTable;
