@@ -1,13 +1,13 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
-internal class EnigmaReflector : IEnigmaReflector
+internal class Reflector : IReflector
 {
     internal bool _isInitialized;
-    internal IEnigmaWheel? _outgoingWheel;
-    internal int _wheelIndex;
+    internal int _reflectorIndex;
+    internal IRotor? _rotorOut;
     private readonly int[] _reflectorTable = new int[TableSize];
 
-    public void ConnectOutgoingWheel(IEnigmaWheel enigmaWheel) => _outgoingWheel = enigmaWheel;
+    public void ConnectOutgoing(IRotor rotor) => _rotorOut = rotor;
 
     public void Initialize(string seed)
     {
@@ -35,61 +35,61 @@ internal class EnigmaReflector : IEnigmaReflector
         _isInitialized = true;
     }
 
-    public void SetWheelIndex(int indexValue)
+    public void SetIndex(int indexValue)
     {
         if (_isInitialized)
         {
             if (indexValue is < 0 or > MaxIndex)
             {
-                throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetWheelIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
+                throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
             }
 
-            int delta = indexValue - _wheelIndex;
+            int delta = indexValue - _reflectorIndex;
             int rotateAmount = delta < 0 ? TableSize + delta : delta;
-            RotateWheel(rotateAmount);
+            Rotate(rotateAmount);
         }
         else
         {
-            throw new InvalidOperationException("The Enigma wheel must be initialized before the wheel index can be set.");
+            throw new InvalidOperationException("The reflector must be initialized before the index can be set.");
         }
     }
 
-    public int TransformIn(int c, bool shouldRotateWheel)
+    public int TransformIn(int c, bool shouldRotate)
     {
         if (_isInitialized)
         {
-            if (shouldRotateWheel)
+            if (shouldRotate)
             {
-                RotateWheel();
+                Rotate();
             }
 
             int transformedValue = _reflectorTable[c];
-            return _outgoingWheel is not null
-                ? _outgoingWheel.TransformOut(transformedValue)
-                : throw new InvalidOperationException("An outgoing wheel hasn't been connected to the Enigma reflector.");
+            return _rotorOut is not null
+                ? _rotorOut.TransformOut(transformedValue)
+                : throw new InvalidOperationException("The outgoing rotor hasn't been connected to the reflector.");
         }
 
-        throw new InvalidOperationException("The Enigma reflector must be initialized before calling the TransformIn method.");
+        throw new InvalidOperationException("The reflector must be initialized before calling the TransformIn method.");
     }
 
-    private void RotateWheel(int amount = 1)
+    private void Rotate(int amount = 1)
     {
         if (amount == 0)
         {
             return;
         }
 
-        int[] temp = new int[TableSize];
-        _reflectorTable.CopyTo(temp, 0);
+        int[] reflectorTable = new int[TableSize];
+        _reflectorTable.CopyTo(reflectorTable, 0);
 
         for (int i = 0; i < TableSize; i++)
         {
             int deltaI = i - amount;
             int j = deltaI < 0 ? deltaI + TableSize : deltaI;
-            int deltaJ = temp[j] + i;
+            int deltaJ = reflectorTable[j] + i;
             _reflectorTable[i] = deltaJ < TableSize ? deltaJ : deltaJ - TableSize;
         }
 
-        _wheelIndex = GetIndex(_wheelIndex, TableSize, amount);
+        _reflectorIndex = GetIndex(_reflectorIndex, TableSize, amount);
     }
 }

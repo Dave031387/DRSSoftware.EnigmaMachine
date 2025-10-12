@@ -1,6 +1,6 @@
 namespace DRSSoftware.EnigmaV2;
 
-public class EnigmaTableTests
+public class CommonTests
 {
     [Fact]
     public void Test1()

@@ -16,13 +16,61 @@ namespace DRSSoftware.EnigmaV2;
 /// </remarks>
 public class EnigmaMachine
 {
-    internal readonly EnigmaReflector _reflector = new();
-    internal readonly int[] _wheelIndexes = new int[NumberOfWheels + 1];
-    internal readonly EnigmaWheel[] _wheels = new EnigmaWheel[NumberOfWheels];
+    /// <summary>
+    /// Represents an instance of the <see cref="Reflector" /> class. Each
+    /// <see cref="EnigmaMachine" /> has exactly one <see cref="Reflector" />.
+    /// </summary>
+    internal readonly Reflector _reflector = new();
+
+    /// <summary>
+    /// Represents the collection of <see cref="Rotor" /> objects. Each <see cref="EnigmaMachine" />
+    /// contains one or more of these objects.
+    /// </summary>
+    /// <remarks>
+    /// This array contains a fixed number of rotors, defined by <see cref="NumberOfRotors" />.
+    /// </remarks>
+    internal readonly Rotor[] _rotors = new Rotor[NumberOfRotors];
+
+    /// <summary>
+    /// An array which is used to store the initial index settings of the <see cref="Reflector" />
+    /// and <see cref="Rotor" /> objects.
+    /// </summary>
+    /// <remarks>
+    /// This array is filled by the <see cref="SetIndexes(int[])" /> method and used by the
+    /// <see cref="ResetIndexes" /> method. <br /> The last entry in this array is the
+    /// <see cref="Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
+    /// </remarks>
+    internal readonly int[] _transformerIndexes = new int[NumberOfTransformers];
+
+    /// <summary>
+    /// A boolean flag that is set to <see langword="true" /> once the <see cref="Reflector" />
+    /// object and <see cref="Rotor" /> objects are all initialized properly.
+    /// </summary>
     internal bool _isInitialized;
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnigmaMachine" /> class.
+    /// </summary>
+    /// <remarks>
+    /// The constructor automatically configures the Enigma machine by invoking the necessary setup
+    /// logic.
+    /// </remarks>
     public EnigmaMachine() => BuildEnigmaMachine();
 
+    /// <summary>
+    /// Initializes the internal components of the <see cref="EnigmaMachine" /> using the specified
+    /// <paramref name="seed" /> value.
+    /// </summary>
+    /// <remarks>
+    /// This method configures the <see cref="Reflector" /> and each <see cref="Rotor" /> based on
+    /// the provided seed. The seed is used to initialize the <see cref="Reflector" />, and modified
+    /// versions of the seed are used to initialize each <see cref="Rotor" />. <br /> After
+    /// initialization, the system is marked as ready for use.
+    /// </remarks>
+    /// <param name="seed">
+    /// A non-null string used to initialize the reflector and rotors. The seed determines the
+    /// initial state of the components.
+    /// </param>
     public void Initialize(string seed)
     {
         ArgumentNullException.ThrowIfNull(seed, nameof(seed));
@@ -30,52 +78,103 @@ public class EnigmaMachine
         char[] chars = seed.ToCharArray();
         _reflector.Initialize(seed);
 
-        for (int i = 0; i < NumberOfWheels; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
             string alteredSeed = GenerateNewSeed(chars, i + 2);
-            _wheels[i].Initialize(alteredSeed);
+            _rotors[i].Initialize(alteredSeed);
         }
 
         _isInitialized = true;
     }
 
-    public void ResetWheelIndexes()
+    /// <summary>
+    /// Resets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> to their
+    /// initial values (or 0, if <see cref="SetIndexes(int[])" /> was never called).
+    /// </summary>
+    /// <remarks>
+    /// This method has no effect if the system was never initialized.
+    /// </remarks>
+    public void ResetIndexes()
     {
         if (_isInitialized)
         {
-            for (int i = 0; i < NumberOfWheels; i++)
+            for (int i = 0; i < NumberOfRotors; i++)
             {
-                _wheels[i].SetWheelIndex(_wheelIndexes[i]);
+                _rotors[i].SetIndex(_transformerIndexes[i]);
             }
 
-            _reflector.SetWheelIndex(_wheelIndexes[NumberOfWheels]);
+            _reflector.SetIndex(_transformerIndexes[NumberOfRotors]);
         }
     }
 
-    public void SetWheelIndexes(params int[] indexes)
+    /// <summary>
+    /// Sets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
+    /// <see cref="EnigmaMachine" /> to the specified values.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="EnigmaMachine" /> must be initialized before calling this method. The last
+    /// value in <paramref name="indexes" /> is the index for the <see cref="Reflector" /> and the
+    /// rest are indexes for each <see cref="Rotor" />.
+    /// </remarks>
+    /// <param name="indexes">
+    /// An array containing the desired index values. The array must contain exactly
+    /// <see cref="NumberOfTransformers" /> elements.
+    /// </param>
+    /// <exception cref="ArgumentException">
+    /// Thrown if the length of <paramref name="indexes" /> is not equal to
+    /// <see cref="NumberOfTransformers" />.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the <see cref="EnigmaMachine" /> has not been initialized before calling this
+    /// method.
+    /// </exception>
+    public void SetIndexes(params int[] indexes)
     {
         ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
 
-        if (indexes.Length is not NumberOfWheels + 1)
+        if (indexes.Length is not NumberOfTransformers)
         {
-            throw new ArgumentException($"Exactly {NumberOfWheels + 1} index values must be passed into the SetWheelIndexes method.", nameof(indexes));
+            string word = indexes.Length is 1 ? "was" : "were";
+            throw new ArgumentException($"Exactly {NumberOfTransformers} index values must be passed into the SetIndexes method, but there {word} {indexes.Length}.", nameof(indexes));
         }
 
         if (_isInitialized)
         {
-            for (int i = 0; i < NumberOfWheels + 1; i++)
+            for (int i = 0; i < NumberOfTransformers; i++)
             {
-                _wheelIndexes[i] = indexes[i];
+                _transformerIndexes[i] = indexes[i];
             }
 
-            ResetWheelIndexes();
+            ResetIndexes();
         }
         else
         {
-            throw new InvalidOperationException("The Enigma machine must be initialized before setting the wheel indexes.");
+            throw new InvalidOperationException("The Enigma machine must be initialized before setting the indexes.");
         }
     }
 
+    /// <summary>
+    /// Transforms the input <paramref name="text" /> using the configured
+    /// <see cref="EnigmaMachine" /> settings.
+    /// </summary>
+    /// <remarks>
+    /// This method processes the input text character by character, applying the configured
+    /// <see cref="Rotor" /> and <see cref="Reflector" /> transformations. <br /> Characters outside
+    /// the valid range are replaced by the space character before being transformed. Carriage
+    /// return characters are ignored. <br /> New line characters coming in are converted to DEL
+    /// characters (U+007F), and <see cref="MaxChar" /> values coming out are converted back to new
+    /// line characters.
+    /// </remarks>
+    /// <param name="text">
+    /// The input text to be transformed. Cannot be <see langword="null" />.
+    /// </param>
+    /// <returns>
+    /// The transformed text as a string. Line breaks in the transformed text are replaced with
+    /// platform-specific newlines (CRLF for Windows based systems).
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if the Enigma machine is not initialized before calling this method.
+    /// </exception>
     public string Transform(string text)
     {
         ArgumentNullException.ThrowIfNull(text, nameof(text));
@@ -96,7 +195,7 @@ public class EnigmaMachine
 
                 char c = nextChar is LineFeed ? MaxChar : nextChar is < MinChar or >= MaxChar ? MinChar : nextChar;
                 int original = CharToInt(c);
-                int transformed = _wheels[0].TransformIn(original, true);
+                int transformed = _rotors[0].TransformIn(original, true);
 
                 if (transformed is MaxIndex)
                 {
@@ -114,6 +213,20 @@ public class EnigmaMachine
         throw new InvalidOperationException("The Enigma machine must be initialized before calling the Transform method.");
     }
 
+    /// <summary>
+    /// Generates a new seed string by reordering the characters of the <paramref name="chars" />
+    /// array based on the specified <paramref name="offset" />.
+    /// </summary>
+    /// <param name="chars">
+    /// An array of characters to be reordered. Cannot be null.
+    /// </param>
+    /// <param name="offset">
+    /// The step size used to determine the order of characters in the resulting string. <br /> Must
+    /// be greater than 1 and less than or equal to <see cref="NumberOfTransformers" />.
+    /// </param>
+    /// <returns>
+    /// A new seed string containing the reordered characters from the input array.
+    /// </returns>
     private static string GenerateNewSeed(char[] chars, int offset)
     {
         char[] seedChars = new char[chars.Length];
@@ -138,31 +251,35 @@ public class EnigmaMachine
         return new(seedChars);
     }
 
+    /// <summary>
+    /// Builds the <see cref="EnigmaMachine" /> by adding the <see cref="Reflector" /> object and
+    /// the appropriate number of <see cref="Rotor" /> objects. Each object is then connected
+    /// </summary>
     private void BuildEnigmaMachine()
     {
-        for (int i = 0; i < NumberOfWheels; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
-            _wheels[i] = new EnigmaWheel();
+            _rotors[i] = new Rotor();
         }
 
-        for (int i = 0; i < NumberOfWheels; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
             if (i is not 0)
             {
-                _wheels[i].ConnectIncomingWheel(_wheels[i - 1]);
+                _rotors[i].ConnectIncoming(_rotors[i - 1]);
             }
 
-            if (i < NumberOfWheels - 1)
+            if (i < NumberOfRotors - 1)
             {
-                _wheels[i].ConnectOutgoingWheel(_wheels[i + 1]);
+                _rotors[i].ConnectOutgoing(_rotors[i + 1]);
             }
             else
             {
-                _wheels[i].ConnectOutgoingWheel(_reflector);
+                _rotors[i].ConnectOutgoing(_reflector);
             }
         }
 
-        _reflector.ConnectOutgoingWheel(_wheels[NumberOfWheels - 1]);
+        _reflector.ConnectOutgoing(_rotors[NumberOfRotors - 1]);
         _isInitialized = false;
     }
 }
