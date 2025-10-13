@@ -253,7 +253,8 @@ public class EnigmaMachine
 
     /// <summary>
     /// Builds the <see cref="EnigmaMachine" /> by adding the <see cref="Reflector" /> object and
-    /// the appropriate number of <see cref="Rotor" /> objects. Each object is then connected
+    /// the appropriate number of <see cref="Rotor" /> objects. Each object is then connected to its
+    /// appropriate incoming and/or outgoing object.
     /// </summary>
     private void BuildEnigmaMachine()
     {
