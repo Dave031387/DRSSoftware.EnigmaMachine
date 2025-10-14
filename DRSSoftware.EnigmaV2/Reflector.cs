@@ -2,10 +2,10 @@
 
 internal class Reflector : IReflector
 {
+    internal readonly int[] _reflectorTable = new int[TableSize];
     internal bool _isInitialized;
     internal int _reflectorIndex;
     internal IRotor? _rotorOut;
-    private readonly int[] _reflectorTable = new int[TableSize];
 
     public void ConnectOutgoing(IRotor rotor) => _rotorOut = rotor;
 
@@ -32,6 +32,7 @@ internal class Reflector : IReflector
             slotsRemaining -= 2;
         }
 
+        _reflectorIndex = 0;
         _isInitialized = true;
     }
 
@@ -58,15 +59,18 @@ internal class Reflector : IReflector
     {
         if (_isInitialized)
         {
+            if (_rotorOut is null)
+            {
+                throw new InvalidOperationException("The outgoing rotor hasn't been connected to the reflector.");
+            }
+
             if (shouldRotate)
             {
                 Rotate();
             }
 
             int transformedValue = _reflectorTable[c];
-            return _rotorOut is not null
-                ? _rotorOut.TransformOut(transformedValue)
-                : throw new InvalidOperationException("The outgoing rotor hasn't been connected to the reflector.");
+            return _rotorOut.TransformOut(transformedValue);
         }
 
         throw new InvalidOperationException("The reflector must be initialized before calling the TransformIn method.");
@@ -86,7 +90,7 @@ internal class Reflector : IReflector
         {
             int deltaI = i - amount;
             int j = deltaI < 0 ? deltaI + TableSize : deltaI;
-            int deltaJ = reflectorTable[j] + i;
+            int deltaJ = reflectorTable[j] + amount;
             _reflectorTable[i] = deltaJ < TableSize ? deltaJ : deltaJ - TableSize;
         }
 
