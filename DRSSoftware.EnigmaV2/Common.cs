@@ -52,6 +52,12 @@ internal static class Common
     internal const char MinChar = '\u0020';
 
     /// <summary>
+    /// Represents the minimum length of the seed value that is used for initializing the
+    /// <see cref="Rotor" /> and <see cref="Reflector" /> objects.
+    /// </summary>
+    internal const int MinSeedLength = 10;
+
+    /// <summary>
     /// Represents the <see cref="Rotor" /> count (number of cipher wheels) used in the
     /// <see cref="EnigmaMachine" />.
     /// </summary>
