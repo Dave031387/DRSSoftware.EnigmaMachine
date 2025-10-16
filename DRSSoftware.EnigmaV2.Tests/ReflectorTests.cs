@@ -24,6 +24,42 @@ public class ReflectorTests
     }
 
     [Fact]
+    public void ConnectOutgoingWhenAlreadyConnected_ShouldThrowException()
+    {
+        // Arrange
+        Mock<IRotor> mock = new(MockBehavior.Strict);
+        Reflector reflector = new()
+        {
+            _rotorOut = mock.Object
+        };
+        string expected = "Invalid attempt to add an outgoing rotor when one is already defined for this reflector.";
+
+        // Act
+        Action action = () => reflector.ConnectOutgoing(mock.Object);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<InvalidOperationException>()
+            .WithMessage(expected);
+    }
+
+    [Fact]
+    public void ConnectOutgoingWhenParameterIsNull_ShouldThrowException()
+    {
+        // Arrange
+        Reflector reflector = new();
+
+        // Act
+        Action action = () => reflector.ConnectOutgoing(null!);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentNullException>();
+    }
+
+    [Fact]
     public void CreateNewReflector_ShouldInitializeObjectProperly()
     {
         // Arrange/Act
@@ -68,6 +104,26 @@ public class ReflectorTests
         reflector._isInitialized
             .Should()
             .BeTrue();
+    }
+
+    [Theory]
+    [InlineData("Test")]
+    [InlineData("Test 1234")]
+    [InlineData("")]
+    public void InitializeWhenSeedIsNull_ShouldThrowException(string seed)
+    {
+        // Arrange
+        Reflector reflector = new();
+        string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed!.Length}. (Parameter 'seed')";
+
+        // Act
+        Action action = () => reflector.Initialize(seed);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentException>()
+            .WithMessage(expected);
     }
 
     [Fact]
