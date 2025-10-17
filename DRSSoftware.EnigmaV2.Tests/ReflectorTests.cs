@@ -75,12 +75,11 @@ public class ReflectorTests
         reflector._rotorOut
             .Should()
             .BeNull();
-        reflector._reflectorTable.Length
-            .Should()
-            .Be(TableSize);
         reflector._reflectorTable
             .Should()
-            .OnlyContain(static x => x == 0);
+            .OnlyContain(static x => x == 0)
+            .And
+            .HaveCount(TableSize);
     }
 
     [Fact]
@@ -96,7 +95,16 @@ public class ReflectorTests
         reflector.Initialize(_seed);
 
         // Assert
-        AssertValidTable(reflector);
+        for (int i = 0; i < TableSize; i++)
+        {
+            int j = reflector._reflectorTable[i];
+            reflector._reflectorTable[i]
+                .Should()
+                .NotBe(i);
+            reflector._reflectorTable[j]
+                .Should()
+                .Be(i);
+        }
 
         reflector._reflectorIndex
             .Should()
@@ -114,7 +122,7 @@ public class ReflectorTests
     {
         // Arrange
         Reflector reflector = new();
-        string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed!.Length}. (Parameter 'seed')";
+        string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
 
         // Act
         Action action = () => reflector.Initialize(seed);
@@ -156,8 +164,6 @@ public class ReflectorTests
         // Arrange
         Reflector reflector = new();
         reflector.Initialize(_seed);
-        int[] originalTable = new int[TableSize];
-        reflector._reflectorTable.CopyTo(originalTable, 0);
         reflector._reflectorIndex = originalValue;
 
         // Act
@@ -167,28 +173,6 @@ public class ReflectorTests
         reflector._reflectorIndex
             .Should()
             .Be(expected);
-        AssertValidTable(reflector, originalTable);
-    }
-
-    [Fact]
-    public void SetIndexWhenValueIsUnchanged_ShouldDoNothing()
-    {
-        // Arrange
-        Reflector reflector = new();
-        reflector.Initialize(_seed);
-        int[] originalTable = new int[TableSize];
-        reflector._reflectorTable.CopyTo(originalTable, 0);
-        int expected = 39;
-        reflector._reflectorIndex = expected;
-
-        // Act
-        reflector.SetIndex(expected);
-
-        // Assert
-        reflector._reflectorIndex
-            .Should()
-            .Be(expected);
-        AssertValidTable(reflector, originalTable, true);
     }
 
     [Theory]
@@ -219,6 +203,35 @@ public class ReflectorTests
     }
 
     [Theory]
+    [InlineData(0, 38, true)]
+    [InlineData(13, 0, false)]
+    [InlineData(42, MaxIndex, true)]
+    [InlineData(65, 19, false)]
+    [InlineData(MaxIndex, 77, true)]
+    public void Transform_ShouldBeReversible(int expected, int reflectorIndex, bool shouldRotate)
+    {
+        // Arrange
+        Reflector reflector = new();
+        reflector.Initialize(_seed);
+        Mock<IRotor> mock = new(MockBehavior.Strict);
+        mock.Setup(static r => r.TransformOut(It.IsAny<int>()))
+            .Returns(static (int transformed) => { return transformed; })
+            .Verifiable(Times.Exactly(2));
+        reflector.ConnectOutgoing(mock.Object);
+        reflector._reflectorIndex = reflectorIndex;
+        int transformed = reflector.TransformIn(expected, shouldRotate);
+        reflector._reflectorIndex = reflectorIndex;
+
+        // Act
+        int actual = reflector.TransformIn(transformed, shouldRotate);
+
+        // Assert
+        actual
+            .Should()
+            .Be(expected);
+    }
+
+    [Theory]
     [InlineData(false)]
     [InlineData(true)]
     public void TransformWhenInitializedProperly_ShouldReturnTransformedValue(bool shouldRotate)
@@ -226,12 +239,12 @@ public class ReflectorTests
         // Arrange
         Reflector reflector = new();
         reflector.Initialize(_seed);
-        int[] originalTable = new int[TableSize];
-        reflector._reflectorTable.CopyTo(originalTable, 0);
         Mock<IRotor> mock = new(MockBehavior.Strict);
         reflector.ConnectOutgoing(mock.Object);
         int expected = 33;
-        mock.Setup(static r => r.TransformOut(It.IsAny<int>())).Returns(expected).Verifiable(Times.Once);
+        mock.Setup(static r => r.TransformOut(It.IsAny<int>()))
+            .Returns(expected)
+            .Verifiable(Times.Once);
         int reflectorIndex = shouldRotate ? 1 : 0;
 
         // Act
@@ -245,7 +258,6 @@ public class ReflectorTests
         reflector._reflectorIndex
             .Should()
             .Be(reflectorIndex);
-        AssertValidTable(reflector, originalTable, !shouldRotate);
     }
 
     [Theory]
@@ -290,43 +302,5 @@ public class ReflectorTests
         reflector._reflectorIndex
             .Should()
             .Be(0);
-        AssertValidTable(reflector, originalTable, true);
-    }
-
-    private static void AssertValidTable(Reflector reflector, int[]? originalTable = null, bool shouldBeSame = false)
-    {
-        int matchCount = 0;
-
-        for (int i = 0; i < TableSize; i++)
-        {
-            int j = reflector._reflectorTable[i];
-            reflector._reflectorTable[i]
-                .Should()
-                .NotBe(i);
-            reflector._reflectorTable[j]
-                .Should()
-                .Be(i);
-
-            if (originalTable is not null && originalTable[i] == reflector._reflectorTable[i])
-            {
-                matchCount++;
-            }
-        }
-
-        if (originalTable is not null)
-        {
-            if (shouldBeSame)
-            {
-                matchCount
-                    .Should()
-                    .Be(TableSize);
-            }
-            else
-            {
-                matchCount
-                    .Should()
-                    .NotBe(TableSize);
-            }
-        }
     }
 }

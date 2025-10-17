@@ -153,8 +153,7 @@ internal class Reflector : IReflector
                 throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
             }
 
-            int rotateAmount = GetIndex(indexValue, TableSize, -_reflectorIndex);
-            Rotate(rotateAmount);
+            _reflectorIndex = indexValue;
         }
         else
         {
@@ -195,43 +194,15 @@ internal class Reflector : IReflector
 
             if (shouldRotate)
             {
-                Rotate();
+                _reflectorIndex = GetIndex(_reflectorIndex, TableSize, 1);
             }
 
-            int transformedValue = _reflectorTable[c];
+            int index = GetIndex(c, TableSize, -_reflectorIndex);
+            int transformedValue = GetIndex(_reflectorTable[index], TableSize, _reflectorIndex);
+
             return _rotorOut.TransformOut(transformedValue);
         }
 
         throw new InvalidOperationException("The reflector must be initialized before calling the TransformIn method.");
-    }
-
-    /// <summary>
-    /// Rotate this <see cref="Reflector" /> object by the specified number of positions.
-    /// </summary>
-    /// <param name="amount">
-    /// The number of positions that the <see cref="Reflector" /> is to be rotated. The default is
-    /// 1.
-    /// </param>
-    private void Rotate(int amount = 1)
-    {
-        // Return without doing anything if the rotation amount is zero.
-        if (amount == 0)
-        {
-            return;
-        }
-
-        int[] reflectorTable = new int[TableSize];
-        _reflectorTable.CopyTo(reflectorTable, 0);
-
-        // Re-wire the reflector table to account for the amount of rotation.
-        for (int index = 0; index < TableSize; index++)
-        {
-            int rotatedIndex = GetIndex(index, TableSize, -amount);
-            int rotatedValue = GetIndex(reflectorTable[rotatedIndex], TableSize, amount);
-            _reflectorTable[index] = rotatedValue;
-        }
-
-        // Adjust the reflector index to match the amount of rotation.
-        _reflectorIndex = GetIndex(_reflectorIndex, TableSize, amount);
     }
 }

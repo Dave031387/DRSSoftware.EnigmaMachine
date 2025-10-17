@@ -191,8 +191,7 @@ internal class Rotor : IRotor
                 throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
             }
 
-            int rotateAmount = GetIndex(indexValue, TableSize, -_rotorIndex);
-            Rotate(rotateAmount);
+            _rotorIndex = indexValue;
         }
         else
         {
@@ -240,11 +239,12 @@ internal class Rotor : IRotor
 
             if (shouldRotate)
             {
-                Rotate();
+                _rotorIndex = GetIndex(_rotorIndex, TableSize, 1);
                 shouldRotateNext = _rotorIndex == 0;
             }
 
-            int transformedValue = _incomingTable[c];
+            int index = GetIndex(c, TableSize, -_rotorIndex);
+            int transformedValue = GetIndex(_incomingTable[index], TableSize, _rotorIndex);
 
             return _transformerOut is not null
                 ? _transformerOut.TransformIn(transformedValue, shouldRotateNext)
@@ -279,37 +279,11 @@ internal class Rotor : IRotor
         {
             _transformIsInProgress = false;
             int index = GetIndex(c, TableSize, -_rotorIndex);
-            int transformedValue = _outgoingTable[index];
+            int transformedValue = GetIndex(_outgoingTable[index], TableSize, _rotorIndex);
 
             return _rotorIn is not null ? _rotorIn.TransformOut(transformedValue) : transformedValue;
         }
 
         throw new InvalidOperationException("The TransformOut method must not be called on the rotor before calling the TransformIn method.");
-    }
-
-    /// <summary>
-    /// Rotate this <see cref="Rotor" /> object by the specified number of positions.
-    /// </summary>
-    /// <param name="amount">
-    /// The number of positions that the <see cref="Rotor" /> is to be rotated. The default is 1.
-    /// </param>
-    private void Rotate(int amount = 1)
-    {
-        // Return without doing anything if the rotation amount is zero.
-        if (amount == 0)
-        {
-            return;
-        }
-
-        // Re-wire the incoming side of the rotor to account for the amount of rotation. The
-        // outgoing side isn't rewired. Instead, the rotor index is used to offset the index into
-        // the outgoing table to get the transformed value.
-        for (int i = 0; i < TableSize; i++)
-        {
-            _incomingTable[i] = GetIndex(_incomingTable[i], TableSize, amount);
-        }
-
-        // Adjust the rotor index to match the amount of rotation.
-        _rotorIndex = GetIndex(_rotorIndex, TableSize, amount);
     }
 }
