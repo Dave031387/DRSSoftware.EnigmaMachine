@@ -128,7 +128,7 @@ internal static class Common
         }
 
         int offset = seedChar is < MinChar or > MaxChar ? 1 : seedChar == MinChar ? 1 : CharToInt(seedChar);
-        return GetIndex(index, TableSize, offset);
+        return GetValueWithOffset(index, TableSize, offset);
     }
 
     /// <summary>
@@ -162,7 +162,7 @@ internal static class Common
 
         while (slotIsTaken[index])
         {
-            index = GetIndex(index, TableSize, 1);
+            index = GetValueWithOffset(index, TableSize, 1);
 
             if (index == startIndex)
             {
@@ -175,25 +175,51 @@ internal static class Common
     }
 
     /// <summary>
-    /// Calculates the adjusted index within the bounds of an array, wrapping around if the result
-    /// exceeds the array size or is negative.
+    /// Gets the transformed value by adding the specified <paramref name="offset" /> to the value
+    /// retrieved from the specified <paramref name="table" /> using the given
+    /// <paramref name="baseValue" />.
     /// </summary>
-    /// <param name="indexBase">
-    /// The base index to start from.
+    /// <param name="table">
+    /// A table of integers used to look up the transformed value for the given
+    /// <paramref name="baseValue" />.
+    /// </param>
+    /// <param name="baseValue">
+    /// The integer value that is being transformed.
+    /// </param>
+    /// <param name="offset">
+    /// An integer value used for adjusting the <paramref name="baseValue" /> to arrive at the
+    /// desired transformed value.
+    /// </param>
+    /// <returns>
+    /// The integer value corresponding to the transformed <paramref name="baseValue" />.
+    /// </returns>
+    internal static int GetTransformedValue(int[] table, int baseValue, int offset)
+    {
+        int index = GetValueWithOffset(baseValue, table.Length, -offset);
+        return GetValueWithOffset(table[index], table.Length, offset);
+    }
+
+    /// <summary>
+    /// Calculates the adjusted value within the bounds of an array using the specified
+    /// <paramref name="offset" />, wrapping around if the result exceeds the array size or is
+    /// negative.
+    /// </summary>
+    /// <param name="baseValue">
+    /// The base value to start from.
     /// </param>
     /// <param name="arraySize">
     /// The size of the array. Must be greater than zero.
     /// </param>
     /// <param name="offset">
-    /// The offset to apply to the base index.
+    /// The offset to apply to the base value.
     /// </param>
     /// <returns>
-    /// The adjusted index, guaranteed to be within the range [0, <paramref name="arraySize" /> -
+    /// The adjusted value, guaranteed to be within the range [0, <paramref name="arraySize" /> -
     /// 1].
     /// </returns>
-    internal static int GetIndex(int indexBase, int arraySize, int offset)
+    internal static int GetValueWithOffset(int baseValue, int arraySize, int offset)
     {
-        int index = indexBase + offset;
+        int index = baseValue + offset;
 
         return index >= arraySize ? index - arraySize : index < 0 ? index + arraySize : index;
     }

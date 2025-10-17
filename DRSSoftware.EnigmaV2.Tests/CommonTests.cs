@@ -131,6 +131,30 @@ public class CommonTests
     }
 
     [Theory]
+    [InlineData(0, 0, 12)]
+    [InlineData(1, 1, 13)]
+    [InlineData(5, 10, 15)]
+    [InlineData(12, 6, 7)]
+    [InlineData(19, 12, 0)]
+    [InlineData(10, 2, 1)]
+    [InlineData(8, 19, 10)]
+    [InlineData(0, 6, 19)]
+    [InlineData(16, 4, 4)]
+    public void GetTransformedValue_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
+    {
+        // Arrange
+        int[] table = [12, 4, 9, 18, 10, 16, 1, 8, 19, 11, 2, 17, 0, 3, 13, 5, 14, 6, 15, 7];
+
+        // Act
+        int actual = GetTransformedValue(table, baseValue, offset);
+
+        // Assert
+        actual
+            .Should()
+            .Be(expected);
+    }
+
+    [Theory]
     [InlineData(0, 0, 0)]
     [InlineData(0, 10, 10)]
     [InlineData(0, -3, 47)]
@@ -143,10 +167,10 @@ public class CommonTests
     [InlineData(45, 12, 7)]
     [InlineData(0, 49, 49)]
     [InlineData(57, 13, 20)]
-    public void GetIndex_ShouldReturnExpectedIndexValue(int indexBase, int offset, int expected)
+    public void GetValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
     {
         // Arrange/Act
-        int actual = GetIndex(indexBase, 50, offset);
+        int actual = GetValueWithOffset(baseValue, 50, offset);
 
         // Assert
         actual

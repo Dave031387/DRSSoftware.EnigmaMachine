@@ -96,6 +96,7 @@ internal class Reflector : IReflector
         // already been connected to some other index position.
         bool[] slotIsTaken = new bool[TableSize];
         char[] displacements = seed.ToCharArray();
+        int arraySize = displacements.Length;
         int slotsRemaining = TableSize;
         int seedIndex = 0;
         int index1 = 0;
@@ -106,12 +107,12 @@ internal class Reflector : IReflector
             // Determine the first connection point to be wired up.
             index1 = DisplaceIndex(index1, displacements[seedIndex]);
             index1 = FindAvailableSlot(index1, slotIsTaken);
-            seedIndex = GetIndex(seedIndex, displacements.Length, 1);
+            seedIndex = GetValueWithOffset(seedIndex, arraySize, 1);
 
             // Determine the second connection point to be wired up.
             index2 = DisplaceIndex(index2, displacements[seedIndex]);
             index2 = FindAvailableSlot(index2, slotIsTaken);
-            seedIndex = GetIndex(seedIndex, displacements.Length, 1);
+            seedIndex = GetValueWithOffset(seedIndex, arraySize, 1);
 
             // Here we "wire" two positions on the reflector together. If we connect point 3 to
             // point 17, then we also connect point 17 to point 3, for example.
@@ -194,11 +195,10 @@ internal class Reflector : IReflector
 
             if (shouldRotate)
             {
-                _reflectorIndex = GetIndex(_reflectorIndex, TableSize, 1);
+                _reflectorIndex = GetValueWithOffset(_reflectorIndex, TableSize, 1);
             }
 
-            int index = GetIndex(c, TableSize, -_reflectorIndex);
-            int transformedValue = GetIndex(_reflectorTable[index], TableSize, _reflectorIndex);
+            int transformedValue = GetTransformedValue(_reflectorTable, c, _reflectorIndex);
 
             return _rotorOut.TransformOut(transformedValue);
         }

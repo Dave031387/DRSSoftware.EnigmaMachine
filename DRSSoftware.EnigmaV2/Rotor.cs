@@ -141,6 +141,7 @@ internal class Rotor : IRotor
         // already been connected to some other index position.
         bool[] slotIsTaken = new bool[TableSize];
         char[] displacements = seed.ToCharArray();
+        int arraySize = displacements.Length;
 
         int seedIndex = 0;
         int index = 0;
@@ -158,7 +159,7 @@ internal class Rotor : IRotor
             _incomingTable[i] = index;
             _outgoingTable[index] = i;
 
-            seedIndex = GetIndex(seedIndex, displacements.Length, 1);
+            seedIndex = GetValueWithOffset(seedIndex, arraySize, 1);
         }
 
         _rotorIndex = 0;
@@ -239,12 +240,11 @@ internal class Rotor : IRotor
 
             if (shouldRotate)
             {
-                _rotorIndex = GetIndex(_rotorIndex, TableSize, 1);
+                _rotorIndex = GetValueWithOffset(_rotorIndex, TableSize, 1);
                 shouldRotateNext = _rotorIndex == 0;
             }
 
-            int index = GetIndex(c, TableSize, -_rotorIndex);
-            int transformedValue = GetIndex(_incomingTable[index], TableSize, _rotorIndex);
+            int transformedValue = GetTransformedValue(_incomingTable, c, _rotorIndex);
 
             return _transformerOut is not null
                 ? _transformerOut.TransformIn(transformedValue, shouldRotateNext)
@@ -278,8 +278,7 @@ internal class Rotor : IRotor
         if (_transformIsInProgress)
         {
             _transformIsInProgress = false;
-            int index = GetIndex(c, TableSize, -_rotorIndex);
-            int transformedValue = GetIndex(_outgoingTable[index], TableSize, _rotorIndex);
+            int transformedValue = GetTransformedValue(_outgoingTable, c, _rotorIndex);
 
             return _rotorIn is not null ? _rotorIn.TransformOut(transformedValue) : transformedValue;
         }
