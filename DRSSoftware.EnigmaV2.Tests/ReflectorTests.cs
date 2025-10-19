@@ -118,7 +118,7 @@ public class ReflectorTests
     [InlineData("Test")]
     [InlineData("Test 1234")]
     [InlineData("")]
-    public void InitializeWhenSeedIsNull_ShouldThrowException(string seed)
+    public void InitializeWhenSeedIsLessThanMinimumLength_ShouldThrowException(string seed)
     {
         // Arrange
         Reflector reflector = new();
@@ -132,6 +132,21 @@ public class ReflectorTests
             .Should()
             .ThrowExactly<ArgumentException>()
             .WithMessage(expected);
+    }
+
+    [Fact]
+    public void InitializeWhenSeedIsNull_ShouldThrowException()
+    {
+        // Arrange
+        Reflector reflector = new();
+
+        // Act
+        Action action = () => reflector.Initialize(null!);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentNullException>();
     }
 
     [Fact]

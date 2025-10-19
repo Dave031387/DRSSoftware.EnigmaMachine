@@ -5,4 +5,4 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "<Pending>", Scope = "member", Target = "~M:DRSSoftware.EnigmaV2.ReflectorTests.InitializeWhenSeedIsNull_ShouldThrowException(System.String)")]
+[assembly: SuppressMessage("Design", "CA1062:Validate arguments of public methods", Justification = "Disabled in unit tests because not needed.")]

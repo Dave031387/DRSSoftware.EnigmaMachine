@@ -164,6 +164,7 @@ internal class Rotor : IRotor
 
         _rotorIndex = 0;
         _isInitialized = true;
+        _transformIsInProgress = false;
     }
 
     /// <summary>
@@ -232,7 +233,7 @@ internal class Rotor : IRotor
         {
             if (_transformIsInProgress)
             {
-                throw new InvalidOperationException("The TransformOut method wasn't called after the last call to this method.");
+                throw new InvalidOperationException("The TransformOut method wasn't called after the last call to the TransformIn method.");
             }
 
             _transformIsInProgress = true;
