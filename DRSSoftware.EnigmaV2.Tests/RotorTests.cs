@@ -294,15 +294,27 @@ public class RotorTests
         Rotor rotor = new();
         rotor.Initialize(_seed);
         rotor.SetIndex(index);
+        int i = 1;
+
+        int GetReturnValue(int baseValue)
+        {
+            int returnValue = baseValue + i;
+            i -= 2;
+            return returnValue;
+        }
+
         Mock<ITransformer> mock = new(MockBehavior.Strict);
         mock.Setup(r => r.TransformIn(It.IsAny<int>(), shouldRotateNext))
-            .Returns(static (int transformed, bool _) => transformed)
-            .Verifiable(Times.Once);
+            .Returns((int transformed, bool _) => GetReturnValue(transformed))
+            .Verifiable(Times.Exactly(2));
         rotor.ConnectOutgoing(mock.Object);
-        int transformedValue = rotor.TransformIn(expected, shouldRotate);
+        int transform1 = rotor.TransformIn(expected, shouldRotate);
+        int transform2 = rotor.TransformOut(transform1);
+        rotor.SetIndex(index);
 
         // Act
-        int actual = rotor.TransformOut(transformedValue);
+        int transform3 = rotor.TransformIn(transform2, shouldRotate);
+        int actual = rotor.TransformOut(transform3);
 
         // Assert
         mock.VerifyAll();
