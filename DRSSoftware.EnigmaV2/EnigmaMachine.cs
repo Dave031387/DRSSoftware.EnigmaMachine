@@ -21,7 +21,7 @@ public class EnigmaMachine
     /// Represents an instance of the <see cref="Reflector" /> class. Each
     /// <see cref="EnigmaMachine" /> has exactly one <see cref="Reflector" />.
     /// </summary>
-    internal readonly Reflector _reflector = new();
+    internal readonly IReflector _reflector;
 
     /// <summary>
     /// Represents the collection of <see cref="Rotor" /> objects. Each <see cref="EnigmaMachine" />
@@ -30,7 +30,7 @@ public class EnigmaMachine
     /// <remarks>
     /// This array contains a fixed number of rotors, defined by <see cref="NumberOfRotors" />.
     /// </remarks>
-    internal readonly Rotor[] _rotors = new Rotor[NumberOfRotors];
+    internal readonly IRotor[] _rotors;
 
     /// <summary>
     /// An array which is used to store the initial index settings of the <see cref="Reflector" />
@@ -41,7 +41,7 @@ public class EnigmaMachine
     /// <see cref="ResetIndexes" /> method. <br /> The last entry in this array is the
     /// <see cref="Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
     /// </remarks>
-    internal readonly int[] _transformerIndexes = new int[NumberOfTransformers];
+    internal readonly int[] _transformerIndexes;
 
     /// <summary>
     /// A boolean flag that is set to <see langword="true" /> once the <see cref="Reflector" />
@@ -56,7 +56,55 @@ public class EnigmaMachine
     /// The constructor automatically configures the Enigma machine by invoking the necessary setup
     /// logic.
     /// </remarks>
-    public EnigmaMachine() => BuildEnigmaMachine();
+    public EnigmaMachine()
+    {
+        _reflector = new Reflector();
+        _rotors = new IRotor[NumberOfRotors];
+
+        for (int i = 0; i < NumberOfRotors; i++)
+        {
+            _rotors[i] = new Rotor();
+        }
+
+        BuildEnigmaMachine();
+        _transformerIndexes = new int[NumberOfTransformers];
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnigmaMachine" /> class.
+    /// </summary>
+    /// <remarks>
+    /// This constructor is intended for unit testing purposes only.
+    /// </remarks>
+    /// <param name="reflector">
+    /// The <see cref="IReflector" /> object to be added to the Enigma machine.
+    /// </param>
+    /// <param name="rotors">
+    /// One or more <see cref="IRotor" /> objects to be added to the Enigma machine.
+    /// </param>
+    internal EnigmaMachine(IReflector reflector, params IRotor[] rotors)
+    {
+        ArgumentNullException.ThrowIfNull(reflector, nameof(reflector));
+        ArgumentNullException.ThrowIfNull(rotors, nameof(rotors));
+
+        int numberOfRotors = rotors.Length;
+
+        if (numberOfRotors is 0)
+        {
+            throw new ArgumentException("The rotors collection passed into the constructor must contain at least one element.", nameof(rotors));
+        }
+
+        _reflector = reflector;
+        _rotors = new IRotor[numberOfRotors];
+
+        for (int i = 0; i < numberOfRotors; i++)
+        {
+            _rotors[i] = rotors[i];
+        }
+
+        BuildEnigmaMachine();
+        _transformerIndexes = new int[numberOfRotors + 1];
+    }
 
     /// <summary>
     /// Initializes the internal components of the <see cref="EnigmaMachine" /> using the specified
@@ -79,7 +127,7 @@ public class EnigmaMachine
         char[] chars = seed.ToCharArray();
         _reflector.Initialize(seed);
 
-        for (int i = 0; i < NumberOfRotors; i++)
+        for (int i = 0; i < _rotors.Length; i++)
         {
             string alteredSeed = GenerateNewSeed(chars, i + 2);
             _rotors[i].Initialize(alteredSeed);
@@ -99,12 +147,12 @@ public class EnigmaMachine
     {
         if (_isInitialized)
         {
-            for (int i = 0; i < NumberOfRotors; i++)
+            for (int i = 0; i < _rotors.Length; i++)
             {
                 _rotors[i].SetIndex(_transformerIndexes[i]);
             }
 
-            _reflector.SetIndex(_transformerIndexes[NumberOfRotors]);
+            _reflector.SetIndex(_transformerIndexes[^1]);
         }
     }
 
@@ -133,15 +181,17 @@ public class EnigmaMachine
     {
         ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
 
-        if (indexes.Length is not NumberOfTransformers)
+        int numberOfTransformers = _rotors.Length + 1;
+
+        if (indexes.Length != numberOfTransformers)
         {
             string word = indexes.Length is 1 ? "was" : "were";
-            throw new ArgumentException($"Exactly {NumberOfTransformers} index values must be passed into the SetIndexes method, but there {word} {indexes.Length}.", nameof(indexes));
+            throw new ArgumentException($"Exactly {numberOfTransformers} index values must be passed into the SetIndexes method, but there {word} {indexes.Length}.", nameof(indexes));
         }
 
         if (_isInitialized)
         {
-            for (int i = 0; i < NumberOfTransformers; i++)
+            for (int i = 0; i < numberOfTransformers; i++)
             {
                 _transformerIndexes[i] = indexes[i];
             }
@@ -259,19 +309,16 @@ public class EnigmaMachine
     /// </summary>
     private void BuildEnigmaMachine()
     {
-        for (int i = 0; i < NumberOfRotors; i++)
-        {
-            _rotors[i] = new Rotor();
-        }
+        int numberOfRotors = _rotors.Length;
 
-        for (int i = 0; i < NumberOfRotors; i++)
+        for (int i = 0; i < numberOfRotors; i++)
         {
             if (i is not 0)
             {
                 _rotors[i].ConnectIncoming(_rotors[i - 1]);
             }
 
-            if (i < NumberOfRotors - 1)
+            if (i < numberOfRotors - 1)
             {
                 _rotors[i].ConnectOutgoing(_rotors[i + 1]);
             }
@@ -281,7 +328,7 @@ public class EnigmaMachine
             }
         }
 
-        _reflector.ConnectOutgoing(_rotors[NumberOfRotors - 1]);
+        _reflector.ConnectOutgoing(_rotors[^1]);
         _isInitialized = false;
     }
 }
