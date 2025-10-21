@@ -64,16 +64,6 @@ internal static class Common
     internal const int NumberOfRotors = 4;
 
     /// <summary>
-    /// Represents the total number of transformers ( <see cref="Reflector" /> plus
-    /// <see cref="Rotor" /> count) used in the <see cref="EnigmaMachine" />.
-    /// </summary>
-    /// <remarks>
-    /// This constant is obtained by adding 1 to <see cref="NumberOfRotors" /> since there is always
-    /// only 1 <see cref="Reflector" />.
-    /// </remarks>
-    internal const int NumberOfTransformers = NumberOfRotors + 1;
-
-    /// <summary>
     /// Represents the number of positions on the <see cref="Reflector" /> and each
     /// <see cref="Rotor" /> of the <see cref="EnigmaMachine" />.
     /// </summary>

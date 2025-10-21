@@ -67,7 +67,7 @@ public class EnigmaMachine
         }
 
         BuildEnigmaMachine();
-        _transformerIndexes = new int[NumberOfTransformers];
+        _transformerIndexes = new int[NumberOfRotors + 1];
     }
 
     /// <summary>
@@ -131,8 +131,10 @@ public class EnigmaMachine
         {
             string alteredSeed = GenerateNewSeed(chars, i + 2);
             _rotors[i].Initialize(alteredSeed);
+            _transformerIndexes[i] = 0;
         }
 
+        _transformerIndexes[^1] = 0;
         _isInitialized = true;
     }
 
@@ -166,12 +168,12 @@ public class EnigmaMachine
     /// rest are indexes for each <see cref="Rotor" />.
     /// </remarks>
     /// <param name="indexes">
-    /// An array containing the desired index values. The array must contain exactly
-    /// <see cref="NumberOfTransformers" /> elements.
+    /// An array containing the desired index values. The array must contain exactly one more than
+    /// <see cref="NumberOfRotors" /> elements.
     /// </param>
     /// <exception cref="ArgumentException">
-    /// Thrown if the length of <paramref name="indexes" /> is not equal to
-    /// <see cref="NumberOfTransformers" />.
+    /// Thrown if the length of <paramref name="indexes" /> is not equal to exactly on more than
+    /// <see cref="NumberOfRotors" />.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown if the <see cref="EnigmaMachine" /> has not been initialized before calling this
@@ -273,7 +275,7 @@ public class EnigmaMachine
     /// </param>
     /// <param name="offset">
     /// The step size used to determine the order of characters in the resulting string. <br /> Must
-    /// be greater than 1 and less than or equal to <see cref="NumberOfTransformers" />.
+    /// be greater than 1 and less than or equal to <see cref="NumberOfRotors" /> plus one.
     /// </param>
     /// <returns>
     /// A new seed string containing the reordered characters from the input array.
@@ -281,7 +283,7 @@ public class EnigmaMachine
     private static string GenerateNewSeed(char[] chars, int offset)
     {
         char[] seedChars = new char[chars.Length];
-        int start = 0;
+        int start = offset;
         int index = 0;
 
         while (index < chars.Length)
@@ -296,7 +298,7 @@ public class EnigmaMachine
                 }
             }
 
-            start++;
+            start--;
         }
 
         return new(seedChars);
