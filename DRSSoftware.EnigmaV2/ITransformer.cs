@@ -38,13 +38,9 @@ internal interface ITransformer
     /// <param name="c">
     /// The cipher value that is to be transformed.
     /// </param>
-    /// <param name="shouldRotate">
-    /// A flag indicating whether or not the reflector or rotor should be rotated one position
-    /// before applying the transform.
-    /// </param>
     /// <returns>
     /// The final transformed cipher value after it has been processed by all rotors and the
     /// reflector.
     /// </returns>
-    public int TransformIn(int c, bool shouldRotate);
+    public int TransformIn(int c);
 }

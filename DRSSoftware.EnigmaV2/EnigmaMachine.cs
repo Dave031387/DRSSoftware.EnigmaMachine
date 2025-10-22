@@ -18,6 +18,12 @@ namespace DRSSoftware.EnigmaV2;
 public class EnigmaMachine
 {
     /// <summary>
+    /// An array of integer values that will be used as the cycle size value that will be passed
+    /// into the constructors of the <see cref="Reflector" /> and <see cref="Rotor" /> classes.
+    /// </summary>
+    internal readonly int[] _cycleSizes = [1, 11, 17, 23, 29, 37, 41, 47, 53, 59];
+
+    /// <summary>
     /// Represents an instance of the <see cref="Reflector" /> class. Each
     /// <see cref="EnigmaMachine" /> has exactly one <see cref="Reflector" />.
     /// </summary>
@@ -58,13 +64,20 @@ public class EnigmaMachine
     /// </remarks>
     public EnigmaMachine()
     {
-        _reflector = new Reflector();
+        int cycleSizeIndex = 0;
         _rotors = new IRotor[NumberOfRotors];
 
         for (int i = 0; i < NumberOfRotors; i++)
         {
-            _rotors[i] = new Rotor();
+            _rotors[i] = new Rotor(_cycleSizes[cycleSizeIndex++]);
+
+            if (cycleSizeIndex == _cycleSizes.Length)
+            {
+                cycleSizeIndex = 1;
+            }
         }
+
+        _reflector = new Reflector(_cycleSizes[cycleSizeIndex]);
 
         BuildEnigmaMachine();
         _transformerIndexes = new int[NumberOfRotors + 1];
@@ -248,7 +261,7 @@ public class EnigmaMachine
 
                 char c = nextChar is LineFeed ? MaxChar : nextChar is < MinChar or >= MaxChar ? MinChar : nextChar;
                 int original = CharToInt(c);
-                int transformed = _rotors[0].TransformIn(original, true);
+                int transformed = _rotors[0].TransformIn(original);
 
                 if (transformed is MaxIndex)
                 {

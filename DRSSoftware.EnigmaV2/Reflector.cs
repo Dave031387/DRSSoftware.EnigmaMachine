@@ -8,7 +8,11 @@
 /// coming in from the cipher wheel, transforms that value to a new value, and sends the new value
 /// back to the cipher wheel.
 /// </remarks>
-internal class Reflector : IReflector
+/// <param name="cycleSize">
+/// An integer value that specifies how many transforms should be performed between each rotation of
+/// the reflector.
+/// </param>
+internal class Reflector(int cycleSize) : IReflector
 {
     /// <summary>
     /// This table is used to transform the incoming value to a different outgoing value.
@@ -18,6 +22,22 @@ internal class Reflector : IReflector
     /// then the transform of 'X' will yield 'A'.
     /// </remarks>
     internal readonly int[] _reflectorTable = new int[TableSize];
+
+    /// <summary>
+    /// Contains the count of how many transforms have been performed since the last rotation of the
+    /// reflector.
+    /// </summary>
+    internal int _cycleCount;
+
+    /// <summary>
+    /// An integer that indicates how many transforms will be performed between each rotation of the
+    /// reflector.
+    /// </summary>
+    /// <remarks>
+    /// This value is constrained to be within the range from 0 to <see cref="MaxIndex" />. A value
+    /// of 0 indicates that the reflector should never be rotated.
+    /// </remarks>
+    internal int _cycleSize = cycleSize < 0 ? 0 : cycleSize > MaxIndex ? MaxIndex : cycleSize;
 
     /// <summary>
     /// A boolean flag that gets set to <see langword="true" /> when this <see cref="Reflector" />
@@ -125,6 +145,7 @@ internal class Reflector : IReflector
         }
 
         _reflectorIndex = 0;
+        _cycleCount = 0;
         _isInitialized = true;
     }
 
@@ -155,6 +176,7 @@ internal class Reflector : IReflector
             }
 
             _reflectorIndex = indexValue;
+            _cycleCount = _cycleSize > 1 ? _reflectorIndex % _cycleSize : 0;
         }
         else
         {
@@ -173,10 +195,6 @@ internal class Reflector : IReflector
     /// <param name="c">
     /// The cipher value that is to be transformed.
     /// </param>
-    /// <param name="shouldRotate">
-    /// A flag indicating whether or not this <see cref="Reflector" /> should be rotated one position
-    /// before applying the transform.
-    /// </param>
     /// <returns>
     /// The final transformed cipher value after it has been processed by all of the cipher wheels
     /// (rotors) and the reflector.
@@ -184,7 +202,7 @@ internal class Reflector : IReflector
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called prior to initializing this <see cref="Reflector" /> object.
     /// </exception>
-    public int TransformIn(int c, bool shouldRotate)
+    public int TransformIn(int c)
     {
         if (_isInitialized)
         {
@@ -193,9 +211,13 @@ internal class Reflector : IReflector
                 throw new InvalidOperationException("The outgoing rotor hasn't been connected to the reflector.");
             }
 
-            if (shouldRotate)
+            if (_cycleSize > 0)
             {
-                _reflectorIndex = GetValueWithOffset(_reflectorIndex, TableSize, 1);
+                if (_cycleSize is 1 || ++_cycleCount == _cycleSize)
+                {
+                    _reflectorIndex = GetValueWithOffset(_reflectorIndex, TableSize, 1);
+                    _cycleCount = 0;
+                }
             }
 
             int transformedValue = GetTransformedValue(_reflectorTable, c, _reflectorIndex);

@@ -1,6 +1,7 @@
 # Enigma Machine
 
 > [!IMPORTANT]
-> *This project is a work in progress. Although a number of the basic routines are in place, there is still a lot of work to do. This README file will
+> *This project is a work in progress. The EnigmaV2 class library is pretty much done, but the UI portion isn't completed yet. This README file will
 > be updated when the project nears completion.*
 
+## Overview

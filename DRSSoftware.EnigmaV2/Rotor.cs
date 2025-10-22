@@ -10,7 +10,11 @@
 /// send it back to the previous rotor in the series (or back to the user if this is the first
 /// rotor).
 /// </remarks>
-internal class Rotor : IRotor
+/// <param name="cycleSize">
+/// An integer value that specifies how many transforms should be performed between each rotation of
+/// the rotor.
+/// </param>
+internal class Rotor(int cycleSize) : IRotor
 {
     /// <summary>
     /// This table is used to look up the transformed value for cipher values coming from the
@@ -25,6 +29,22 @@ internal class Rotor : IRotor
     /// incoming component.
     /// </summary>
     internal readonly int[] _outgoingTable = new int[TableSize];
+
+    /// <summary>
+    /// Contains the count of how many transforms have been performed since the last rotation of the
+    /// rotor.
+    /// </summary>
+    internal int _cycleCount;
+
+    /// <summary>
+    /// An integer that indicates how many transforms will be performed between each rotation of the
+    /// rotor.
+    /// </summary>
+    /// <remarks>
+    /// This value is constrained to be within the range from 0 to <see cref="MaxIndex" />. A value
+    /// of 0 indicates that the rotor should never be rotated.
+    /// </remarks>
+    internal int _cycleSize = cycleSize < 0 ? 0 : cycleSize > MaxIndex ? MaxIndex : cycleSize;
 
     /// <summary>
     /// A boolean flag that gets set to <see langword="true" /> when this <see cref="Rotor" />
@@ -163,6 +183,7 @@ internal class Rotor : IRotor
         }
 
         _rotorIndex = 0;
+        _cycleCount = 0;
         _isInitialized = true;
         _transformIsInProgress = false;
     }
@@ -194,6 +215,7 @@ internal class Rotor : IRotor
             }
 
             _rotorIndex = indexValue;
+            _cycleCount = _cycleSize > 1 ? _rotorIndex % _cycleSize : 0;
         }
         else
         {
@@ -213,10 +235,6 @@ internal class Rotor : IRotor
     /// <param name="c">
     /// The cipher value that is to be transformed.
     /// </param>
-    /// <param name="shouldRotate">
-    /// A flag indicating whether or not this <see cref="Rotor" /> should be rotated one position
-    /// before applying the transform.
-    /// </param>
     /// <returns>
     /// The final transformed cipher value after it has been processed by all of the cipher wheels
     /// (rotors) and the reflector.
@@ -227,7 +245,7 @@ internal class Rotor : IRotor
     /// <see cref="Rotor" />, or if the <see cref="TransformOut(int)" /> method hasn't been called
     /// after the last call to this method.
     /// </exception>
-    public int TransformIn(int c, bool shouldRotate)
+    public int TransformIn(int c)
     {
         if (_isInitialized)
         {
@@ -237,18 +255,20 @@ internal class Rotor : IRotor
             }
 
             _transformIsInProgress = true;
-            bool shouldRotateNext = false;
 
-            if (shouldRotate)
+            if (_cycleSize > 0)
             {
-                _rotorIndex = GetValueWithOffset(_rotorIndex, TableSize, 1);
-                shouldRotateNext = _rotorIndex == 0;
+                if (_cycleSize is 1 || ++_cycleCount == _cycleSize)
+                {
+                    _rotorIndex = GetValueWithOffset(_rotorIndex, TableSize, 1);
+                    _cycleCount = 0;
+                }
             }
 
             int transformedValue = GetTransformedValue(_incomingTable, c, _rotorIndex);
 
             return _transformerOut is not null
-                ? _transformerOut.TransformIn(transformedValue, shouldRotateNext)
+                ? _transformerOut.TransformIn(transformedValue)
                 : throw new InvalidOperationException("An outgoing transformer hasn't been connected to this rotor.");
         }
 
@@ -271,7 +291,7 @@ internal class Rotor : IRotor
     /// (rotors) and the reflector.
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if this method is called before calling the <see cref="TransformIn(int, bool)" />
+    /// Thrown if this method is called before calling the <see cref="TransformIn(int)" />
     /// method on this <see cref="Rotor" /> object.
     /// </exception>
     public int TransformOut(int c)
