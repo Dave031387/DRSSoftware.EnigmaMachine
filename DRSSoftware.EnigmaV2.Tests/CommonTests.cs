@@ -131,6 +131,37 @@ public class CommonTests
     }
 
     [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 10, 0)]
+    [InlineData(1, 0, 0)]
+    [InlineData(1, 1, 0)]
+    [InlineData(1, 10, 0)]
+    [InlineData(2, 0, 0)]
+    [InlineData(2, 5, 1)]
+    [InlineData(2, 1, 0)]
+    [InlineData(2, 10, 0)]
+    [InlineData(5, 0, 0)]
+    [InlineData(5, 1, 0)]
+    [InlineData(5, 2, 1)]
+    [InlineData(5, 7, 2)]
+    [InlineData(5, 4, 1)]
+    [InlineData(5, 25, 0)]
+    [InlineData(8, 4, 0)]
+    [InlineData(8, 7, 1)]
+    [InlineData(8, 32, 0)]
+    [InlineData(8, 45, 5)]
+    public void GetInitialCycleCount_ShouldReturnExpectedValue(int cycleSize, int index, int expected)
+    {
+        // Arrange/Act
+        int actual = GetInitialCycleCount(cycleSize, index);
+
+        // Assert
+        actual
+            .Should()
+            .Be(expected);
+    }
+
+    [Theory]
     [InlineData(0, 0, 12)]
     [InlineData(1, 1, 13)]
     [InlineData(5, 10, 15)]

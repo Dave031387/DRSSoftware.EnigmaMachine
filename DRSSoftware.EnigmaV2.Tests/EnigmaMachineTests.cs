@@ -278,7 +278,7 @@ public class EnigmaMachineTests
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
         enigmaMachine._isInitialized = true;
         _mockRotor1
-            .Setup(m => m.TransformIn(adjusted, true))
+            .Setup(m => m.TransformIn(adjusted))
             .Returns(transformed)
             .Verifiable(Times.Once);
 

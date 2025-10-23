@@ -165,6 +165,28 @@ internal static class Common
     }
 
     /// <summary>
+    /// Determines the starting value for the cycle count based on the <paramref name="cycleSize" />
+    /// and <paramref name="index" /> values.
+    /// </summary>
+    /// <param name="cycleSize">
+    /// An integer value that determines how often a <see cref="Reflector" /> or
+    /// <see cref="Rotor" /> rotates as text is being transformed. A value of 0 means there is no
+    /// rotation.
+    /// </param>
+    /// <param name="index">
+    /// The <see cref="Reflector" /> or <see cref="Rotor" /> index value. This value is used in
+    /// conjunction with the <paramref name="cycleSize" /> to calculate the initial cycle count
+    /// value.
+    /// </param>
+    /// <returns>
+    /// The starting cycle count value. This value will be 0 if <paramref name="cycleSize" /> is
+    /// less than 2. Otherwise, it will be in the range from 0 to 1 less than
+    /// <paramref name="cycleSize" />.
+    /// </returns>
+    internal static int GetInitialCycleCount(int cycleSize, int index)
+        => cycleSize < 2 || index < 2 ? 0 : index < cycleSize ? cycleSize % index : index % cycleSize;
+
+    /// <summary>
     /// Gets the transformed value by adding the specified <paramref name="offset" /> to the value
     /// retrieved from the specified <paramref name="table" /> using the given
     /// <paramref name="baseValue" />.

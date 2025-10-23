@@ -215,7 +215,7 @@ internal class Rotor(int cycleSize) : IRotor
             }
 
             _rotorIndex = indexValue;
-            _cycleCount = _cycleSize > 1 ? _rotorIndex % _cycleSize : 0;
+            _cycleCount = GetInitialCycleCount(_cycleSize, _rotorIndex);
         }
         else
         {

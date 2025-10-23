@@ -8,7 +8,7 @@ public class RotorTests
     public void ConnectIncoming_ShouldCorrectlyConnectIncomingRotor()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         Mock<IRotor> mock = new(MockBehavior.Strict);
 
         // Act
@@ -24,7 +24,7 @@ public class RotorTests
     public void ConnectIncomingWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         Mock<IRotor> mock = new(MockBehavior.Strict);
         rotor._rotorIn = mock.Object;
         string expected = "Invalid attempt to add an incoming rotor when one is already defined for this rotor.";
@@ -43,7 +43,7 @@ public class RotorTests
     public void ConnectIncomingWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
 
         // Act
         Action action = () => rotor.ConnectIncoming(null!);
@@ -58,7 +58,7 @@ public class RotorTests
     public void ConnectOutgoing_ShouldCorrectlyConnectOutgoingTransformer()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         Mock<ITransformer> mock = new(MockBehavior.Strict);
 
         // Act
@@ -74,7 +74,7 @@ public class RotorTests
     public void ConnectOutgoingWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         Mock<ITransformer> mock = new(MockBehavior.Strict);
         rotor._transformerOut = mock.Object;
         string expected = "Invalid attempt to add an outgoing transformer when one is already defined for this rotor.";
@@ -93,7 +93,7 @@ public class RotorTests
     public void ConnectOutgoingWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
 
         // Act
         Action action = () => rotor.ConnectOutgoing(null!);
@@ -108,7 +108,7 @@ public class RotorTests
     public void CreateNewRotor_ShouldInitializeObjectCorrectly()
     {
         // Arrange/Act
-        Rotor rotor = new();
+        Rotor rotor = new(1);
 
         // Assert
         rotor._incomingTable
@@ -138,11 +138,32 @@ public class RotorTests
             .BeFalse();
     }
 
+    [Theory]
+    [InlineData(-5, 0)]
+    [InlineData(-1, 0)]
+    [InlineData(0, 0)]
+    [InlineData(1, 1)]
+    [InlineData(50, 50)]
+    [InlineData(MaxIndex - 1, MaxIndex - 1)]
+    [InlineData(MaxIndex, MaxIndex)]
+    [InlineData(MaxIndex + 1, MaxIndex)]
+    [InlineData(MaxIndex + 5, MaxIndex)]
+    public void CreateRotorWithDifferentCycleSizes_ShouldConstrainCycleSize(int cycleSize, int expected)
+    {
+        // Arrange/Act
+        Rotor rotor = new(cycleSize);
+
+        // Assert
+        rotor._cycleSize
+            .Should()
+            .Be(expected);
+    }
+
     [Fact]
     public void Initialize_ShouldProperlyInitializeTheRotor()
     {
         // Arrange
-        Rotor rotor = new()
+        Rotor rotor = new(1)
         {
             _isInitialized = false,
             _rotorIndex = 7,
@@ -188,7 +209,7 @@ public class RotorTests
     public void InitializeWhenSeedIsNull_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
 
         // Act
         Action action = () => rotor.Initialize(null!);
@@ -206,7 +227,7 @@ public class RotorTests
     public void InitializeWhenSeedIsTooShort_ShouldThrowException(string seed)
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
 
         // Act
@@ -227,7 +248,7 @@ public class RotorTests
     public void SetIndex_ShouldSetIndexToSpecifiedValue(int expected)
     {
         // Arrange
-        Rotor rotor = new()
+        Rotor rotor = new(1)
         {
             _isInitialized = true
         };
@@ -245,7 +266,7 @@ public class RotorTests
     public void SetIndexWhenRotorNotInitialized_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         string expected = "The rotor must be initialized before the index can be set.";
 
         // Act
@@ -266,7 +287,7 @@ public class RotorTests
     public void SetIndexWhenValueIsOutOfRange_ShouldThrowException(int value)
     {
         // Arrange
-        Rotor rotor = new()
+        Rotor rotor = new(1)
         {
             _isInitialized = true
         };
@@ -283,15 +304,42 @@ public class RotorTests
     }
 
     [Theory]
-    [InlineData(0, 0, false, false)]
-    [InlineData(44, 3, true, false)]
-    [InlineData(75, MaxIndex - 1, true, false)]
-    [InlineData(91, MaxIndex, false, false)]
-    [InlineData(57, MaxIndex, true, true)]
-    public void Transform_ShouldBeReversible(int expected, int index, bool shouldRotate, bool shouldRotateNext)
+    [InlineData(0, 0)]
+    [InlineData(1, 0)]
+    [InlineData(2, 1)]
+    [InlineData(7, 4)]
+    [InlineData(13, 12)]
+    [InlineData(24, 1)]
+    [InlineData(25, 0)]
+    [InlineData(26, 1)]
+    [InlineData(42, 17)]
+    public void SetIndexWithDifferentCycleSizes_ShouldCorrectlyInitializeCycleCount(int cycleSize, int expected)
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(cycleSize)
+        {
+            _isInitialized = true
+        };
+
+        // Act
+        rotor.SetIndex(25);
+
+        // Assert
+        rotor._cycleCount
+            .Should()
+            .Be(expected);
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(44, 3, 1)]
+    [InlineData(75, MaxIndex - 1, 1)]
+    [InlineData(91, MaxIndex, 0)]
+    [InlineData(57, MaxIndex, 1)]
+    public void Transform_ShouldBeReversible(int expected, int index, int cycleSize)
+    {
+        // Arrange
+        Rotor rotor = new(cycleSize);
         rotor.Initialize(_seed);
         rotor.SetIndex(index);
         int i = 1;
@@ -304,16 +352,16 @@ public class RotorTests
         }
 
         Mock<ITransformer> mock = new(MockBehavior.Strict);
-        mock.Setup(r => r.TransformIn(It.IsAny<int>(), shouldRotateNext))
-            .Returns((int transformed, bool _) => GetReturnValue(transformed))
+        mock.Setup(r => r.TransformIn(It.IsAny<int>()))
+            .Returns((int transformed) => GetReturnValue(transformed))
             .Verifiable(Times.Exactly(2));
         rotor.ConnectOutgoing(mock.Object);
-        int transform1 = rotor.TransformIn(expected, shouldRotate);
+        int transform1 = rotor.TransformIn(expected);
         int transform2 = rotor.TransformOut(transform1);
         rotor.SetIndex(index);
 
         // Act
-        int transform3 = rotor.TransformIn(transform2, shouldRotate);
+        int transform3 = rotor.TransformIn(transform2);
         int actual = rotor.TransformOut(transform3);
 
         // Assert
@@ -327,28 +375,28 @@ public class RotorTests
     }
 
     [Theory]
-    [InlineData(0, 91, 0, 0, false, false)]
-    [InlineData(0, 32, 0, 1, true, false)]
-    [InlineData(43, 57, 10, 10, false, false)]
-    [InlineData(27, 4, 10, 11, true, false)]
-    [InlineData(82, 60, MaxIndex, MaxIndex, false, false)]
-    [InlineData(14, 26, MaxIndex, 0, true, true)]
-    [InlineData(5, 17, MaxIndex - 1, MaxIndex - 1, false, false)]
-    [InlineData(90, 8, MaxIndex - 1, MaxIndex, true, false)]
-    public void TransformIn_ShouldReturnTransformedValue(int value, int transformedValue, int index, int expectedIndex, bool shouldRotate, bool shouldRotateNext)
+    [InlineData(0, 91, 0, 0, 0)]
+    [InlineData(0, 32, 0, 1, 1)]
+    [InlineData(43, 57, 10, 10, 0)]
+    [InlineData(27, 4, 10, 11, 1)]
+    [InlineData(82, 60, MaxIndex, MaxIndex, 0)]
+    [InlineData(14, 26, MaxIndex, 0, 1)]
+    [InlineData(5, 17, MaxIndex - 1, MaxIndex - 1, 0)]
+    [InlineData(90, 8, MaxIndex - 1, MaxIndex, 1)]
+    public void TransformIn_ShouldReturnTransformedValue(int value, int transformedValue, int index, int expectedIndex, int cycleSize)
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(cycleSize);
         rotor.Initialize(_seed);
         rotor.SetIndex(index);
         Mock<ITransformer> mock = new(MockBehavior.Strict);
-        mock.Setup(r => r.TransformIn(It.IsAny<int>(), shouldRotateNext))
+        mock.Setup(r => r.TransformIn(It.IsAny<int>()))
             .Returns(transformedValue)
             .Verifiable(Times.Once);
         rotor.ConnectOutgoing(mock.Object);
 
         // Act
-        int actual = rotor.TransformIn(value, shouldRotate);
+        int actual = rotor.TransformIn(value);
 
         // Assert
         mock.VerifyAll();
@@ -364,14 +412,37 @@ public class RotorTests
     }
 
     [Fact]
+    public void TransformInWhenInitializedProperly_ShouldReturnTransformedValue()
+    {
+        // Arrange
+        Rotor rotor = new(1);
+        rotor.Initialize(_seed);
+        int expected = 12;
+        Mock<ITransformer> mock = new(MockBehavior.Strict);
+        mock.Setup(r => r.TransformIn(It.IsAny<int>()))
+            .Returns(expected)
+            .Verifiable(Times.Once);
+        rotor.ConnectOutgoing(mock.Object);
+
+        // Act
+        int actual = rotor.TransformIn(42);
+
+        // Assert
+        mock.VerifyAll();
+        actual
+            .Should()
+            .Be(expected);
+    }
+
+    [Fact]
     public void TransformInWhenRotorNotInitialized_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         string expected = "The rotor must be initialized before the TransformIn method is called.";
 
         // Act
-        Action action = () => rotor.TransformIn(87, false);
+        Action action = () => rotor.TransformIn(87);
 
         // Assert
         action
@@ -384,12 +455,12 @@ public class RotorTests
     public void TransformInWhenThereIsNoOutgoingTransformerConnected_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         rotor.Initialize(_seed);
         string expected = "An outgoing transformer hasn't been connected to this rotor.";
 
         // Act
-        Action action = () => rotor.TransformIn(53, false);
+        Action action = () => rotor.TransformIn(53);
 
         // Assert
         action
@@ -402,7 +473,7 @@ public class RotorTests
     public void TransformInWhenTransformAlreadyInProgress_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new()
+        Rotor rotor = new(1)
         {
             _transformIsInProgress = true,
             _isInitialized = true
@@ -410,7 +481,7 @@ public class RotorTests
         string expected = "The TransformOut method wasn't called after the last call to the TransformIn method.";
 
         // Act
-        Action action = () => rotor.TransformIn(65, false);
+        Action action = () => rotor.TransformIn(65);
 
         // Assert
         action
@@ -419,11 +490,46 @@ public class RotorTests
             .WithMessage(expected);
     }
 
+    [Theory]
+    [InlineData(0, 0, 0, 77)]
+    [InlineData(1, 0, 0, 78)]
+    [InlineData(2, 0, 1, 77)]
+    [InlineData(2, 1, 0, 78)]
+    [InlineData(5, 0, 1, 77)]
+    [InlineData(5, 3, 4, 77)]
+    [InlineData(5, 4, 0, 78)]
+    public void TransformInWithDifferentCycleCounts_ShouldRotateWhenExpected(int cycleSize, int cycleCount, int updatedCount, int expected)
+    {
+        // Arrange
+        Rotor rotor = new(1);
+        rotor.Initialize(_seed);
+        rotor._rotorIndex = 77;
+        rotor._cycleSize = cycleSize;
+        rotor._cycleCount = cycleCount;
+        Mock<ITransformer> mock = new(MockBehavior.Strict);
+        mock.Setup(r => r.TransformIn(It.IsAny<int>()))
+            .Returns(66)
+            .Verifiable(Times.Once);
+        rotor.ConnectOutgoing(mock.Object);
+
+        // Act
+        int actual = rotor.TransformIn(55);
+
+        // Assert
+        mock.VerifyAll();
+        rotor._rotorIndex
+            .Should()
+            .Be(expected);
+        rotor._cycleCount
+            .Should()
+            .Be(updatedCount);
+    }
+
     [Fact]
     public void TransformOutWhenIncomingRotorIsConnected_ShouldReturnTransformedValue()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         rotor.Initialize(_seed);
         rotor._transformIsInProgress = true;
         int expected = 35;
@@ -455,7 +561,7 @@ public class RotorTests
     public void TransformOutWhenNoIncomingRotorIsConnected_ShouldReturnTransformedValue(int value, int rotorIndex, int lookupIndex)
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         rotor.Initialize(_seed);
         rotor.SetIndex(rotorIndex);
         rotor._transformIsInProgress = true;
@@ -478,7 +584,7 @@ public class RotorTests
     public void TransformOutWhenTransformNotInProgress_ShouldThrowException()
     {
         // Arrange
-        Rotor rotor = new();
+        Rotor rotor = new(1);
         string expected = "The TransformOut method must not be called on the rotor before calling the TransformIn method.";
 
         // Act

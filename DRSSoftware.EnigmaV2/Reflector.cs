@@ -176,7 +176,7 @@ internal class Reflector(int cycleSize) : IReflector
             }
 
             _reflectorIndex = indexValue;
-            _cycleCount = _cycleSize > 1 ? _reflectorIndex % _cycleSize : 0;
+            _cycleCount = GetInitialCycleCount(_cycleSize, _reflectorIndex);
         }
         else
         {
