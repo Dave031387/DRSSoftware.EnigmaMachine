@@ -5,10 +5,10 @@
 /// common.
 /// </summary>
 /// <remarks>
-/// The general term "transformer" refers to either reflector or rotor objects. Both types of
-/// objects are used for transforming an input value to yield an output value.
+/// The general term "cipher wheel" refers to either reflector or rotor objects. Both types of
+/// objects are used for transforming an input value to yield an encrypted output value.
 /// </remarks>
-internal interface ITransformer
+internal interface ICipherWheel
 {
     /// <summary>
     /// Initialize the reflector or rotor object using the given <paramref name="seed" /> value.
@@ -42,5 +42,5 @@ internal interface ITransformer
     /// The final transformed cipher value after it has been processed by all rotors and the
     /// reflector.
     /// </returns>
-    public int TransformIn(int c);
+    public int Transform(int c);
 }

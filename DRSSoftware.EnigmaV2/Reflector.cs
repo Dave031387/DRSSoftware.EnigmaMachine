@@ -12,7 +12,7 @@
 /// An integer value that specifies how many transforms should be performed between each rotation of
 /// the reflector.
 /// </param>
-internal class Reflector(int cycleSize) : IReflector
+internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflector
 {
     /// <summary>
     /// This table is used to transform the incoming value to a different outgoing value.
@@ -22,41 +22,6 @@ internal class Reflector(int cycleSize) : IReflector
     /// then the transform of 'X' will yield 'A'.
     /// </remarks>
     internal readonly int[] _reflectorTable = new int[TableSize];
-
-    /// <summary>
-    /// Contains the count of how many transforms have been performed since the last rotation of the
-    /// reflector.
-    /// </summary>
-    internal int _cycleCount;
-
-    /// <summary>
-    /// An integer that indicates how many transforms will be performed between each rotation of the
-    /// reflector.
-    /// </summary>
-    /// <remarks>
-    /// This value is constrained to be within the range from 0 to <see cref="MaxIndex" />. A value
-    /// of 0 indicates that the reflector should never be rotated.
-    /// </remarks>
-    internal int _cycleSize = cycleSize < 0 ? 0 : cycleSize > MaxIndex ? MaxIndex : cycleSize;
-
-    /// <summary>
-    /// A boolean flag that gets set to <see langword="true" /> when this <see cref="Reflector" />
-    /// instance has been initialized and is ready for use.
-    /// </summary>
-    internal bool _isInitialized;
-
-    /// <summary>
-    /// An integer that indicates how far this reflector has been rotated from its starting
-    /// position.
-    /// </summary>
-    internal int _reflectorIndex;
-
-    /// <summary>
-    /// A reference to the <see cref="IRotor" /> object representing the last cipher wheel (rotor)
-    /// in sequence that exists in the Enigma machine that this <see cref="Reflector" /> object is a
-    /// part of.
-    /// </summary>
-    internal IRotor? _rotorOut;
 
     /// <summary>
     /// Connect the specified <paramref name="rotor" /> object to the outgoing side of this
@@ -76,12 +41,12 @@ internal class Reflector(int cycleSize) : IReflector
     {
         ArgumentNullException.ThrowIfNull(rotor, nameof(rotor));
 
-        if (_rotorOut is not null)
+        if (_cipherWheelOut is not null)
         {
             throw new InvalidOperationException("Invalid attempt to add an outgoing rotor when one is already defined for this reflector.");
         }
 
-        _rotorOut = rotor;
+        _cipherWheelOut = rotor;
     }
 
     /// <summary>
@@ -103,7 +68,7 @@ internal class Reflector(int cycleSize) : IReflector
     /// Thrown if the <paramref name="seed" /> parameter is less than the minimum length specified
     /// by <see cref="MinSeedLength" />.
     /// </exception>
-    public void Initialize(string seed)
+    public override void Initialize(string seed)
     {
         ArgumentNullException.ThrowIfNull(seed, nameof(seed));
 
@@ -144,87 +109,47 @@ internal class Reflector(int cycleSize) : IReflector
             slotsRemaining -= 2;
         }
 
-        _reflectorIndex = 0;
+        _cipherIndex = 0;
         _cycleCount = 0;
         _isInitialized = true;
     }
 
     /// <summary>
-    /// Set the reflector index to the desired <paramref name="indexValue" />.
+    /// Transform the incoming value <paramref name="c" /> and send the transformed value to the
+    /// outgoing cipher wheel (always a <see cref="Rotor" />).
     /// </summary>
     /// <remarks>
-    /// Note that this operation also involves rotating this <see cref="Reflector" /> object by the
-    /// corresponding amount.
-    /// </remarks>
-    /// <param name="indexValue">
-    /// The integer value that the reflector index is to be set to.
-    /// </param>
-    /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown if the <paramref name="indexValue" /> is less than zero or greater than or equal to
-    /// the table size.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if this method is called prior to initializing this <see cref="Reflector" /> object.
-    /// </exception>
-    public void SetIndex(int indexValue)
-    {
-        if (_isInitialized)
-        {
-            if (indexValue is < 0 or > MaxIndex)
-            {
-                throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
-            }
-
-            _reflectorIndex = indexValue;
-            _cycleCount = GetInitialCycleCount(_cycleSize, _reflectorIndex);
-        }
-        else
-        {
-            throw new InvalidOperationException("The reflector must be initialized before the index can be set.");
-        }
-    }
-
-    /// <summary>
-    /// Transform the incoming cipher value <paramref name="c" /> and send the transformed value to
-    /// the outgoing cipher wheel (or <see cref="Rotor" />).
-    /// </summary>
-    /// <remarks>
-    /// The cipher value is an integer representation of a printable ASCII character which has been
-    /// adjusted by subtracting the minimum character value from the cipher character value.
+    /// The incoming value is an integer representation of a printable ASCII character which has
+    /// been adjusted by subtracting the minimum character value from the incoming character value.
     /// </remarks>
     /// <param name="c">
-    /// The cipher value that is to be transformed.
+    /// The incoming value that is to be transformed.
     /// </param>
     /// <returns>
-    /// The final transformed cipher value after it has been processed by all of the cipher wheels
-    /// (rotors) and the reflector.
+    /// The final transformed value after it has been processed by all of the cipher wheels (rotors
+    /// and the reflector).
     /// </returns>
     /// <exception cref="InvalidOperationException">
-    /// Thrown if this method is called prior to initializing this <see cref="Reflector" /> object.
+    /// Thrown if this method is called prior to initializing this <see cref="Reflector" /> object
+    /// or if an outgoing <see cref="Rotor" /> object hasn't been connected to this
+    /// <see cref="Reflector" />.
     /// </exception>
-    public int TransformIn(int c)
+    public override int Transform(int c)
     {
         if (_isInitialized)
         {
-            if (_rotorOut is null)
+            if (_cipherWheelOut is null)
             {
                 throw new InvalidOperationException("The outgoing rotor hasn't been connected to the reflector.");
             }
 
-            if (_cycleSize > 0)
-            {
-                if (_cycleSize is 1 || ++_cycleCount == _cycleSize)
-                {
-                    _reflectorIndex = GetValueWithOffset(_reflectorIndex, TableSize, 1);
-                    _cycleCount = 0;
-                }
-            }
+            Rotate();
 
-            int transformedValue = GetTransformedValue(_reflectorTable, c, _reflectorIndex);
+            int transformedValue = GetTransformedValue(_reflectorTable, c);
 
-            return _rotorOut.TransformOut(transformedValue);
+            return _cipherWheelOut.Transform(transformedValue);
         }
 
-        throw new InvalidOperationException("The reflector must be initialized before calling the TransformIn method.");
+        throw new InvalidOperationException("The reflector must be initialized before calling the Transform method.");
     }
 }

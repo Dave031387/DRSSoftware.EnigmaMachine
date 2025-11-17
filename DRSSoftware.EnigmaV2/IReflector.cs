@@ -4,7 +4,7 @@
 /// Defines all methods pertaining to the <see cref="Reflector" /> component of the Enigma V2
 /// machine.
 /// </summary>
-internal interface IReflector : ITransformer
+internal interface IReflector : ICipherWheel
 {
     /// <summary>
     /// Connect the specified <paramref name="rotor" /> object to the outgoing side of this

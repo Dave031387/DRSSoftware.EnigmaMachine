@@ -15,7 +15,7 @@ namespace DRSSoftware.EnigmaV2;
 /// upper and lowercase letters as well as numbers, special characters and CRLF are allowed, whereas
 /// the original Enigma machine only supported uppercase characters.
 /// </remarks>
-public class EnigmaMachine
+public sealed class EnigmaMachine
 {
     /// <summary>
     /// An array of integer values that will be used as the cycle size value that will be passed
@@ -261,7 +261,7 @@ public class EnigmaMachine
 
                 char c = nextChar is LineFeed ? MaxChar : nextChar is < MinChar or >= MaxChar ? MinChar : nextChar;
                 int original = CharToInt(c);
-                int transformed = _rotors[0].TransformIn(original);
+                int transformed = _rotors[0].Transform(original);
 
                 if (transformed is MaxIndex)
                 {

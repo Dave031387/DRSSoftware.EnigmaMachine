@@ -205,7 +205,11 @@ This whole process could be written more concisely like so (note the second line
 Lamp Board(Q) < (Q)Plugboard(C) < (C)Rotor #1(U) < (U)Rotor #2(B) < (B)Rotor #3(W) < (W)Reflector <-|
 ```
 
-After the first key was pressed, Rotor #1 would rotate one pin position. So, effectively its wiring would now look like this:
+After the first key was pressed, Rotor #1 would rotate one pin position. When a rotor rotates, what was the "A" pin moves one position and becomes the
+"B" pin. What was the "B" pin moves and becomes the "C" pin. Until we get to the "Z" pin which becomes the "A" pin after rotation. If you look at the
+chart for Rotor #1 above you see that the "A" pin on the right side of the rotor is connected to the "G" pin on the left side. So when the rotor is
+rotated one position, this would become the "B" pin on the right side connected to the "H" pin on the left side. Thus we end up with the following
+after rotating Rotor #1 one position:
 
 ```
 Rotor #1
@@ -214,12 +218,6 @@ Rotor #1
     EHOVCJQXALSZGNUBIPWDKRYFMT  (left side)
 ```
 
-The way to think of this is that the pin positions of the rotors and reflector are always taken in relation to the stationary entry wheel. So, the pin
-on Rotor #1 that is in contact with the "A" pin of the entry wheel would be in contact with the "B" pin of the entry wheel after it was rotated one
-position. Likewise, before Rotor #1 was rotated, that pin would have been wired to the "G" pin on the other side of the rotor. That pin also rotates
-one position, becoming the "H" pin. And so now we have the "B" pin wired to the "H" pin. The wiring of the remaining pins all shift in the same
-manner.
-
 If we were to type "L" on the keyboard again at this point, it would then look like this (assuming no other rotors rotated):
 
 ```
@@ -227,9 +225,9 @@ If we were to type "L" on the keyboard again at this point, it would then look l
 Lamp Board(V) < (V)Plugboard(A) < (A)Rotor #1(G) < (G)Rotor #2(J) < (J)Rotor #3(G) < (G)Reflector <-|
 ```
 
-The value returned this time is "V" instead of the "Q" which was returned the first time. It was this feature that made the Enigma machine so hard to
-crack since the cipher changed with each key press. One thing to note, though, is that the encrypted value can never be the same as the value that was
-typed on the keyboard. Typing "L" on the keyboard will never result in the "L" lamp being lit up no matter how the Enigma machine was configured. This
-is one of the features that eventually aided the Allies in cracking the Enigma code.
+The value returned this time is "V" instead of the "Q" which was returned the first time even though we pressed the same key. It was this feature that
+made the Enigma machine so hard to crack since the cipher changed with each key press. One thing to note, though, is that the encrypted value can
+never be the same as the value that was typed on the keyboard. Typing "L" on the keyboard will never result in the "L" lamp being lit up no matter how
+the Enigma machine was configured. This is one of the features that eventually aided the Allies in cracking the Enigma code.
 
 ## Enigma V2 Class Library
