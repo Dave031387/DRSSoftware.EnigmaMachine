@@ -20,22 +20,49 @@ internal sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// the incoming component of the Enigma V2 machine. The transformed value is then sent on to
     /// the outgoing component.
     /// </summary>
-    internal readonly int[] _incomingTable = new int[TableSize];
+    private readonly int[] _incomingTable = new int[TableSize];
 
     /// <summary>
     /// This table is used to look up the transformed value corresponding to the value coming from
     /// the outgoing component of the Enigma V2 machine. The transformed value is then sent on to
     /// the incoming component.
     /// </summary>
-    internal readonly int[] _outgoingTable = new int[TableSize];
+    private readonly int[] _outgoingTable = new int[TableSize];
 
     /// <summary>
-    /// A boolean flag that is set to <see langword="true" /> when an incoming cipher value is
-    /// transformed and sent on to the outgoing component. <br /> The flag is reset to
-    /// <see langword="false" /> when the transformed cipher value makes the return trip back in
-    /// from the outgoing component.
+    /// Get a boolean value indicating whether or not a transform is in progress.
     /// </summary>
-    internal bool _transformIsInProgress;
+    public bool TransformIsInProgress
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
+    /// Gets a copy of the incoming table. For unit testing purposes only.
+    /// </summary>
+    internal int[] IncomingTable
+    {
+        get
+        {
+            int[] copyTable = new int[TableSize];
+            _incomingTable.CopyTo(copyTable, 0);
+            return copyTable;
+        }
+    }
+
+    /// <summary>
+    /// Gets a copy of the outgoing table. For unit testing purposes only.
+    /// </summary>
+    internal int[] OutgoingTable
+    {
+        get
+        {
+            int[] copyTable = new int[TableSize];
+            _outgoingTable.CopyTo(copyTable, 0);
+            return copyTable;
+        }
+    }
 
     /// <summary>
     /// Connect the specified <paramref name="rotor" /> object to the incoming side of this
@@ -145,7 +172,7 @@ internal sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
         _cipherIndex = 0;
         _cycleCount = 0;
         _isInitialized = true;
-        _transformIsInProgress = false;
+        TransformIsInProgress = false;
     }
 
     /// <summary>
@@ -178,15 +205,15 @@ internal sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
                 throw new InvalidOperationException("An outgoing cipher wheel hasn't been connected to this rotor.");
             }
 
-            if (_transformIsInProgress)
+            if (TransformIsInProgress)
             {
-                _transformIsInProgress = false;
+                TransformIsInProgress = false;
                 int transformOut = GetTransformedValue(_outgoingTable, c);
 
                 return _cipherWheelIn is not null ? _cipherWheelIn.Transform(transformOut) : transformOut;
             }
 
-            _transformIsInProgress = true;
+            TransformIsInProgress = true;
             Rotate();
 
             int transformIn = GetTransformedValue(_incomingTable, c);
@@ -195,5 +222,55 @@ internal sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
         }
 
         throw new InvalidOperationException("The rotor must be initialized before the Transform method is called.");
+    }
+
+    /// <summary>
+    /// Gets the value from the incoming table at the specified index location. For unit testing
+    /// only.
+    /// </summary>
+    /// <param name="index">
+    /// The index of the value to be returned.
+    /// </param>
+    /// <returns>
+    /// The value located at the specified index location of the incoming table.
+    /// </returns>
+    internal int GetIncomingValue(int index) => _incomingTable[index];
+
+    /// <summary>
+    /// Gets the value from the outgoing table at the specified index location. For unit testing
+    /// only.
+    /// </summary>
+    /// <param name="index">
+    /// The index of the value to be returned.
+    /// </param>
+    /// <returns>
+    /// The value located at the specified index location of the outgoing table.
+    /// </returns>
+    internal int GetOutgoingValue(int index) => _outgoingTable[index];
+
+    /// <summary>
+    /// This method is used strictly for unit testing. It allows the test method to set the initial
+    /// state of the rotor.
+    /// </summary>
+    /// <param name="cipherIndex">
+    /// The value of the cipher index.
+    /// </param>
+    /// <param name="cycleCount">
+    /// The value of the cycle count.
+    /// </param>
+    /// <param name="isInitialized">
+    /// A boolean value indicating whether or not the instance is initialized.
+    /// </param>
+    /// <param name="transformIsInProgress">
+    /// A boolean value indicating whether or not a transform is in progress.
+    /// </param>
+    internal void SetState(int? cipherIndex, int? cycleCount, bool? isInitialized, bool? transformIsInProgress)
+    {
+        if (transformIsInProgress is not null)
+        {
+            TransformIsInProgress = (bool)transformIsInProgress;
+        }
+
+        base.SetState(cipherIndex, cycleCount, isInitialized);
     }
 }

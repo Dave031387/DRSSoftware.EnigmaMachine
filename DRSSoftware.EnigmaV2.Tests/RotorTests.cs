@@ -15,7 +15,7 @@ public class RotorTests
         rotor.ConnectIncoming(mock.Object);
 
         // Assert
-        rotor._cipherWheelIn
+        rotor.CipherWheelIn
             .Should()
             .BeSameAs(mock.Object);
     }
@@ -25,12 +25,11 @@ public class RotorTests
     {
         // Arrange
         Rotor rotor = new(1);
-        Mock<IRotor> mock = new(MockBehavior.Strict);
-        rotor._cipherWheelIn = mock.Object;
+        rotor.ConnectIncoming(new Rotor(11));
         string expected = "Invalid attempt to add an incoming rotor when one is already defined for this rotor.";
 
         // Act
-        Action action = () => rotor.ConnectIncoming(mock.Object);
+        Action action = () => rotor.ConnectIncoming(new Rotor(13));
 
         // Assert
         action
@@ -65,7 +64,7 @@ public class RotorTests
         rotor.ConnectOutgoing(mock.Object);
 
         // Assert
-        rotor._cipherWheelOut
+        rotor.CipherWheelOut
             .Should()
             .BeSameAs(mock.Object);
     }
@@ -75,12 +74,11 @@ public class RotorTests
     {
         // Arrange
         Rotor rotor = new(1);
-        Mock<ICipherWheel> mock = new(MockBehavior.Strict);
-        rotor._cipherWheelOut = mock.Object;
+        rotor.ConnectOutgoing(new Rotor(11));
         string expected = "Invalid attempt to add an outgoing cipher wheel when one is already defined for this rotor.";
 
         // Act
-        Action action = () => rotor.ConnectOutgoing(mock.Object);
+        Action action = () => rotor.ConnectOutgoing(new Rotor(13));
 
         // Assert
         action
@@ -111,29 +109,29 @@ public class RotorTests
         Rotor rotor = new(1);
 
         // Assert
-        rotor._incomingTable
+        rotor.IncomingTable
             .Should()
             .HaveCount(TableSize)
             .And
             .OnlyContain(static x => x == 0);
-        rotor._outgoingTable
+        rotor.OutgoingTable
             .Should()
             .HaveCount(TableSize)
             .And
             .OnlyContain(static x => x == 0);
-        rotor._isInitialized
+        rotor.IsInitialized
             .Should()
             .BeFalse();
-        rotor._cipherWheelIn
+        rotor.CipherWheelIn
             .Should()
             .BeNull();
-        rotor._cipherIndex
+        rotor.CipherIndex
             .Should()
             .Be(0);
-        rotor._cipherWheelOut
+        rotor.CipherWheelOut
             .Should()
             .BeNull();
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
             .BeFalse();
     }
@@ -154,7 +152,7 @@ public class RotorTests
         Rotor rotor = new(cycleSize);
 
         // Assert
-        rotor._cycleSize
+        rotor.CycleSize
             .Should()
             .Be(expected);
     }
@@ -163,12 +161,8 @@ public class RotorTests
     public void Initialize_ShouldProperlyInitializeTheRotor()
     {
         // Arrange
-        Rotor rotor = new(1)
-        {
-            _isInitialized = false,
-            _cipherIndex = 7,
-            _transformIsInProgress = true
-        };
+        Rotor rotor = new(1);
+        rotor.SetState(7, null, null, true);
         int maxMatches = 4;
 
         // Act
@@ -179,28 +173,28 @@ public class RotorTests
 
         for (int i = 0; i < TableSize; i++)
         {
-            int j = rotor._incomingTable[i];
+            int j = rotor.GetIncomingValue(i);
 
             if (i == j)
             {
                 matches++;
             }
 
-            rotor._outgoingTable[j]
+            rotor.GetOutgoingValue(j)
                 .Should()
-                .Be(i, $"_outgoingTable[{j}] should be {i}, but it was {rotor._outgoingTable[j]}");
+                .Be(i, $"_outgoingTable[{j}] should be {i}, but it was {rotor.GetOutgoingValue(j)}");
         }
 
         matches
             .Should()
             .BeLessThanOrEqualTo(maxMatches, $"there shouldn't be more than {maxMatches} connections that aren't shuffled, but found {matches}");
-        rotor._isInitialized
+        rotor.IsInitialized
             .Should()
             .BeTrue();
-        rotor._cipherIndex
+        rotor.CipherIndex
             .Should()
             .Be(0);
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
             .BeFalse();
     }
@@ -279,7 +273,7 @@ public class RotorTests
         actual
             .Should()
             .Be(expected);
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
             .BeFalse();
     }
@@ -313,10 +307,10 @@ public class RotorTests
         actual
             .Should()
             .Be(transformedValue);
-        rotor._cipherIndex
+        rotor.CipherIndex
             .Should()
             .Be(expectedIndex);
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
             .BeTrue();
     }
@@ -390,11 +384,9 @@ public class RotorTests
     public void TransformInWithDifferentCycleCounts_ShouldRotateWhenExpected(int cycleSize, int cycleCount, int updatedCount, int expected)
     {
         // Arrange
-        Rotor rotor = new(1);
+        Rotor rotor = new(cycleSize);
         rotor.Initialize(_seed);
-        rotor._cipherIndex = 77;
-        rotor._cycleSize = cycleSize;
-        rotor._cycleCount = cycleCount;
+        rotor.SetState(77, cycleCount, null, null);
         Mock<ICipherWheel> mock = new(MockBehavior.Strict);
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(66)
@@ -406,10 +398,10 @@ public class RotorTests
 
         // Assert
         mock.VerifyAll();
-        rotor._cipherIndex
+        rotor.CipherIndex
             .Should()
             .Be(expected);
-        rotor._cycleCount
+        rotor.CycleCount
             .Should()
             .Be(updatedCount);
     }
@@ -418,18 +410,14 @@ public class RotorTests
     public void TransformOutWhenIncomingRotorIsConnected_ShouldReturnTransformedValue()
     {
         // Arrange
-        Rotor rotor = new(1)
-        {
-            _cipherWheelOut = new Rotor(13)
-        };
-        rotor.Initialize(_seed);
-        rotor._transformIsInProgress = true;
+        Rotor rotor = new(1);
         int expected = 35;
         Mock<IRotor> mock = new(MockBehavior.Strict);
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(expected)
             .Verifiable(Times.Once);
-        rotor.ConnectIncoming(mock.Object);
+        rotor.ConnectOutgoing(mock.Object);
+        rotor.Initialize(_seed);
 
         // Act
         int actual = rotor.Transform(22);
@@ -439,9 +427,9 @@ public class RotorTests
         actual
             .Should()
             .Be(expected);
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
-            .BeFalse();
+            .BeTrue();
     }
 
     [Theory]
@@ -450,16 +438,15 @@ public class RotorTests
     [InlineData(50, 3, 47)]
     [InlineData(91, 12, 79)]
     [InlineData(12, 91, TableSize - 79)]
-    public void TransformOutWhenNoIncomingRotorIsConnected_ShouldReturnTransformedValue(int value, int rotorIndex, int lookupIndex)
+    public void TransformOutWhenNoIncomingRotorIsConnected_ShouldReturnTransformedValue(int value, int indexValue, int lookupIndex)
     {
         // Arrange
         Rotor rotor = new(1);
         rotor.Initialize(_seed);
-        rotor.SetIndex(rotorIndex);
-        rotor._cipherWheelOut = new Rotor(13);
-        rotor._transformIsInProgress = true;
-        int lookup = rotor._outgoingTable[lookupIndex];
-        int expected = lookup + rotorIndex > MaxIndex ? lookup + rotorIndex - TableSize : lookup + rotorIndex;
+        rotor.ConnectOutgoing(new Rotor(13));
+        rotor.SetState(indexValue, null, null, true);
+        int lookup = rotor.GetOutgoingValue(lookupIndex);
+        int expected = lookup + indexValue > MaxIndex ? lookup + indexValue - TableSize : lookup + indexValue;
 
         // Act
         int actual = rotor.Transform(value);
@@ -468,7 +455,7 @@ public class RotorTests
         actual
             .Should()
             .Be(expected);
-        rotor._transformIsInProgress
+        rotor.TransformIsInProgress
             .Should()
             .BeFalse();
     }

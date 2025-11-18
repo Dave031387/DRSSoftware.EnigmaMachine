@@ -6,6 +6,14 @@
 internal interface IRotor : ICipherWheel
 {
     /// <summary>
+    /// Get a boolean value indicating whether or not a transform is in progress.
+    /// </summary>
+    public bool TransformIsInProgress
+    {
+        get;
+    }
+
+    /// <summary>
     /// Connect the specified <paramref name="rotor" /> object to the incoming side of this rotor
     /// object.
     /// </summary>

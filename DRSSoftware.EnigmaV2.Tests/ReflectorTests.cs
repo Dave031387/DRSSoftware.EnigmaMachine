@@ -16,7 +16,7 @@ public class ReflectorTests
         reflector.ConnectOutgoing(mock.Object);
 
         // Assert
-        reflector._cipherWheelOut
+        reflector.CipherWheelOut
             .Should()
             .Be(mock.Object);
     }
@@ -26,14 +26,12 @@ public class ReflectorTests
     {
         // Arrange
         Mock<IRotor> mock = new(MockBehavior.Strict);
-        Reflector reflector = new(_cycleSize)
-        {
-            _cipherWheelOut = mock.Object
-        };
+        Reflector reflector = new(_cycleSize);
+        reflector.ConnectOutgoing(new Rotor(11));
         string expected = "Invalid attempt to add an outgoing rotor when one is already defined for this reflector.";
 
         // Act
-        Action action = () => reflector.ConnectOutgoing(mock.Object);
+        Action action = () => reflector.ConnectOutgoing(new Rotor(13));
 
         // Assert
         action
@@ -64,19 +62,19 @@ public class ReflectorTests
         Reflector reflector = new(_cycleSize);
 
         // Assert
-        reflector._cycleCount
+        reflector.CycleCount
             .Should()
             .Be(0);
-        reflector._cycleSize
+        reflector.CycleSize
             .Should()
             .Be(_cycleSize);
-        reflector._isInitialized
+        reflector.IsInitialized
             .Should()
             .BeFalse();
-        reflector._cipherIndex
+        reflector.CipherIndex
             .Should()
             .Be(0);
-        reflector._cipherWheelOut
+        reflector.CipherWheelOut
             .Should()
             .BeNull();
         reflector._reflectorTable
@@ -102,7 +100,7 @@ public class ReflectorTests
         Reflector reflector = new(cycleSize);
 
         // Assert
-        reflector._cycleSize
+        reflector.CycleSize
             .Should()
             .Be(expected);
     }
@@ -111,10 +109,8 @@ public class ReflectorTests
     public void Initialize_ShouldProperlyInitializeTheReflector()
     {
         // Arrange
-        Reflector reflector = new(_cycleSize)
-        {
-            _cipherIndex = 5
-        };
+        Reflector reflector = new(_cycleSize);
+        reflector.SetState(5, 6, false);
 
         // Act
         reflector.Initialize(_seed);
@@ -131,10 +127,13 @@ public class ReflectorTests
                 .Be(i);
         }
 
-        reflector._cipherIndex
+        reflector.CipherIndex
             .Should()
             .Be(0);
-        reflector._isInitialized
+        reflector.CycleCount
+            .Should()
+            .Be(0);
+        reflector.IsInitialized
             .Should()
             .BeTrue();
     }
@@ -190,9 +189,9 @@ public class ReflectorTests
             .Returns(static (int transformed) => { return transformed; })
             .Verifiable(Times.Exactly(2));
         reflector.ConnectOutgoing(mock.Object);
-        reflector._cipherIndex = reflectorIndex;
+        reflector.SetState(reflectorIndex, null, null);
         int transformed = reflector.Transform(expected);
-        reflector._cipherIndex = reflectorIndex;
+        reflector.SetState(reflectorIndex, null, null);
 
         // Act
         int actual = reflector.Transform(transformed);
@@ -261,7 +260,7 @@ public class ReflectorTests
             .Should()
             .ThrowExactly<InvalidOperationException>()
             .WithMessage(expected);
-        reflector._cipherIndex
+        reflector.CipherIndex
             .Should()
             .Be(0);
     }
@@ -279,9 +278,7 @@ public class ReflectorTests
         // Arrange
         Reflector reflector = new(cycleSize);
         reflector.Initialize(_seed);
-        reflector._cipherIndex = 57;
-        reflector._cycleSize = cycleSize;
-        reflector._cycleCount = cycleCount;
+        reflector.SetState(57, cycleCount, null);
         Mock<IRotor> mock = new(MockBehavior.Strict);
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(33)
@@ -293,10 +290,10 @@ public class ReflectorTests
 
         // Assert
         mock.VerifyAll();
-        reflector._cipherIndex
+        reflector.CipherIndex
             .Should()
             .Be(expected);
-        reflector._cycleCount
+        reflector.CycleCount
             .Should()
             .Be(updatedCount);
     }

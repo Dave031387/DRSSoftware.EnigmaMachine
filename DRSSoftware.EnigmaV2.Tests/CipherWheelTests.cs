@@ -8,7 +8,7 @@ public class CipherWheelTests
     public void DisplaceIndexWhenIndexOutOfRange_ShouldThrowException(int index)
     {
         // Arrange/Act
-        Action action = () => CipherWheel.DisplaceIndex(index, ' ');
+        Action action = () => MyCipherWheel.TestDisplaceIndex(index, ' ');
         string expected = $"The index passed into the DisplaceIndex method must be greater than or equal to zero and less than {TableSize}, but it was {index}. (Parameter '{nameof(index)}')";
 
         // Assert
@@ -31,7 +31,7 @@ public class CipherWheelTests
         int index = 10;
 
         // Act
-        int actual = CipherWheel.DisplaceIndex(index, seedChar);
+        int actual = MyCipherWheel.TestDisplaceIndex(index, seedChar);
 
         // Assert
         actual
@@ -52,7 +52,7 @@ public class CipherWheelTests
         int expected = index + 1;
 
         // Act
-        int actual = CipherWheel.DisplaceIndex(index, seedChar);
+        int actual = MyCipherWheel.TestDisplaceIndex(index, seedChar);
 
         // Assert
         actual
@@ -74,7 +74,7 @@ public class CipherWheelTests
         }
 
         // Act
-        Action action = () => CipherWheel.FindAvailableSlot(startIndex, slotIsTaken);
+        Action action = () => MyCipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
 
         // Assert
         action
@@ -103,7 +103,7 @@ public class CipherWheelTests
         }
 
         // Act
-        int actual = CipherWheel.FindAvailableSlot(startIndex, slotIsTaken);
+        int actual = MyCipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
 
         // Assert
         actual
@@ -127,15 +127,12 @@ public class CipherWheelTests
     public void GetTransformedValue_ShouldReturnExpectedValue(int baseValue, int cipherIndex, int expected)
     {
         // Arrange
-        MyCipherWheel myCipherWheel = new(13)
-        {
-            _cipherIndex = cipherIndex
-        };
-
+        MyCipherWheel myCipherWheel = new(13);
+        myCipherWheel.SetState(cipherIndex, null, null);
         int[] table = [12, 4, 9, 18, 10, 16, 1, 8, 19, 11, 2, 17, 0, 3, 13, 5, 14, 6, 15, 7];
 
         // Act
-        int actual = myCipherWheel.GetTransformedValue(table, baseValue);
+        int actual = myCipherWheel.TestGetTransformedValue(table, baseValue);
 
         // Assert
         actual
@@ -159,7 +156,7 @@ public class CipherWheelTests
     public void GetValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
     {
         // Arrange/Act
-        int actual = CipherWheel.GetValueWithOffset(baseValue, 50, offset);
+        int actual = MyCipherWheel.TestGetValueWithOffset(baseValue, 50, offset);
 
         // Assert
         actual
@@ -179,21 +176,17 @@ public class CipherWheelTests
     public void Rotate_ShouldReturnCorrectIndexAndCycleCount(int indexValue, int cycleCount, int cycleSize, int expectedIndexValue, int expectedCycleCount)
     {
         // Arrange/Act
-        MyCipherWheel myCipherWheel = new(cycleSize)
-        {
-            _cipherIndex = indexValue,
-            _cycleCount = cycleCount,
-            _isInitialized = true
-        };
+        MyCipherWheel myCipherWheel = new(cycleSize);
+        myCipherWheel.SetState(indexValue, cycleCount, true);
 
         // Act
-        myCipherWheel.Rotate();
+        myCipherWheel.TestRotate();
 
         // Assert
-        myCipherWheel._cipherIndex
+        myCipherWheel.CipherIndex
             .Should()
             .Be(expectedIndexValue);
-        myCipherWheel._cycleCount
+        myCipherWheel.CycleCount
             .Should()
             .Be(expectedCycleCount);
     }
@@ -223,10 +216,8 @@ public class CipherWheelTests
     public void SetIndexWhenValueIsOutOfRange_ShouldThrowException(int value)
     {
         // Arrange
-        MyCipherWheel myCipherWheel = new(1)
-        {
-            _isInitialized = true
-        };
+        MyCipherWheel myCipherWheel = new(1);
+        myCipherWheel.SetState(null, null, true);
         string expected = $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {value}. (Parameter 'indexValue')";
 
         // Act
@@ -262,19 +253,17 @@ public class CipherWheelTests
     public void SetIndexWithDifferentCycleSizes_ShouldCorrectlyInitializeCipherIndexAndCycleCount(int cycleSize, int expectedIndexValue, int expectedCycleCount)
     {
         // Arrange
-        MyCipherWheel myCipherWheel = new(cycleSize)
-        {
-            _isInitialized = true
-        };
+        MyCipherWheel myCipherWheel = new(cycleSize);
+        myCipherWheel.SetState(null, null, true);
 
         // Act
         myCipherWheel.SetIndex(expectedIndexValue);
 
         // Assert
-        myCipherWheel._cipherIndex
+        myCipherWheel.CipherIndex
             .Should()
             .Be(expectedIndexValue);
-        myCipherWheel._cycleCount
+        myCipherWheel.CycleCount
             .Should()
             .Be(expectedCycleCount);
     }
@@ -282,7 +271,17 @@ public class CipherWheelTests
 
 internal sealed class MyCipherWheel(int cycleSize) : CipherWheel(cycleSize)
 {
+    public static int TestDisplaceIndex(int index, char seedChar) => DisplaceIndex(index, seedChar);
+
+    public static int TestFindAvailableSlot(int startIndex, bool[] slotIsTaken) => FindAvailableSlot(startIndex, slotIsTaken);
+
+    public static int TestGetValueWithOffset(int baseValue, int arraySize, int offset) => GetValueWithOffset(baseValue, arraySize, offset);
+
     public override void Initialize(string seed) => throw new NotImplementedException();
+
+    public int TestGetTransformedValue(int[] table, int valueIn) => GetTransformedValue(table, valueIn);
+
+    public void TestRotate() => Rotate();
 
     public override int Transform(int c) => throw new NotImplementedException();
 }

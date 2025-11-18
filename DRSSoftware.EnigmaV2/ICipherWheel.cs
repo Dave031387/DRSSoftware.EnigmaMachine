@@ -11,6 +11,38 @@
 internal interface ICipherWheel
 {
     /// <summary>
+    /// Get the cipher index value.
+    /// </summary>
+    public int CipherIndex
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Get the cycle count value.
+    /// </summary>
+    public int CycleCount
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Get the cycle size value.
+    /// </summary>
+    public int CycleSize
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Get a boolean value indicating whether this instance has been initialized or not.
+    /// </summary>
+    public bool IsInitialized
+    {
+        get;
+    }
+
+    /// <summary>
     /// Initialize the reflector or rotor object using the given <paramref name="seed" /> value.
     /// </summary>
     /// <param name="seed">
