@@ -1,18 +1,18 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
 /// <summary>
-/// Defines all methods pertaining to the <see cref="Reflector" /> component of the Enigma V2
-/// machine.
+/// This interface defines the contract for the <see cref="Reflector" /> component of the
+/// <see cref="EnigmaMachine" />.
 /// </summary>
-internal interface IReflector : ICipherWheel
+public interface IReflector : ICipherWheel
 {
     /// <summary>
-    /// Connect the specified <paramref name="rotor" /> object to the outgoing side of this
-    /// reflector object.
+    /// Connect the specified <paramref name="rotor" /> object to the outbound side of this
+    /// <see cref="Reflector" /> object.
     /// </summary>
     /// <param name="rotor">
-    /// The <see cref="IRotor" /> object that is to be connected to the outgoing side of this
-    /// reflector object.
+    /// The <see cref="Rotor" /> object that is to be connected to the outbound side of this
+    /// <see cref="Reflector" /> object.
     /// </param>
-    public void ConnectOutgoing(IRotor rotor);
+    public void ConnectOutboundComponent(IRotor rotor);
 }

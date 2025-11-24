@@ -6,32 +6,32 @@ public class ReflectorTests
     private readonly string _seed = "ThisIsASimpleSeedString";
 
     [Fact]
-    public void ConnectOutgoing_ShouldCorrectlyConnectOutgoingRotor()
+    public void ConnectOutboundComponent_ShouldCorrectlyConnectOutboundRotor()
     {
         // Arrange
         Mock<IRotor> mock = new(MockBehavior.Strict);
         Reflector reflector = new(_cycleSize);
 
         // Act
-        reflector.ConnectOutgoing(mock.Object);
+        reflector.ConnectOutboundComponent(mock.Object);
 
         // Assert
-        reflector.CipherWheelOut
+        reflector.OutboundCipherWheel
             .Should()
             .Be(mock.Object);
     }
 
     [Fact]
-    public void ConnectOutgoingWhenAlreadyConnected_ShouldThrowException()
+    public void ConnectOutboundComponentWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
         Mock<IRotor> mock = new(MockBehavior.Strict);
         Reflector reflector = new(_cycleSize);
-        reflector.ConnectOutgoing(new Rotor(11));
-        string expected = "Invalid attempt to add an outgoing rotor when one is already defined for this reflector.";
+        reflector.ConnectOutboundComponent(new Rotor(11));
+        string expected = "Invalid attempt to add an outbound rotor when one is already defined for this reflector.";
 
         // Act
-        Action action = () => reflector.ConnectOutgoing(new Rotor(13));
+        Action action = () => reflector.ConnectOutboundComponent(new Rotor(13));
 
         // Assert
         action
@@ -41,13 +41,13 @@ public class ReflectorTests
     }
 
     [Fact]
-    public void ConnectOutgoingWhenParameterIsNull_ShouldThrowException()
+    public void ConnectOutboundComponentWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
         Reflector reflector = new(_cycleSize);
 
         // Act
-        Action action = () => reflector.ConnectOutgoing(null!);
+        Action action = () => reflector.ConnectOutboundComponent(null!);
 
         // Assert
         action
@@ -74,10 +74,10 @@ public class ReflectorTests
         reflector.CipherIndex
             .Should()
             .Be(0);
-        reflector.CipherWheelOut
+        reflector.OutboundCipherWheel
             .Should()
             .BeNull();
-        reflector._reflectorTable
+        reflector.OutboundTransformTable
             .Should()
             .OnlyContain(static x => x == 0)
             .And
@@ -116,13 +116,15 @@ public class ReflectorTests
         reflector.Initialize(_seed);
 
         // Assert
+        int[] reflectorTable = reflector.OutboundTransformTable;
+
         for (int i = 0; i < TableSize; i++)
         {
-            int j = reflector._reflectorTable[i];
-            reflector._reflectorTable[i]
+            int j = reflectorTable[i];
+            reflectorTable[i]
                 .Should()
                 .NotBe(i);
-            reflector._reflectorTable[j]
+            reflectorTable[j]
                 .Should()
                 .Be(i);
         }
@@ -188,7 +190,7 @@ public class ReflectorTests
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(static (int transformed) => { return transformed; })
             .Verifiable(Times.Exactly(2));
-        reflector.ConnectOutgoing(mock.Object);
+        reflector.ConnectOutboundComponent(mock.Object);
         reflector.SetState(reflectorIndex, null, null);
         int transformed = reflector.Transform(expected);
         reflector.SetState(reflectorIndex, null, null);
@@ -209,7 +211,7 @@ public class ReflectorTests
         Reflector reflector = new(_cycleSize);
         reflector.Initialize(_seed);
         Mock<IRotor> mock = new(MockBehavior.Strict);
-        reflector.ConnectOutgoing(mock.Object);
+        reflector.ConnectOutboundComponent(mock.Object);
         int expected = 33;
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(expected)
@@ -243,14 +245,12 @@ public class ReflectorTests
     }
 
     [Fact]
-    public void TransformWhenOutgoingRotorIsNull_ShouldThrowException()
+    public void TransformWhenOutboundRotorIsNull_ShouldThrowException()
     {
         // Arrange
         Reflector reflector = new(_cycleSize);
         reflector.Initialize(_seed);
-        int[] originalTable = new int[TableSize];
-        reflector._reflectorTable.CopyTo(originalTable, 0);
-        string expected = "The outgoing rotor hasn't been connected to the reflector.";
+        string expected = "The outbound rotor hasn't been connected to the reflector.";
 
         // Act
         Action action = () => reflector.Transform(32);
@@ -283,7 +283,7 @@ public class ReflectorTests
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(33)
             .Verifiable(Times.Once);
-        reflector.ConnectOutgoing(mock.Object);
+        reflector.ConnectOutboundComponent(mock.Object);
 
         // Act
         int actual = reflector.Transform(42);

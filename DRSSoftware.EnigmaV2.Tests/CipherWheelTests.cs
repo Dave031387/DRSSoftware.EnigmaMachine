@@ -1,5 +1,7 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
+using System.Diagnostics.CodeAnalysis;
+
 public class CipherWheelTests
 {
     [Theory]
@@ -61,7 +63,7 @@ public class CipherWheelTests
     }
 
     [Fact]
-    public void FindAvailableSlotWhenNoneAreAvailable_ShouldThrowException()
+    public void FindAvailableConnectionPointWhenNoneAreAvailable_ShouldThrowException()
     {
         // Arrange
         bool[] slotIsTaken = new bool[TableSize];
@@ -90,7 +92,7 @@ public class CipherWheelTests
     [InlineData(36, 44)]
     [InlineData(44, 44)]
     [InlineData(45, 10)]
-    public void FindAvailableSlotWhenSlotsAreAvailable_ShouldReturnIndexToNextAvailableSlot(int startIndex, int expected)
+    public void FindAvailableConnectionPointWhenSomeAreAvailable_ShouldReturnIndexToNextAvailableSlot(int startIndex, int expected)
     {
         // Arrange
         bool[] slotIsTaken = new bool[TableSize];
@@ -153,7 +155,7 @@ public class CipherWheelTests
     [InlineData(45, 12, 7)]
     [InlineData(0, 49, 49)]
     [InlineData(57, 13, 20)]
-    public void GetValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
+    public void GetIndexValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
     {
         // Arrange/Act
         int actual = MyCipherWheel.TestGetValueWithOffset(baseValue, 50, offset);
@@ -167,8 +169,8 @@ public class CipherWheelTests
     [Theory]
     [InlineData(0, 0, 0, 0, 0)]
     [InlineData(2, 5, 0, 2, 5)]
-    [InlineData(3, 2, 1, 4, 0)]
-    [InlineData(TableSize - 1, 1, 1, 0, 0)]
+    [InlineData(3, 0, 1, 4, 0)]
+    [InlineData(TableSize - 1, 0, 1, 0, 0)]
     [InlineData(5, 0, 2, 5, 1)]
     [InlineData(5, 1, 2, 6, 0)]
     [InlineData(10, 11, 13, 10, 12)]
@@ -269,13 +271,14 @@ public class CipherWheelTests
     }
 }
 
+[ExcludeFromCodeCoverage]
 internal sealed class MyCipherWheel(int cycleSize) : CipherWheel(cycleSize)
 {
     public static int TestDisplaceIndex(int index, char seedChar) => DisplaceIndex(index, seedChar);
 
-    public static int TestFindAvailableSlot(int startIndex, bool[] slotIsTaken) => FindAvailableSlot(startIndex, slotIsTaken);
+    public static int TestFindAvailableSlot(int startIndex, bool[] slotIsTaken) => FindAvailableConnectionPoint(startIndex, slotIsTaken);
 
-    public static int TestGetValueWithOffset(int baseValue, int arraySize, int offset) => GetValueWithOffset(baseValue, arraySize, offset);
+    public static int TestGetValueWithOffset(int baseValue, int arraySize, int offset) => GetIndexValueWithOffset(baseValue, arraySize, offset);
 
     public override void Initialize(string seed) => throw new NotImplementedException();
 

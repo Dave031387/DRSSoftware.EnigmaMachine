@@ -15,28 +15,92 @@ public class EnigmaMachineTests
 
         // Assert
         VerifyAll();
-        enigmaMachine._reflector
+        enigmaMachine.MyReflector
             .Should()
             .NotBeNull()
             .And
             .BeSameAs(_mockReflector.Object);
-        enigmaMachine._rotors
+        enigmaMachine.Rotor1
             .Should()
             .NotBeNull()
             .And
-            .HaveCount(3)
+            .BeSameAs(_mockRotor1.Object);
+        enigmaMachine.Rotor2
+            .Should()
+            .NotBeNull()
             .And
-            .ContainInOrder(_mockRotor1.Object, _mockRotor2.Object, _mockRotor3.Object);
-        enigmaMachine._transformerIndexes
+            .BeSameAs(_mockRotor2.Object);
+        enigmaMachine.Rotor3
+            .Should()
+            .NotBeNull()
+            .And
+            .BeSameAs(_mockRotor3.Object);
+        enigmaMachine.CipherWheelIndexes
             .Should()
             .NotBeNull()
             .And
             .HaveCount(4)
             .And
             .OnlyContain(x => x == 0);
-        enigmaMachine._isInitialized
+        enigmaMachine.IsInitialized
             .Should()
             .BeFalse();
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithNoRotors_ShouldThrowException()
+    {
+        // Arrange
+        string expected = "The rotors collection passed into the constructor must contain at least one element. (Parameter 'rotors')";
+
+        // Act
+        Action action = () => _ = new EnigmaMachine(_mockReflector.Object, []);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentException>()
+            .WithMessage(expected);
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithNullReflector_ShouldThrowException()
+    {
+        // Arrange/Act
+        Action action = () => _ = new EnigmaMachine(null!, [_mockRotor1.Object, _mockRotor2.Object, _mockRotor3.Object]);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithNullRotorInList_ShouldThrowException()
+    {
+        // Arrange
+        string expected = "The rotor at index 1 is null. All rotors passed into the constructor must be non-null. (Parameter 'rotors')";
+
+        // Act
+        Action action = () => _ = new EnigmaMachine(_mockReflector.Object, [_mockRotor1.Object, null!, _mockRotor3.Object]);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentException>()
+            .WithMessage(expected);
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithNullRotorList_ShouldThrowException()
+    {
+        // Arrange/Act
+        Action action = () => _ = new EnigmaMachine(_mockReflector.Object, null!);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentNullException>();
     }
 
     [Fact]
@@ -53,7 +117,7 @@ public class EnigmaMachineTests
         action
             .Should()
             .ThrowExactly<ArgumentNullException>();
-        enigmaMachine._isInitialized
+        enigmaMachine.IsInitialized
             .Should()
             .BeFalse();
     }
@@ -64,7 +128,7 @@ public class EnigmaMachineTests
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
         int[] initialIndexes = [1, 2, 3, 4];
-        initialIndexes.CopyTo(enigmaMachine._transformerIndexes, 0);
+        enigmaMachine.SetState(null, initialIndexes);
         string seed = "This is a seed value used for unit testing.";
         string reflectorSeed = "";
         string rotorSeed1 = "";
@@ -116,10 +180,10 @@ public class EnigmaMachineTests
         rotorSeed3
             .Should()
             .HaveLength(seed.Length);
-        enigmaMachine._isInitialized
+        enigmaMachine.IsInitialized
             .Should()
             .BeTrue();
-        enigmaMachine._transformerIndexes
+        enigmaMachine.CipherWheelIndexes
             .Should()
             .OnlyContain(x => x == 0);
     }
@@ -129,13 +193,12 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
         const int index1 = 1;
         const int index2 = 2;
         const int index3 = 3;
         const int index4 = 4;
         int[] indexValues = [index1, index2, index3, index4];
-        indexValues.CopyTo(enigmaMachine._transformerIndexes, 0);
+        enigmaMachine.SetState(true, indexValues);
         _mockRotor1
             .Setup(static m => m.SetIndex(index1))
             .Verifiable(Times.Once);
@@ -174,7 +237,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
+        enigmaMachine.SetState(true, null);
         const int index1 = 11;
         const int index2 = 22;
         const int index3 = 33;
@@ -197,7 +260,7 @@ public class EnigmaMachineTests
 
         // Assert
         VerifyAll();
-        enigmaMachine._transformerIndexes
+        enigmaMachine.CipherWheelIndexes
             .Should()
             .ContainInOrder(index1, index2, index3, index4);
     }
@@ -218,7 +281,7 @@ public class EnigmaMachineTests
             .Should()
             .ThrowExactly<InvalidOperationException>()
             .WithMessage(expected);
-        enigmaMachine._transformerIndexes
+        enigmaMachine.CipherWheelIndexes
             .Should()
             .OnlyContain(x => x == 0);
     }
@@ -228,7 +291,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
+        enigmaMachine.SetState(true, null);
 
         // Act
         Action action = () => enigmaMachine.SetIndexes(null!);
@@ -247,7 +310,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
+        enigmaMachine.SetState(true, null);
         string expected = $"Exactly 4 index values must be passed into the SetIndexes method, but there {word} {indexes.Length}. (Parameter 'indexes')";
 
         // Act
@@ -258,7 +321,7 @@ public class EnigmaMachineTests
             .Should()
             .ThrowExactly<ArgumentException>()
             .WithMessage(expected);
-        enigmaMachine._transformerIndexes
+        enigmaMachine.CipherWheelIndexes
             .Should()
             .OnlyContain(x => x == 0);
     }
@@ -276,7 +339,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
+        enigmaMachine.SetState(true, null);
         _mockRotor1
             .Setup(m => m.Transform(adjusted))
             .Returns(transformed)
@@ -315,7 +378,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        enigmaMachine._isInitialized = true;
+        enigmaMachine.SetState(true, null);
 
         // Act
         Action action = () => enigmaMachine.Transform(null!);
@@ -334,22 +397,22 @@ public class EnigmaMachineTests
         _mockRotor2.Reset();
         _mockRotor3.Reset();
         _mockReflector
-            .Setup(m => m.ConnectOutgoing(_mockRotor3.Object))
+            .Setup(m => m.ConnectOutboundComponent(_mockRotor3.Object))
             .Verifiable(Times.Once);
         _mockRotor1
-            .Setup(m => m.ConnectOutgoing(_mockRotor2.Object))
+            .Setup(m => m.ConnectOutboundComponent(_mockRotor2.Object))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(m => m.ConnectIncoming(_mockRotor1.Object))
+            .Setup(m => m.ConnectInboundComponent(_mockRotor1.Object))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(m => m.ConnectOutgoing(_mockRotor3.Object))
+            .Setup(m => m.ConnectOutboundComponent(_mockRotor3.Object))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(m => m.ConnectIncoming(_mockRotor2.Object))
+            .Setup(m => m.ConnectInboundComponent(_mockRotor2.Object))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(m => m.ConnectOutgoing(_mockReflector.Object))
+            .Setup(m => m.ConnectOutboundComponent(_mockReflector.Object))
             .Verifiable(Times.Once);
         return new(_mockReflector.Object, _mockRotor1.Object, _mockRotor2.Object, _mockRotor3.Object);
     }

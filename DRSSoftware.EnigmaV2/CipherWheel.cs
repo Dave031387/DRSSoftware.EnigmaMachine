@@ -1,88 +1,106 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
-internal abstract class CipherWheel(int cycleSize) : ICipherWheel
+/// <summary>
+/// The <see cref="CipherWheel" /> class provides a base implementation for both the
+/// <see cref="Reflector" /> and <see cref="Rotor" /> classes.
+/// </summary>
+/// <remarks>
+/// The general term "cipher wheel" refers to either the <see cref="Reflector" /> or
+/// <see cref="Rotor" /> objects. Both types of objects are used for transforming an input value to
+/// yield an output value.
+/// </remarks>
+/// <param name="cycleSize">
+/// An integer that indicates how many transforms will be performed between each rotation of the
+/// <see cref="CipherWheel" />.
+/// </param>
+public abstract class CipherWheel(int cycleSize) : ICipherWheel
 {
-    /// <summary>
-    /// An integer that indicates how far this cipher wheel has been rotated from its starting
-    /// position.
-    /// </summary>
-    protected int _cipherIndex;
-
-    /// <summary>
-    /// A reference to the <see cref="ICipherWheel" /> object that comes before this
-    /// <see cref="CipherWheel" /> object, or <see langword="null" /> if this
-    /// <see cref="CipherWheel" /> is the first <see cref="Rotor" /> in sequence.
-    /// </summary>
-    /// <remarks>
-    /// This field, if not <see langword="null" />, will always reference an <see cref="IRotor" />
-    /// object which derives from <see cref="ICipherWheel" />.
-    /// </remarks>
-    protected ICipherWheel? _cipherWheelIn;
-
-    /// <summary>
-    /// A reference to the <see cref="ICipherWheel" /> object (either <see cref="Rotor" /> or
-    /// <see cref="Reflector" />) that comes after this <see cref="CipherWheel" /> object.
-    /// </summary>
-    /// <remarks>
-    /// If this <see cref="CipherWheel" /> object is a <see cref="Reflector" /> object, then this
-    /// field will always reference an <see cref="IRotor" /> object which derives from
-    /// <see cref="ICipherWheel" />.
-    /// </remarks>
-    protected ICipherWheel? _cipherWheelOut;
-
-    /// <summary>
-    /// Contains the count of how many transforms have been performed since the last rotation of the
-    /// cipher wheel.
-    /// </summary>
-    protected int _cycleCount;
-
-    /// <summary>
-    /// An integer that indicates how many transforms will be performed between each rotation of the
-    /// cipher wheel.
-    /// </summary>
-    /// <remarks>
-    /// This value is constrained to be within the range from 0 to <see cref="MaxIndex" />. A value
-    /// of 0 indicates that the cipher wheel should never be rotated.
-    /// </remarks>
-    protected int _cycleSize = cycleSize < 0 ? 0 : cycleSize > MaxIndex ? MaxIndex : cycleSize;
-
-    /// <summary>
-    /// A boolean flag that gets set to <see langword="true" /> when this <see cref="CipherWheel" />
-    /// instance has been initialized and is ready for use.
-    /// </summary>
-    protected bool _isInitialized;
-
     /// <summary>
     /// Get the cipher index value.
     /// </summary>
-    public int CipherIndex => _cipherIndex;
+    /// <remarks>
+    /// This value indicates the current rotational position of the <see cref="Reflector" /> or
+    /// <see cref="Rotor" /> object. <br /> This value will get reset back to zero if an attempt is
+    /// made to increment it past its maximum value.
+    /// </remarks>
+    public int CipherIndex
+    {
+        get;
+        private protected set;
+    }
 
     /// <summary>
-    /// Get the cycle count value.
+    /// Gets the cycle count value.
     /// </summary>
-    public int CycleCount => _cycleCount;
+    /// <remarks>
+    /// This value indicates how many character transformations have been performed since the last
+    /// time the <see cref="CipherIndex" /> value was incremented.
+    /// </remarks>
+    public int CycleCount
+    {
+        get;
+        private protected set;
+    }
 
     /// <summary>
-    /// Get the cycle size value.
+    /// Gets the cycle size value.
     /// </summary>
-    public int CycleSize => _cycleSize;
+    /// <remarks>
+    /// This value determines how large the <see cref="CycleCount" /> will get before incrementing
+    /// the <see cref="CipherIndex" /> and resetting the <see cref="CycleCount" /> back to zero.
+    /// <br /> This value is constrained to be within the range from 0 to <see cref="MaxIndex" />. A
+    /// value of 0 indicates that the cipher wheel should never be rotated.
+    /// </remarks>
+    public int CycleSize
+    {
+        get;
+    } = cycleSize < 0 ? 0 : cycleSize > MaxIndex ? MaxIndex : cycleSize;
 
     /// <summary>
-    /// Get a boolean value indicating whether this instance has been initialized or not.
+    /// Gets a value indicating whether this instance has been initialized or not.
     /// </summary>
-    public bool IsInitialized => _isInitialized;
+    /// <remarks>
+    /// This property is set to <see langword="true" /> once the <c> "Initialize(string)" </c>
+    /// method has successfully completed.
+    /// </remarks>
+    public bool IsInitialized
+    {
+        get;
+        private protected set;
+    }
 
     /// <summary>
-    /// Get a reference to the incoming cipher wheel. This property is intended for unit testing
-    /// purposes only.
+    /// Gets a reference to the <see cref="Rotor" /> object that comes before this
+    /// <see cref="CipherWheel" /> object.
     /// </summary>
-    internal ICipherWheel? CipherWheelIn => _cipherWheelIn;
+    /// <remarks>
+    /// This property will be <see langword="null" /> if this <see cref="CipherWheel" /> object is
+    /// the first <see cref="Rotor" /> object in sequence, or if it is the <see cref="Reflector" />
+    /// object. <br /> Otherwise, this property will always reference the previous
+    /// <see cref="Rotor" /> object in sequence.
+    /// </remarks>
+    internal ICipherWheel? InboundCipherWheel
+    {
+        get;
+        private protected set;
+    }
 
     /// <summary>
-    /// Get a reference to the outgoing cipher wheel. This property is intended for unit testing
-    /// purposes only.
+    /// Gets a reference to the <see cref="Rotor" /> or <see cref="Reflector" /> object that comes
+    /// after this <see cref="CipherWheel" /> object.
     /// </summary>
-    internal ICipherWheel? CipherWheelOut => _cipherWheelOut;
+    /// <remarks>
+    /// This property will reference the <see cref="Reflector" /> object if this
+    /// <see cref="CipherWheel" /> object is the last <see cref="Rotor" /> in sequence. <br /> Or,
+    /// it will reference the last <see cref="Rotor" /> object if this <see cref="CipherWheel" />
+    /// object is the <see cref="Reflector" />. <br /> Otherwise, this property will always
+    /// reference the next <see cref="Rotor" /> object in sequence.
+    /// </remarks>
+    internal ICipherWheel? OutboundCipherWheel
+    {
+        get;
+        private protected set;
+    }
 
     /// <summary>
     /// Initialize this <see cref="CipherWheel" /> object using the specified
@@ -90,11 +108,11 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// </summary>
     /// <remarks>
     /// The <paramref name="seed" /> value is used for randomizing the connections between the
-    /// incoming and outgoing sides of this <see cref="CipherWheel" /> object.
+    /// inbound and outbound sides of this <see cref="CipherWheel" /> object.
     /// </remarks>
     /// <param name="seed">
     /// A <see langword="string" /> value used for randomizing the connections within this
-    /// <see cref="CipherWheel" /> object.
+    /// <see cref="CipherWheel" /> object. Must not be <see langword="null" />.
     /// </param>
     public abstract void Initialize(string seed);
 
@@ -106,8 +124,8 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// The integer value that the cipher index is to be set to.
     /// </param>
     /// <exception cref="ArgumentOutOfRangeException">
-    /// Thrown if the <paramref name="indexValue" /> is less than zero or greater than or equal to
-    /// the table size.
+    /// Thrown if the <paramref name="indexValue" /> is less than zero or greater than the maximum
+    /// index value.
     /// </exception>
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called prior to initializing this <see cref="CipherWheel" />
@@ -115,15 +133,15 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// </exception>
     public void SetIndex(int indexValue)
     {
-        if (_isInitialized)
+        if (IsInitialized)
         {
             if (indexValue is < 0 or > MaxIndex)
             {
                 throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
             }
 
-            _cipherIndex = indexValue;
-            _cycleCount = _cycleSize < 2 || _cipherIndex < 2 ? 0 : _cipherIndex % _cycleSize;
+            CipherIndex = indexValue;
+            CycleCount = CycleSize < 2 || CipherIndex < 2 ? 0 : CipherIndex % CycleSize;
         }
         else
         {
@@ -132,25 +150,35 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     }
 
     /// <summary>
-    /// Transform the incoming value <paramref name="c" /> and send the transformed value to the
-    /// outgoing cipher wheel object (either ar <see cref="Rotor" /> or a <see cref="Reflector" />).
+    /// Transform the given <paramref name="originalValue" /> and send the transformed value to the
+    /// <c> "Transform(int)" </c> method of the next <see cref="CipherWheel" /> object in sequence
+    /// (either a <see cref="Rotor" /> or a <see cref="Reflector" />).
     /// </summary>
     /// <remarks>
-    /// The incoming value is an integer representation of a printable ASCII character which has
-    /// been adjusted by subtracting the minimum character value from the character value.
+    /// The <paramref name="originalValue" /> is an integer representation of a printable ASCII
+    /// character which has been adjusted by subtracting the minimum character value from the
+    /// original character value.
+    /// <para />
+    /// When the transformed value has passed through each <see cref="Rotor" />, the
+    /// <see cref="Reflector" />, and back through each <see cref="Rotor" />, the final transformed
+    /// value is returned to the caller.
     /// </remarks>
-    /// <param name="c">
-    /// The incoming value that is to be transformed.
+    /// <param name="originalValue">
+    /// The original value that is to be transformed.
     /// </param>
     /// <returns>
-    /// The final transformed value after it has been processed by all of the cipher wheels.
+    /// The final transformed value after it has made a complete circuit through all of the cipher
+    /// wheels and back again.
     /// </returns>
-    public abstract int Transform(int c);
+    public abstract int Transform(int originalValue);
 
     /// <summary>
-    /// This method is used strictly for unit testing. It allows the test method to set the initial
-    /// state of the cipher wheel.
+    /// This method allows a test method to set the initial state of the <see cref="CipherWheel" />
+    /// before executing the test.
     /// </summary>
+    /// <remarks>
+    /// This method is intended for unit testing purposes only.
+    /// </remarks>
     /// <param name="cipherIndex">
     /// The value of the cipher index.
     /// </param>
@@ -158,66 +186,67 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// The value of the cycle count.
     /// </param>
     /// <param name="isInitialized">
-    /// A boolean value indicating whether or not the instance is initialized.
+    /// A value indicating whether or not the instance is initialized.
     /// </param>
     internal void SetState(int? cipherIndex, int? cycleCount, bool? isInitialized)
     {
-        if (cipherIndex is not null)
+        if (cipherIndex.HasValue)
         {
-            _cipherIndex = (int)cipherIndex;
+            CipherIndex = (int)cipherIndex;
         }
 
-        if (cycleCount is not null)
+        if (cycleCount.HasValue)
         {
-            _cycleCount = (int)cycleCount;
+            CycleCount = (int)cycleCount;
         }
 
-        if (isInitialized is not null)
+        if (isInitialized.HasValue)
         {
-            _isInitialized = (bool)isInitialized;
+            IsInitialized = (bool)isInitialized;
         }
     }
 
     /// <summary>
-    /// Calculates a new index value by applying an offset derived from the specified seed
-    /// character.
+    /// Calculates a new index value by applying an offset derived from the specified
+    /// <paramref name="seed" /> character.
     /// </summary>
     /// <param name="index">
-    /// The original index to be displaced. Must be greater than or equal to 0 and less than
-    /// <see cref="MaxIndex" />.
+    /// The original index to be displaced. Must be greater than or equal to 0 and less than the
+    /// maximum index value.
     /// </param>
-    /// <param name="seedChar">
+    /// <param name="seed">
     /// The character used to determine the displacement offset. If the character is outside the
     /// valid range, a default offset of 1 is used.
     /// </param>
     /// <returns>
-    /// The displaced index, adjusted based on the specified seed character and constrained by
-    /// <see cref="TableSize" />.
+    /// The displaced index, adjusted based on the specified <paramref name="seed" /> character and
+    /// constrained by the maximum allowed index value.
     /// </returns>
     /// <exception cref="ArgumentOutOfRangeException">
     /// Thrown if <paramref name="index" /> is less than 0 or greater than the maximum allowable
-    /// index.
+    /// index value.
     /// </exception>
-    protected static int DisplaceIndex(int index, char seedChar)
+    protected static int DisplaceIndex(int index, char seed)
     {
         if (index is < 0 or > MaxIndex)
         {
             throw new ArgumentOutOfRangeException(nameof(index), $"The index passed into the DisplaceIndex method must be greater than or equal to zero and less than {TableSize}, but it was {index}.");
         }
 
-        int offset = seedChar is < MinChar or > MaxChar ? 1 : seedChar == MinChar ? 1 : CharToInt(seedChar);
-        return GetValueWithOffset(index, TableSize, offset);
+        int offset = seed is < MinChar or > MaxChar ? 1 : seed == MinChar ? 1 : CharToInt(seed);
+        return GetIndexValueWithOffset(index, TableSize, offset);
     }
 
     /// <summary>
-    /// Finds the first unassigned slot on a <see cref="Reflector" /> or <see cref="Rotor" />,
-    /// starting from the specified index. <br /> Used during initialization when "wiring" the
-    /// <see cref="Reflector" /> or <see cref="Rotor" /> based on a given seed value.
+    /// Finds the first unassigned connection point on a <see cref="Reflector" /> or
+    /// <see cref="Rotor" />, starting from the specified index. <br /> Used during initialization
+    /// when "wiring" the connection points of the <see cref="Reflector" /> or <see cref="Rotor" />
+    /// based on a given seed value.
     /// </summary>
     /// <remarks>
-    /// This method modifies the <paramref name="slotIsTaken" /> array by marking the returned slot
-    /// as taken. The search wraps around in a circular manner, ensuring that all slots are checked
-    /// exactly once.
+    /// This method modifies the <paramref name="slotIsTaken" /> array by marking the returned
+    /// connection point as taken. <br /> The search wraps around in a circular manner, ensuring
+    /// that all connection points are checked exactly once.
     /// </remarks>
     /// <param name="startIndex">
     /// The index from which to begin the search for an available slot.
@@ -228,19 +257,25 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// <see langword="false" />).
     /// </param>
     /// <returns>
-    /// The index of the first available slot, starting from <paramref name="startIndex" /> and
-    /// wrapping around if necessary.
+    /// The index of the first available slot that was found, starting from
+    /// <paramref name="startIndex" /> and wrapping around if necessary.
     /// </returns>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if no available slot can be found.
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="slotIsTaken" /> array is <see langword="null" />.
     /// </exception>
-    protected static int FindAvailableSlot(int startIndex, bool[] slotIsTaken)
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if no available slot can be found. (Should never occur if the method is used
+    /// correctly.)
+    /// </exception>
+    protected static int FindAvailableConnectionPoint(int startIndex, bool[] slotIsTaken)
     {
+        ArgumentNullException.ThrowIfNull(slotIsTaken, nameof(slotIsTaken));
+
         int index = startIndex;
 
         while (slotIsTaken[index])
         {
-            index = GetValueWithOffset(index, TableSize, 1);
+            index = GetIndexValueWithOffset(index, TableSize, 1);
 
             if (index == startIndex)
             {
@@ -253,24 +288,24 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     }
 
     /// <summary>
-    /// Calculates the adjusted value within the bounds of an array using the specified
-    /// <paramref name="offset" />, wrapping around if the result exceeds the array size or is
-    /// negative.
+    /// Calculates the adjusted index value within the bounds of an array using the specified
+    /// <paramref name="baseValue" /> and <paramref name="offset" />, wrapping around if the result
+    /// exceeds the array size or is negative.
     /// </summary>
     /// <param name="baseValue">
-    /// The base value to start from.
+    /// The base index value to start from.
     /// </param>
     /// <param name="arraySize">
     /// The size of the array. Must be greater than zero.
     /// </param>
     /// <param name="offset">
-    /// The offset to apply to the base value.
+    /// The offset that is to be applied to the <paramref name="baseValue" />.
     /// </param>
     /// <returns>
     /// The adjusted value, guaranteed to be within the range [0, <paramref name="arraySize" /> -
     /// 1].
     /// </returns>
-    protected static int GetValueWithOffset(int baseValue, int arraySize, int offset)
+    protected static int GetIndexValueWithOffset(int baseValue, int arraySize, int offset)
     {
         int index = baseValue + offset;
 
@@ -278,43 +313,49 @@ internal abstract class CipherWheel(int cycleSize) : ICipherWheel
     }
 
     /// <summary>
-    /// Gets the transformed value corresponding to the given <paramref name="valueIn" /> and taking
-    /// into account the current cipher index value.
+    /// Gets the transformed value corresponding to the given <paramref name="originalValue" /> and
+    /// taking into account the current cipher index value.
     /// </summary>
-    /// <param name="table">
+    /// <param name="transformTable">
     /// A table of integers used to look up the transformed value for the given
-    /// <paramref name="valueIn" />.
+    /// <paramref name="originalValue" />.
     /// </param>
-    /// <param name="valueIn">
-    /// The integer value that is being transformed.
+    /// <param name="originalValue">
+    /// The original integer value that is being transformed.
     /// </param>
     /// <returns>
-    /// The integer value corresponding to the transformed <paramref name="valueIn" />.
+    /// The transformed integer value corresponding to the <paramref name="originalValue" />.
     /// </returns>
-    protected int GetTransformedValue(int[] table, int valueIn)
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="transformTable" /> array is <see langword="null" />.
+    /// </exception>
+    protected int GetTransformedValue(int[] transformTable, int originalValue)
     {
-        int index = GetValueWithOffset(valueIn, table.Length, -_cipherIndex);
-        return GetValueWithOffset(table[index], table.Length, _cipherIndex);
+        ArgumentNullException.ThrowIfNull(transformTable, nameof(transformTable));
+
+        int index = GetIndexValueWithOffset(originalValue, transformTable.Length, -CipherIndex);
+        return GetIndexValueWithOffset(transformTable[index], transformTable.Length, CipherIndex);
     }
 
     /// <summary>
-    /// Calculates the updated cipher index and cycle count after applying a rotation within a
-    /// specified cycle size.
+    /// Increments the cycle count and determines if the new value has reached the cycle size. If
+    /// so, the cipher index is advanced (i.e., the <see cref="CipherWheel" /> is rotated one
+    /// position) and the cycle count is reset back to zero.
     /// </summary>
     /// <remarks>
-    /// If the cycle size is 0, the method returns the input values unchanged. If the cycle size is
-    /// 1, the cipher index value is always incremented, and the cycle count is reset to 0. <br />
-    /// Otherwise, the cipher index value is incremented whenever the cycle count reaches the cycle
-    /// size value.
+    /// This method returns without doing anything if the cycle size is zero. <br /> If the cycle
+    /// size is 1, the cipher index value is always advanced, and the cycle count is reset to 0.
+    /// <br /> Otherwise, the cipher index value is advanced only if the cycle count reaches the
+    /// cycle size value.
     /// </remarks>
     protected void Rotate()
     {
-        if (_cycleSize > 0)
+        if (CycleSize > 0)
         {
-            if (_cycleSize is 1 || ++_cycleCount == _cycleSize)
+            if (++CycleCount == CycleSize)
             {
-                _cipherIndex = GetValueWithOffset(_cipherIndex, TableSize, 1);
-                _cycleCount = 0;
+                CipherIndex = GetIndexValueWithOffset(CipherIndex, TableSize, 1);
+                CycleCount = 0;
             }
         }
     }
