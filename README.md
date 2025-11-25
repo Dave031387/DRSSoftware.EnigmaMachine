@@ -231,3 +231,52 @@ never be the same as the value that was typed on the keyboard. Typing "L" on the
 the Enigma machine was configured. This is one of the features that eventually aided the Allies in cracking the Enigma code.
 
 ## Enigma V2 Class Library
+The Enigma V2 class library is the core component of the Enigma Machine application. It implements the logic described above for encrypting and
+decrypting messages. There are four public classes defined in this library:
+- `CipherWheel` - This is an abstract base class that contains the common functionality shared by both the **Rotor** and **Reflector** classes.
+- `Rotor` - This class represents a single rotor of the Enigma machine. It contains properties and methods for configuring the rotor wiring, setting
+  the cipher index position, rotating the rotor, and processing a character through the rotor.
+- `Reflector` - This class represents the reflector of the Enigma machine. It contains properties and methods for configuring the reflector wiring,
+  setting the cipher index position, rotating the reflector, and processing a character through the reflector.
+- `EnigmaMachine` - This class represents the entire Enigma machine. It contains properties and methods for configuring the machine with multiple
+  rotors and a reflector, processing an entire message, and resetting the machine back to its initial state.
+
+The class library also provides four public interfaces that define the contracts for the above classes:
+- `ICipherWheel` - This interface defines the common contract shared by both the **Rotor** and **Reflector** classes.
+- `IRotor` - This interface defines the contract for the **Rotor** class.
+- `IReflector` - This interface defines the contract for the **Reflector** class.
+- `IEnigmaMachine` - This interface defines the contract for the **EnigmaMachine** class.
+
+These classes and interfaces will be described more fully in the sections that follow.
+
+### ICipherWheel Interface
+The **Rotor** and **Reflector** classes share a lot in common. This common functionality has been encapsulated in the abstract **CipherWheel** class
+which both the **Rotor** and **Reflector** classes inherit from. The **ICipherWheel** interface defines the contract for the **CipherWheel** class.
+Note that the **CipherWheel** class is normally only accessed indirectly through the **Rotor** and **Reflector** classes.
+
+The **ICipherWheel** interface defines the following read-only public properties:
+- `CipherIndex` - This property corresponds to what was known as the alphabet ring position on the original Enigma machine. It determines the starting
+  rotational position of the rotor or reflector. Valid values are between 0 and 95 inclusive, where 0 corresponds to the space character (Unicode
+  0020) and 95 corresponds to the DEL (delete) character (Unicode 007F).
+- `CycleCount` - This property keeps track of how many character transforms have taken place since the last time the rotor or reflector was rotated.
+  The property value is incremented by 1 with each character transform.
+- `CycleSize` - This property determines how many character transforms must take place before the rotor or reflector is rotated one position. Valid
+  values are between 0 and 95 inclusive. Once the *CycleCount* reaches the *CycleSize* value, the rotor or reflector is rotated one position and the
+  *CycleCount* is reset back to zero. A *CycleSize* of 0 means that the rotor or reflector will never rotate.
+- `IsInitialized` - This property indicates whether the rotor or reflector has been properly initialized. (Refer to the *Initialize* method
+  description below for more details.)
+
+The **ICipherWheel** interface also defines the following public methods:
+- `Initialize(int seed)` - This method initializes the rotor or reflector by setting up the internal wiring based on the given seed value. The seed is
+  used to randomize the connections between the input and output pins of the rotor or reflector. This method must be called before the rotor or
+  reflector can be used. If this method is called again with a different seed value, it will reinitialize the rotor or reflector with a new random
+  wiring based on the new seed value.
+- `SetCipherIndex(int index)` - This method sets the *CipherIndex* property to the given index value. Valid values are between 0 and 95 inclusive. The
+  *CycleCount* property is also set to an initial value based on the new *CipherIndex* value and the *CycleSize* property.
+- `Transform(int originalValue)` - This method processes the given original value through the rotor or reflector and returns the transformed value.
+  The *originalValue* parameter must be between 0 and 95 inclusive, where 0 corresponds to the space character (Unicode 0020) and 95 corresponds to
+  the DEL (delete) character (Unicode 007F). The method also increments the *CycleCount* property and rotates the rotor or reflector if necessary
+  based on the *CycleSize* property.
+
+The *Initialize* and *Transform* methods of the **CipherWheel** class are both abstract methods because their exact implementation differs between the
+**Rotor** and **Reflector** classes.

@@ -245,7 +245,7 @@ public class RotorTests
         // Arrange
         Rotor rotor = new(cycleSize);
         rotor.Initialize(_seed);
-        rotor.SetIndex(index);
+        rotor.SetCipherIndex(index);
         int i = 1;
 
         int GetReturnValue(int baseValue)
@@ -262,7 +262,7 @@ public class RotorTests
         rotor.ConnectOutboundComponent(mock.Object);
         int transform1 = rotor.Transform(expected);
         int transform2 = rotor.Transform(transform1);
-        rotor.SetIndex(index);
+        rotor.SetCipherIndex(index);
 
         // Act
         int transform3 = rotor.Transform(transform2);
@@ -292,7 +292,7 @@ public class RotorTests
         // Arrange
         Rotor rotor = new(cycleSize);
         rotor.Initialize(_seed);
-        rotor.SetIndex(index);
+        rotor.SetCipherIndex(index);
         Mock<ICipherWheel> mock = new(MockBehavior.Strict);
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(transformedValue)

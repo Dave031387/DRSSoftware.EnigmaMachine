@@ -72,14 +72,14 @@ public interface ICipherWheel
     public void Initialize(string seed);
 
     /// <summary>
-    /// Set the <see cref="Reflector" /> or <see cref="Rotor" /> index to the desired
+    /// Set the <see cref="Reflector" /> or <see cref="Rotor" /> cipher index to the desired
     /// <paramref name="indexValue" />.
     /// </summary>
     /// <param name="indexValue">
-    /// The integer value that the <see cref="Reflector" /> or <see cref="Rotor" /> index is to be
-    /// set to.
+    /// The integer value that the <see cref="Reflector" /> or <see cref="Rotor" /> cipher index is
+    /// to be set to.
     /// </param>
-    public void SetIndex(int indexValue);
+    public void SetCipherIndex(int indexValue);
 
     /// <summary>
     /// Transform the given <paramref name="originalValue" /> and send the transformed value on to

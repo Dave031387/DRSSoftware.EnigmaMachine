@@ -189,7 +189,7 @@ public class EnigmaMachineTests
     }
 
     [Fact]
-    public void ResetIndexesWhenInitialized_ShouldResetIndexes()
+    public void ResetCipherIndexesWhenInitialized_ShouldResetIndexes()
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
@@ -200,40 +200,40 @@ public class EnigmaMachineTests
         int[] indexValues = [index1, index2, index3, index4];
         enigmaMachine.SetState(true, indexValues);
         _mockRotor1
-            .Setup(static m => m.SetIndex(index1))
+            .Setup(static m => m.SetCipherIndex(index1))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(static m => m.SetIndex(index2))
+            .Setup(static m => m.SetCipherIndex(index2))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(static m => m.SetIndex(index3))
+            .Setup(static m => m.SetCipherIndex(index3))
             .Verifiable(Times.Once);
         _mockReflector
-            .Setup(static m => m.SetIndex(index4))
+            .Setup(static m => m.SetCipherIndex(index4))
             .Verifiable(Times.Once);
 
         // Act
-        enigmaMachine.ResetIndexes();
+        enigmaMachine.ResetCipherIndexes();
 
         // Assert
         VerifyAll();
     }
 
     [Fact]
-    public void ResetIndexesWhenNotInitialized_ShouldDoNothing()
+    public void ResetCipherIndexesWhenNotInitialized_ShouldDoNothing()
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
 
         // Act
-        enigmaMachine.ResetIndexes();
+        enigmaMachine.ResetCipherIndexes();
 
         // Assert
         VerifyAll();
     }
 
     [Fact]
-    public void SetIndexesWhenInitialized_ShouldSetIndexesToCorrectValues()
+    public void SetCipherIndexesWhenInitialized_ShouldSetIndexesToCorrectValues()
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
@@ -243,20 +243,20 @@ public class EnigmaMachineTests
         const int index3 = 33;
         const int index4 = 44;
         _mockRotor1
-            .Setup(static m => m.SetIndex(index1))
+            .Setup(static m => m.SetCipherIndex(index1))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(static m => m.SetIndex(index2))
+            .Setup(static m => m.SetCipherIndex(index2))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(static m => m.SetIndex(index3))
+            .Setup(static m => m.SetCipherIndex(index3))
             .Verifiable(Times.Once);
         _mockReflector
-            .Setup(static m => m.SetIndex(index4))
+            .Setup(static m => m.SetCipherIndex(index4))
             .Verifiable(Times.Once);
 
         // Act
-        enigmaMachine.SetIndexes(index1, index2, index3, index4);
+        enigmaMachine.SetCipherIndexes(index1, index2, index3, index4);
 
         // Assert
         VerifyAll();
@@ -266,7 +266,7 @@ public class EnigmaMachineTests
     }
 
     [Fact]
-    public void SetIndexesWhenNotInitialized_ShouldThrowException()
+    public void SetCipherIndexesWhenNotInitialized_ShouldThrowException()
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
@@ -274,7 +274,7 @@ public class EnigmaMachineTests
         string expected = "The Enigma machine must be initialized before setting the indexes.";
 
         // Act
-        Action action = () => enigmaMachine.SetIndexes(indexes);
+        Action action = () => enigmaMachine.SetCipherIndexes(indexes);
 
         // Assert
         action
@@ -287,14 +287,14 @@ public class EnigmaMachineTests
     }
 
     [Fact]
-    public void SetIndexesWhenParameterIsNull_ShouldThrowException()
+    public void SetCipherIndexesWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
         enigmaMachine.SetState(true, null);
 
         // Act
-        Action action = () => enigmaMachine.SetIndexes(null!);
+        Action action = () => enigmaMachine.SetCipherIndexes(null!);
 
         // Assert
         action
@@ -306,7 +306,7 @@ public class EnigmaMachineTests
     [InlineData(new int[] { 1, 2, 3 }, "were")]
     [InlineData(new int[] { 1, 2, 3, 4, 5 }, "were")]
     [InlineData(new int[] { 1 }, "was")]
-    public void SetIndexesWhenWrongNumberOfIndexValuesGiven_ShouldThrowException(int[] indexes, string word)
+    public void SetCipherIndexesWhenWrongNumberOfIndexValuesGiven_ShouldThrowException(int[] indexes, string word)
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
@@ -314,7 +314,7 @@ public class EnigmaMachineTests
         string expected = $"Exactly 4 index values must be passed into the SetIndexes method, but there {word} {indexes.Length}. (Parameter 'indexes')";
 
         // Act
-        Action action = () => enigmaMachine.SetIndexes(indexes);
+        Action action = () => enigmaMachine.SetCipherIndexes(indexes);
 
         // Assert
         action

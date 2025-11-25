@@ -26,9 +26,9 @@ public class IntegrationTests
         // Arrange
         EnigmaMachine machine = new();
         machine.Initialize(_seed);
-        machine.SetIndexes(5, 10, 15, 20, 25);
+        machine.SetCipherIndexes(5, 10, 15, 20, 25);
         string cipherText = machine.Transform(_plainText);
-        machine.ResetIndexes();
+        machine.ResetCipherIndexes();
 
         // Act
         string actual = machine.Transform(cipherText);

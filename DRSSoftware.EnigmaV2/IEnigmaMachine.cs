@@ -130,10 +130,10 @@ public interface IEnigmaMachine
     /// <remarks>
     /// This method has no effect if the system was never initialized.
     /// </remarks>
-    public void ResetIndexes();
+    public void ResetCipherIndexes();
 
     /// <summary>
-    /// Sets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
+    /// Sets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
     /// <see cref="EnigmaMachine" /> to the specified values.
     /// </summary>
     /// <remarks>
@@ -145,7 +145,7 @@ public interface IEnigmaMachine
     /// in the array is used for the <see cref="Reflector" /> and the rest are used for each
     /// <see cref="Rotor" />.
     /// </param>
-    public void SetIndexes(params int[] indexes);
+    public void SetCipherIndexes(params int[] indexes);
 
     /// <summary>
     /// Transforms the input <paramref name="text" /> using the configured

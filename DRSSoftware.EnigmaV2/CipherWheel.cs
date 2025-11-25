@@ -131,7 +131,7 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// Thrown if this method is called prior to initializing this <see cref="CipherWheel" />
     /// object.
     /// </exception>
-    public void SetIndex(int indexValue)
+    public void SetCipherIndex(int indexValue)
     {
         if (IsInitialized)
         {

@@ -238,27 +238,27 @@ public sealed class EnigmaMachine : IEnigmaMachine
     }
 
     /// <summary>
-    /// Resets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> to their
-    /// initial values (or 0, if <c> "SetIndexes(int[])" </c> was never called).
+    /// Resets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> to
+    /// their initial values (or 0, if <c> "SetIndexes(int[])" </c> was never called).
     /// </summary>
     /// <remarks>
     /// This method has no effect if the <see cref="EnigmaMachine" /> was never initialized.
     /// </remarks>
-    public void ResetIndexes()
+    public void ResetCipherIndexes()
     {
         if (IsInitialized)
         {
             for (int i = 0; i < _rotors.Length; i++)
             {
-                _rotors[i].SetIndex(_cipherWheelIndexes[i]);
+                _rotors[i].SetCipherIndex(_cipherWheelIndexes[i]);
             }
 
-            MyReflector.SetIndex(_cipherWheelIndexes[^1]);
+            MyReflector.SetCipherIndex(_cipherWheelIndexes[^1]);
         }
     }
 
     /// <summary>
-    /// Sets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
+    /// Sets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
     /// <see cref="EnigmaMachine" /> to the specified values.
     /// </summary>
     /// <remarks>
@@ -280,7 +280,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// Thrown if the <see cref="EnigmaMachine" /> has not been initialized before calling this
     /// method.
     /// </exception>
-    public void SetIndexes(params int[] indexes)
+    public void SetCipherIndexes(params int[] indexes)
     {
         ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
 
@@ -299,7 +299,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
                 _cipherWheelIndexes[i] = indexes[i];
             }
 
-            ResetIndexes();
+            ResetCipherIndexes();
         }
         else
         {

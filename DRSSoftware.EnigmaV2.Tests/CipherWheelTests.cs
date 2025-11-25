@@ -194,14 +194,14 @@ public class CipherWheelTests
     }
 
     [Fact]
-    public void SetIndexWhenRotorNotInitialized_ShouldThrowException()
+    public void SetCipherIndexWhenRotorNotInitialized_ShouldThrowException()
     {
         // Arrange
         MyCipherWheel myCipherWheel = new(1);
         string expected = "The cipher wheel must be initialized before the cipher index can be set.";
 
         // Act
-        Action action = () => myCipherWheel.SetIndex(5);
+        Action action = () => myCipherWheel.SetCipherIndex(5);
 
         // Assert
         action
@@ -215,7 +215,7 @@ public class CipherWheelTests
     [InlineData(-1)]
     [InlineData(TableSize)]
     [InlineData(TableSize + 10)]
-    public void SetIndexWhenValueIsOutOfRange_ShouldThrowException(int value)
+    public void SetCipherIndexWhenValueIsOutOfRange_ShouldThrowException(int value)
     {
         // Arrange
         MyCipherWheel myCipherWheel = new(1);
@@ -223,7 +223,7 @@ public class CipherWheelTests
         string expected = $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {value}. (Parameter 'indexValue')";
 
         // Act
-        Action action = () => myCipherWheel.SetIndex(value);
+        Action action = () => myCipherWheel.SetCipherIndex(value);
 
         // Assert
         action
@@ -252,14 +252,14 @@ public class CipherWheelTests
     [InlineData(8, 7, 7)]
     [InlineData(8, 32, 0)]
     [InlineData(8, 45, 5)]
-    public void SetIndexWithDifferentCycleSizes_ShouldCorrectlyInitializeCipherIndexAndCycleCount(int cycleSize, int expectedIndexValue, int expectedCycleCount)
+    public void SetCipherIndexWithDifferentCycleSizes_ShouldCorrectlyInitializeCipherIndexAndCycleCount(int cycleSize, int expectedIndexValue, int expectedCycleCount)
     {
         // Arrange
         MyCipherWheel myCipherWheel = new(cycleSize);
         myCipherWheel.SetState(null, null, true);
 
         // Act
-        myCipherWheel.SetIndex(expectedIndexValue);
+        myCipherWheel.SetCipherIndex(expectedIndexValue);
 
         // Assert
         myCipherWheel.CipherIndex
