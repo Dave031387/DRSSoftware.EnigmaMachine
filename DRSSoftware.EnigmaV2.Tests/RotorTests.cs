@@ -5,31 +5,31 @@ public class RotorTests
     private readonly string _seed = "ThisIsASimpleSeedString";
 
     [Fact]
-    public void ConnectInboundComponent_ShouldCorrectlyConnectInboundRotor()
+    public void ConnectLeftComponent_ShouldCorrectlyConnectCipherWheelOnLeftSideOfRotor()
     {
         // Arrange
         Rotor rotor = new(1);
-        Mock<IRotor> mock = new(MockBehavior.Strict);
+        Mock<ICipherWheel> mock = new(MockBehavior.Strict);
 
         // Act
-        rotor.ConnectInboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
 
         // Assert
-        rotor.InboundCipherWheel
+        rotor.LeftCipherWheel
             .Should()
             .BeSameAs(mock.Object);
     }
 
     [Fact]
-    public void ConnectInboundComponentWhenAlreadyConnected_ShouldThrowException()
+    public void ConnectLeftComponentWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
         Rotor rotor = new(1);
-        rotor.ConnectInboundComponent(new Rotor(11));
-        string expected = "Invalid attempt to add an inbound rotor when one is already defined for this rotor.";
+        rotor.ConnectLeftComponent(new Rotor(11));
+        string expected = "Invalid attempt to connect a cipher wheel to the left side of this rotor when one is already connected.";
 
         // Act
-        Action action = () => rotor.ConnectInboundComponent(new Rotor(13));
+        Action action = () => rotor.ConnectLeftComponent(new Rotor(13));
 
         // Assert
         action
@@ -39,13 +39,13 @@ public class RotorTests
     }
 
     [Fact]
-    public void ConnectInboundComponentWhenParameterIsNull_ShouldThrowException()
+    public void ConnectLeftComponentWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
         Rotor rotor = new(1);
 
         // Act
-        Action action = () => rotor.ConnectInboundComponent(null!);
+        Action action = () => rotor.ConnectLeftComponent(null!);
 
         // Assert
         action
@@ -54,31 +54,31 @@ public class RotorTests
     }
 
     [Fact]
-    public void ConnectOutboundComponent_ShouldCorrectlyConnectOutboundCipherWheel()
+    public void ConnectRightComponent_ShouldCorrectlyConnectRightRotor()
     {
         // Arrange
         Rotor rotor = new(1);
-        Mock<ICipherWheel> mock = new(MockBehavior.Strict);
+        Mock<IRotor> mock = new(MockBehavior.Strict);
 
         // Act
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectRightComponent(mock.Object);
 
         // Assert
-        rotor.OutboundCipherWheel
+        rotor.RightCipherWheel
             .Should()
             .BeSameAs(mock.Object);
     }
 
     [Fact]
-    public void ConnectOutboundComponentWhenAlreadyConnected_ShouldThrowException()
+    public void ConnectRightComponentWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
         Rotor rotor = new(1);
-        rotor.ConnectOutboundComponent(new Rotor(11));
-        string expected = "Invalid attempt to add an outbound cipher wheel when one is already defined for this rotor.";
+        rotor.ConnectRightComponent(new Rotor(11));
+        string expected = "Invalid attempt to connect a rotor to the right side of this rotor when one is already connected.";
 
         // Act
-        Action action = () => rotor.ConnectOutboundComponent(new Rotor(13));
+        Action action = () => rotor.ConnectRightComponent(new Rotor(13));
 
         // Assert
         action
@@ -88,13 +88,13 @@ public class RotorTests
     }
 
     [Fact]
-    public void ConnectOutboundComponentWhenParameterIsNull_ShouldThrowException()
+    public void ConnectRightComponentWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
         Rotor rotor = new(1);
 
         // Act
-        Action action = () => rotor.ConnectOutboundComponent(null!);
+        Action action = () => rotor.ConnectRightComponent(null!);
 
         // Assert
         action
@@ -122,13 +122,13 @@ public class RotorTests
         rotor.IsInitialized
             .Should()
             .BeFalse();
-        rotor.InboundCipherWheel
+        rotor.RightCipherWheel
             .Should()
             .BeNull();
         rotor.CipherIndex
             .Should()
             .Be(0);
-        rotor.OutboundCipherWheel
+        rotor.LeftCipherWheel
             .Should()
             .BeNull();
         rotor.TransformIsInProgress
@@ -173,16 +173,16 @@ public class RotorTests
 
         for (int i = 0; i < TableSize; i++)
         {
-            int j = rotor.GetInboundValue(i);
+            int j = rotor.GetInboundTransformedValue(i);
 
             if (i == j)
             {
                 matches++;
             }
 
-            rotor.GetOutboundValue(j)
+            rotor.GetOutboundTransformedValue(j)
                 .Should()
-                .Be(i, $"_outboundTable[{j}] should be {i}, but it was {rotor.GetOutboundValue(j)}");
+                .Be(i, $"_outboundTable[{j}] should be {i}, but it was {rotor.GetOutboundTransformedValue(j)}");
         }
 
         matches
@@ -259,7 +259,7 @@ public class RotorTests
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns((int transformed) => GetReturnValue(transformed))
             .Verifiable(Times.Exactly(2));
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
         int transform1 = rotor.Transform(expected);
         int transform2 = rotor.Transform(transform1);
         rotor.SetCipherIndex(index);
@@ -297,7 +297,7 @@ public class RotorTests
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(transformedValue)
             .Verifiable(Times.Once);
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
 
         // Act
         int actual = rotor.Transform(value);
@@ -326,7 +326,7 @@ public class RotorTests
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(expected)
             .Verifiable(Times.Once);
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
 
         // Act
         int actual = rotor.Transform(42);
@@ -356,12 +356,12 @@ public class RotorTests
     }
 
     [Fact]
-    public void TransformInWhenThereIsNoOutboundTransformerConnected_ShouldThrowException()
+    public void TransformInWhenThereIsNoCipherWheelConnectedToTheLeftSideOfTheRotor_ShouldThrowException()
     {
         // Arrange
         Rotor rotor = new(1);
         rotor.Initialize(_seed);
-        string expected = "An outbound cipher wheel hasn't been connected to this rotor.";
+        string expected = "A cipher wheel hasn't been connected to the left side of this rotor.";
 
         // Act
         Action action = () => rotor.Transform(53);
@@ -391,7 +391,7 @@ public class RotorTests
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(66)
             .Verifiable(Times.Once);
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
 
         // Act
         int actual = rotor.Transform(55);
@@ -406,8 +406,36 @@ public class RotorTests
             .Be(updatedCount);
     }
 
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 10, TableSize - 10)]
+    [InlineData(50, 3, 47)]
+    [InlineData(91, 12, 79)]
+    [InlineData(12, 91, TableSize - 79)]
+    public void TransformOutWhenNoRotorIsConnectedOnRightSide_ShouldReturnTransformedValue(int value, int indexValue, int lookupIndex)
+    {
+        // Arrange
+        Rotor rotor = new(1);
+        rotor.Initialize(_seed);
+        rotor.ConnectLeftComponent(new Rotor(13));
+        rotor.SetState(indexValue, null, null, true);
+        int lookup = rotor.GetOutboundTransformedValue(lookupIndex);
+        int expected = lookup + indexValue > MaxIndex ? lookup + indexValue - TableSize : lookup + indexValue;
+
+        // Act
+        int actual = rotor.Transform(value);
+
+        // Assert
+        actual
+            .Should()
+            .Be(expected);
+        rotor.TransformIsInProgress
+            .Should()
+            .BeFalse();
+    }
+
     [Fact]
-    public void TransformOutWhenInboundRotorIsConnected_ShouldReturnTransformedValue()
+    public void TransformOutWhenRotorIsConnectedOnRightSide_ShouldReturnTransformedValue()
     {
         // Arrange
         Rotor rotor = new(1);
@@ -416,7 +444,7 @@ public class RotorTests
         mock.Setup(r => r.Transform(It.IsAny<int>()))
             .Returns(expected)
             .Verifiable(Times.Once);
-        rotor.ConnectOutboundComponent(mock.Object);
+        rotor.ConnectLeftComponent(mock.Object);
         rotor.Initialize(_seed);
 
         // Act
@@ -430,33 +458,5 @@ public class RotorTests
         rotor.TransformIsInProgress
             .Should()
             .BeTrue();
-    }
-
-    [Theory]
-    [InlineData(0, 0, 0)]
-    [InlineData(0, 10, TableSize - 10)]
-    [InlineData(50, 3, 47)]
-    [InlineData(91, 12, 79)]
-    [InlineData(12, 91, TableSize - 79)]
-    public void TransformOutWhenNoInboundRotorIsConnected_ShouldReturnTransformedValue(int value, int indexValue, int lookupIndex)
-    {
-        // Arrange
-        Rotor rotor = new(1);
-        rotor.Initialize(_seed);
-        rotor.ConnectOutboundComponent(new Rotor(13));
-        rotor.SetState(indexValue, null, null, true);
-        int lookup = rotor.GetOutboundValue(lookupIndex);
-        int expected = lookup + indexValue > MaxIndex ? lookup + indexValue - TableSize : lookup + indexValue;
-
-        // Act
-        int actual = rotor.Transform(value);
-
-        // Assert
-        actual
-            .Should()
-            .Be(expected);
-        rotor.TransformIsInProgress
-            .Should()
-            .BeFalse();
     }
 }

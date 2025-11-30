@@ -446,23 +446,22 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// <remarks>
     /// <list type="bullet">
     /// <item>
-    /// The inbound side of the first <see cref="Rotor" /> is <see langword="null" /> and the
-    /// outbound side is connected to the second <see cref="Rotor" />.
+    /// The right side of the first <see cref="Rotor" /> is <see langword="null" /> and the left
+    /// side is connected to the second <see cref="Rotor" />.
     /// </item>
     /// <item>
-    /// The inbound side of the last <see cref="Rotor" /> is connected to the previous
-    /// <see cref="Rotor" /> in sequence and the outbound side is connected to the
+    /// The right side of the last <see cref="Rotor" /> is connected to the previous
+    /// <see cref="Rotor" /> in sequence and the left side is connected to the
     /// <see cref="Reflector" />.
     /// </item>
     /// <item>
-    /// For every <see cref="Rotor" /> but the first and last, their inbound side is connected to
-    /// the previous <see cref="Rotor" /> in sequence, and their outbound side is connected to the
-    /// next <see cref="Rotor" /> in sequence.
+    /// For every <see cref="Rotor" /> but the first and last, their right side is connected to the
+    /// previous <see cref="Rotor" /> in sequence, and their left side is connected to the next
+    /// <see cref="Rotor" /> in sequence.
     /// </item>
     /// <item>
-    /// The outbound side of the <see cref="Reflector" /> is connected to the last
-    /// <see cref="Rotor" />. (The <see cref="Reflector" /> only has one side, so the outbound side
-    /// is also the inbound side.)
+    /// The right side of the <see cref="Reflector" /> is connected to the left side of the last
+    /// <see cref="Rotor" />. (The <see cref="Reflector" /> only has one side.)
     /// </item>
     /// </list>
     /// </remarks>
@@ -474,20 +473,20 @@ public sealed class EnigmaMachine : IEnigmaMachine
         {
             if (i is not 0)
             {
-                _rotors[i].ConnectInboundComponent(_rotors[i - 1]);
+                _rotors[i].ConnectRightComponent(_rotors[i - 1]);
             }
 
             if (i < numberOfRotors - 1)
             {
-                _rotors[i].ConnectOutboundComponent(_rotors[i + 1]);
+                _rotors[i].ConnectLeftComponent(_rotors[i + 1]);
             }
             else
             {
-                _rotors[i].ConnectOutboundComponent(MyReflector);
+                _rotors[i].ConnectLeftComponent(MyReflector);
             }
         }
 
-        MyReflector.ConnectOutboundComponent(_rotors[^1]);
+        MyReflector.ConnectRightComponent(_rotors[^1]);
         IsInitialized = false;
     }
 }

@@ -6,32 +6,32 @@ public class ReflectorTests
     private readonly string _seed = "ThisIsASimpleSeedString";
 
     [Fact]
-    public void ConnectOutboundComponent_ShouldCorrectlyConnectOutboundRotor()
+    public void ConnectRightComponent_ShouldCorrectlyRotorToRightSide()
     {
         // Arrange
         Mock<IRotor> mock = new(MockBehavior.Strict);
         Reflector reflector = new(_cycleSize);
 
         // Act
-        reflector.ConnectOutboundComponent(mock.Object);
+        reflector.ConnectRightComponent(mock.Object);
 
         // Assert
-        reflector.OutboundCipherWheel
+        reflector.RightCipherWheel
             .Should()
             .Be(mock.Object);
     }
 
     [Fact]
-    public void ConnectOutboundComponentWhenAlreadyConnected_ShouldThrowException()
+    public void ConnectRightComponentWhenAlreadyConnected_ShouldThrowException()
     {
         // Arrange
         Mock<IRotor> mock = new(MockBehavior.Strict);
         Reflector reflector = new(_cycleSize);
-        reflector.ConnectOutboundComponent(new Rotor(11));
-        string expected = "Invalid attempt to add an outbound rotor when one is already defined for this reflector.";
+        reflector.ConnectRightComponent(new Rotor(11));
+        string expected = "Invalid attempt to connect a rotor to the right side of the reflector one when one is already connected.";
 
         // Act
-        Action action = () => reflector.ConnectOutboundComponent(new Rotor(13));
+        Action action = () => reflector.ConnectRightComponent(new Rotor(13));
 
         // Assert
         action
@@ -41,13 +41,13 @@ public class ReflectorTests
     }
 
     [Fact]
-    public void ConnectOutboundComponentWhenParameterIsNull_ShouldThrowException()
+    public void ConnectRightComponentWhenParameterIsNull_ShouldThrowException()
     {
         // Arrange
         Reflector reflector = new(_cycleSize);
 
         // Act
-        Action action = () => reflector.ConnectOutboundComponent(null!);
+        Action action = () => reflector.ConnectRightComponent(null!);
 
         // Assert
         action
@@ -74,7 +74,7 @@ public class ReflectorTests
         reflector.CipherIndex
             .Should()
             .Be(0);
-        reflector.OutboundCipherWheel
+        reflector.LeftCipherWheel
             .Should()
             .BeNull();
         reflector.OutboundTransformTable
@@ -190,7 +190,7 @@ public class ReflectorTests
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(static (int transformed) => { return transformed; })
             .Verifiable(Times.Exactly(2));
-        reflector.ConnectOutboundComponent(mock.Object);
+        reflector.ConnectRightComponent(mock.Object);
         reflector.SetState(reflectorIndex, null, null);
         int transformed = reflector.Transform(expected);
         reflector.SetState(reflectorIndex, null, null);
@@ -211,7 +211,7 @@ public class ReflectorTests
         Reflector reflector = new(_cycleSize);
         reflector.Initialize(_seed);
         Mock<IRotor> mock = new(MockBehavior.Strict);
-        reflector.ConnectOutboundComponent(mock.Object);
+        reflector.ConnectRightComponent(mock.Object);
         int expected = 33;
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(expected)
@@ -225,6 +225,27 @@ public class ReflectorTests
         actual
             .Should()
             .Be(expected);
+    }
+
+    [Fact]
+    public void TransformWhenNoRotorIsConnectedOnRightSide_ShouldThrowException()
+    {
+        // Arrange
+        Reflector reflector = new(_cycleSize);
+        reflector.Initialize(_seed);
+        string expected = "A rotor hasn't been connected to the right side of the reflector.";
+
+        // Act
+        Action action = () => reflector.Transform(32);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<InvalidOperationException>()
+            .WithMessage(expected);
+        reflector.CipherIndex
+            .Should()
+            .Be(0);
     }
 
     [Fact]
@@ -242,27 +263,6 @@ public class ReflectorTests
             .Should()
             .ThrowExactly<InvalidOperationException>()
             .WithMessage(expected);
-    }
-
-    [Fact]
-    public void TransformWhenOutboundRotorIsNull_ShouldThrowException()
-    {
-        // Arrange
-        Reflector reflector = new(_cycleSize);
-        reflector.Initialize(_seed);
-        string expected = "The outbound rotor hasn't been connected to the reflector.";
-
-        // Act
-        Action action = () => reflector.Transform(32);
-
-        // Assert
-        action
-            .Should()
-            .ThrowExactly<InvalidOperationException>()
-            .WithMessage(expected);
-        reflector.CipherIndex
-            .Should()
-            .Be(0);
     }
 
     [Theory]
@@ -283,7 +283,7 @@ public class ReflectorTests
         mock.Setup(static r => r.Transform(It.IsAny<int>()))
             .Returns(33)
             .Verifiable(Times.Once);
-        reflector.ConnectOutboundComponent(mock.Object);
+        reflector.ConnectRightComponent(mock.Object);
 
         // Act
         int actual = reflector.Transform(42);

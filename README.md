@@ -5,7 +5,7 @@
 > be updated when the project nears completion.*
 
 The next couple of sections go into a lot of detail about the original Enigma machine and the software version named *Enigma V2*. If you aren't
-interested in all the details feel free to skip to the section describing the [Enigma V2 class library](#enigma-v2-class-library).
+interested in all the details feel free to skip to the section describing the [Enigma V2 class library](#the-enigma-v2-class-library).
 
 ## Overview
 According to **Wikipedia**: *"The Enigma machine is a cipher device developed and used in the early- to mid-20th century to protect commercial
@@ -230,7 +230,7 @@ made the Enigma machine so hard to crack since the cipher changed with each key 
 never be the same as the value that was typed on the keyboard. Typing "L" on the keyboard will never result in the "L" lamp being lit up no matter how
 the Enigma machine was configured. This is one of the features that eventually aided the Allies in cracking the Enigma code.
 
-## Enigma V2 Class Library
+## The Enigma V2 Class Library
 The Enigma V2 class library is the core component of the Enigma Machine application. It implements the logic described above for encrypting and
 decrypting messages. There are four public classes defined in this library:
 - `CipherWheel` - This is an abstract base class that contains the common functionality shared by both the **Rotor** and **Reflector** classes.
@@ -249,7 +249,7 @@ The class library also provides four public interfaces that define the contracts
 
 These classes and interfaces will be described more fully in the sections that follow.
 
-### The CipherWheel class and ICipherWheel Interface
+### The CipherWheel Class and ICipherWheel Interface
 The **Rotor** and **Reflector** classes share a lot in common. This common functionality has been encapsulated in the abstract **CipherWheel** class
 which both the **Rotor** and **Reflector** classes inherit from. The **ICipherWheel** interface defines the contract for the **CipherWheel** class.
 Note that the **CipherWheel** class is normally only accessed indirectly through the **Rotor** and **Reflector** classes.
@@ -279,7 +279,8 @@ The **ICipherWheel** interface also defines the following public methods:
   based on the *CycleSize* property.
 
 The *Initialize* and *Transform* methods of the **CipherWheel** class are both abstract methods because their exact implementation differs between the
-**Rotor** and **Reflector** classes.
+**Rotor** and **Reflector** classes. However, the *SetCipherIndex* method is implemented in the **CipherWheel** class since it works the same for both
+derived classes.
 
 The **CipherWheel** class has a single constructor that takes an integer parameter representing the cycle size for the rotor or reflector. This
 constructor must be called by any derived classes in order to properly initialize the *CycleSize* property.
@@ -287,3 +288,61 @@ constructor must be called by any derived classes in order to properly initializ
 ```csharp
 public CipherWheel(int cycleSize) {}
 ```
+
+### The Rotor Class and IRotor Interface
+The **Rotor** class represents a single rotor of the Enigma machine. It inherits from the abstract **CipherWheel** class and implements the **IRotor**
+interface. The **IRotor** interface derives from the **ICipherWheel** interface and adds one property and two methods specific to the **Rotor** class.
+
+> [!NOTE]
+> Rotors have two sides - left and right. Transforms can take place in either direction depending on whether the signal is going inbound towards the
+> reflector or outbound coming back from the reflector. Inbound transforms go from right to left through the rotor, while outbound transforms go from
+> left to right through the rotor.
+
+The **IRotor** interface defines the following read-only public property in addition to those inherited from the **ICipherWheel** interface:
+- `TransformIsInProgress` - This property is set to *true* when the *Transform* method has processed an inbound character transform. It is set back to
+  *false* when the *Transform* method has completed processing the oubound character transform. The sole purpose of this property is to enable the
+  rotor to keep track of the inbound vs. outbound character transform since the wiring is traversed in opposite directions for each.
+
+The **IRotor** interface also defines the following public methods in addition to those inherited from the **ICipherWheel** interface:
+- `ConnectRightComponent(IRotor rotor)` - This method connects the left side of the given rotor to the right side of this rotor.
+- `ConnectLeftComponent(ICipherWheel cipherWheel)` - This method connects the left side of this rotor to the right side of the given cipher
+  wheel. The given cipher wheel will either be another rotor or a reflector.
+
+The **Rotor** class provides the implementation for the *Initialize* and *Transform* methods inherited from the **CipherWheel** class. The
+*Initialize* method sets up the internal wiring of the rotor based on the given seed value. The *Transform* method processes the given original value
+through the rotor and returns the transformed value. The method also increments the *CycleCount* property and rotates the rotor if necessary based on
+the *CycleSize* property.
+
+The **Rotor** class has a single constructor that takes an integer parameter representing the cycle size for the rotor. This constructor calls the base
+**CipherWheel** constructor in order to properly initialize the *CycleSize* property.
+
+```csharp
+public Rotor(int cycleSize) : base(cycleSize) {}
+```
+
+### The Reflector Class and IReflector Interface
+The **Reflector** class represents the reflector of the Enigma machine. It inherits from the abstract **CipherWheel** class and implements the
+**IReflector** interface. The **IReflector** interface derives from the **ICipherWheel** interface and adds one method specific to the **Reflector**
+class.
+
+> [!NOTE]
+> Unlike the rotors, the reflector only has one side (the right side) that connects to the left side of the left-most rotor. Inbound transforms always
+> enter the reflector from the rotor on the right side of the reflector. The reflector then sends the signal back out through a different pin to the
+> same rotor, thus starting the outbound leg of the transform.
+
+The **IReflector** interface defines the following public method in addition to those inherited from the **ICipherWheel** interface:
+- `ConnectRightComponent(IRotor rotor)` - This method connects the right side of this reflector to the left side of the given rotor.
+
+The **Reflector** class provides the implementation for the *Initialize* and *Transform* methods inherited from the **CipherWheel** class. The
+*Initialize* method sets up the internal wiring of the reflector based on the given seed value. The *Transform* method processes the given original
+value through the reflector and returns the transformed value. The method also increments the *CycleCount* property and rotates the reflector if
+necessary based on the *CycleSize* property.
+
+The **Reflector** class has a single constructor that takes an integer parameter representing the cycle size for the reflector. This constructor calls
+the base **CipherWheel** constructor in order to properly initialize the *CycleSize* property.
+
+```csharp
+public Reflector(int cycleSize) : base(cycleSize) {}
+```
+
+### The EnigmaMachine Class and IEnigmaMachine Interface

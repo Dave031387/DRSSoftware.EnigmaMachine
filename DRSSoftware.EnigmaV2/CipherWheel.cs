@@ -70,33 +70,34 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     }
 
     /// <summary>
-    /// Gets a reference to the <see cref="Rotor" /> object that comes before this
-    /// <see cref="CipherWheel" /> object.
-    /// </summary>
-    /// <remarks>
-    /// This property will be <see langword="null" /> if this <see cref="CipherWheel" /> object is
-    /// the first <see cref="Rotor" /> object in sequence, or if it is the <see cref="Reflector" />
-    /// object. <br /> Otherwise, this property will always reference the previous
-    /// <see cref="Rotor" /> object in sequence.
-    /// </remarks>
-    internal ICipherWheel? InboundCipherWheel
-    {
-        get;
-        private protected set;
-    }
-
-    /// <summary>
     /// Gets a reference to the <see cref="Rotor" /> or <see cref="Reflector" /> object that comes
     /// after this <see cref="CipherWheel" /> object.
     /// </summary>
     /// <remarks>
     /// This property will reference the <see cref="Reflector" /> object if this
     /// <see cref="CipherWheel" /> object is the last <see cref="Rotor" /> in sequence. <br /> Or,
-    /// it will reference the last <see cref="Rotor" /> object if this <see cref="CipherWheel" />
-    /// object is the <see cref="Reflector" />. <br /> Otherwise, this property will always
-    /// reference the next <see cref="Rotor" /> object in sequence.
+    /// it will be <see langword="null" /> if this <see cref="CipherWheel" /> object is the
+    /// <see cref="Reflector" />. <br /> Otherwise, this property will always reference the next
+    /// <see cref="Rotor" /> object in sequence.
     /// </remarks>
-    internal ICipherWheel? OutboundCipherWheel
+    internal ICipherWheel? LeftCipherWheel
+    {
+        get;
+        private protected set;
+    }
+
+    /// <summary>
+    /// Gets a reference to the <see cref="Rotor" /> object that comes before this
+    /// <see cref="CipherWheel" /> object.
+    /// </summary>
+    /// <remarks>
+    /// This property will be <see langword="null" /> if this <see cref="CipherWheel" /> object is
+    /// the first <see cref="Rotor" /> object in sequence. <br /> Or it will reference the last
+    /// <see cref="Rotor" /> in sequence if this <see cref="CipherWheel" /> object is the
+    /// <see cref="Reflector" /> object. <br /> Otherwise, this property will always reference the
+    /// previous <see cref="Rotor" /> object in sequence.
+    /// </remarks>
+    internal ICipherWheel? RightCipherWheel
     {
         get;
         private protected set;
@@ -107,8 +108,8 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// <paramref name="seed" /> value.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="seed" /> value is used for randomizing the connections between the
-    /// inbound and outbound sides of this <see cref="CipherWheel" /> object.
+    /// The <paramref name="seed" /> value is used for randomizing the connections between the right
+    /// and left sides of this <see cref="CipherWheel" /> object.
     /// </remarks>
     /// <param name="seed">
     /// A <see langword="string" /> value used for randomizing the connections within this

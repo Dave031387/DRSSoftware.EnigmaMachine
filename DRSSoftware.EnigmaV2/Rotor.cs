@@ -4,12 +4,12 @@
 /// This class models the <see cref="Rotor" /> component of the <see cref="EnigmaMachine" />.
 /// </summary>
 /// <remarks>
-/// The <see cref="Rotor" /> takes the value coming from the inbound component, transforms it, and
-/// sends it on to the next <see cref="Rotor" /> in sequence (or to the <see cref="Reflector" /> if
-/// this is the last <see cref="Rotor" /> in the series). <br /> The <see cref="Rotor" /> can also
-/// take a value coming back from the outbound component, transform it, and send it back to the
-/// previous <see cref="Rotor" /> in sequence (or back to the caller if this is the first
-/// <see cref="Rotor" />).
+/// The <see cref="Rotor" /> takes the value coming from the component on its right, transforms it,
+/// and sends it on to the next <see cref="Rotor" /> in sequence on its left (or to the
+/// <see cref="Reflector" /> if this is the last <see cref="Rotor" /> in the series). <br /> The
+/// <see cref="Rotor" /> can also take a value coming back from the component on the left, transform
+/// it, and send it back to the previous <see cref="Rotor" /> in sequence on the right (or back to
+/// the caller if this is the first <see cref="Rotor" />).
 /// </remarks>
 /// <param name="cycleSize">
 /// An integer value that specifies how many transforms should be performed between each rotation of
@@ -19,16 +19,16 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
 {
     /// <summary>
     /// This table is used to look up the transformed value corresponding to the value sent from the
-    /// inbound component of this <see cref="Rotor" />. <br /> The transformed value is then sent on
-    /// to the outbound component, or returned to the caller if the inbound component is
-    /// <see langword="null" />.
+    /// component on the right side of this <see cref="Rotor" />. <br /> The transformed value is
+    /// then sent on to the component on the left side.
     /// </summary>
     private readonly int[] _inboundTransformTable = new int[TableSize];
 
     /// <summary>
     /// This table is used to look up the transformed value corresponding to the value coming from
-    /// the outbound component of this <see cref="Rotor" />. <br /> The transformed value is then
-    /// sent on to the inbound component.
+    /// the component on the left side of this <see cref="Rotor" />. <br /> The transformed value is
+    /// then sent on to the component on the right, or returned to the caller if there is no
+    /// component on the right.
     /// </summary>
     private readonly int[] _outboundTransformTable = new int[TableSize];
 
@@ -80,38 +80,12 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     }
 
     /// <summary>
-    /// Connect the specified <paramref name="rotor" /> object to the inbound side of this
-    /// <see cref="Rotor" /> object.
-    /// </summary>
-    /// <param name="rotor">
-    /// The inbound <see cref="Rotor" /> object that is to be connected to this <see cref="Rotor" />
-    /// object.
-    /// </param>
-    /// <exception cref="ArgumentNullException">
-    /// Thrown if the <paramref name="rotor" /> parameter is <see langword="null" />.
-    /// </exception>
-    /// <exception cref="InvalidOperationException">
-    /// Thrown if this method is called more than once for this <see cref="Rotor" /> object.
-    /// </exception>
-    public void ConnectInboundComponent(IRotor rotor)
-    {
-        ArgumentNullException.ThrowIfNull(rotor, nameof(rotor));
-
-        if (InboundCipherWheel is not null)
-        {
-            throw new InvalidOperationException("Invalid attempt to add an inbound rotor when one is already defined for this rotor.");
-        }
-
-        InboundCipherWheel = rotor;
-    }
-
-    /// <summary>
     /// Connect the specified <paramref name="cipherWheel" /> object (either a <see cref="Rotor" />
-    /// or <see cref="Reflector" />) to the outbound side of this <see cref="Rotor" /> object.
+    /// or <see cref="Reflector" />) to the left side of this <see cref="Rotor" /> object.
     /// </summary>
     /// <param name="cipherWheel">
-    /// The outbound <see cref="CipherWheel" /> object ( <see cref="Rotor" /> or
-    /// <see cref="Reflector" />) that is to be connected to this <see cref="Rotor" /> object.
+    /// The <see cref="CipherWheel" /> object ( <see cref="Rotor" /> or <see cref="Reflector" />)
+    /// that is to be connected to the left side of this <see cref="Rotor" /> object.
     /// </param>
     /// <exception cref="ArgumentNullException">
     /// Thrown if the <paramref name="cipherWheel" /> parameter is <see langword="null" />.
@@ -119,16 +93,42 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called more than once for this <see cref="Rotor" /> object.
     /// </exception>
-    public void ConnectOutboundComponent(ICipherWheel cipherWheel)
+    public void ConnectLeftComponent(ICipherWheel cipherWheel)
     {
         ArgumentNullException.ThrowIfNull(cipherWheel, nameof(cipherWheel));
 
-        if (OutboundCipherWheel is not null)
+        if (LeftCipherWheel is not null)
         {
-            throw new InvalidOperationException("Invalid attempt to add an outbound cipher wheel when one is already defined for this rotor.");
+            throw new InvalidOperationException("Invalid attempt to connect a cipher wheel to the left side of this rotor when one is already connected.");
         }
 
-        OutboundCipherWheel = cipherWheel;
+        LeftCipherWheel = cipherWheel;
+    }
+
+    /// <summary>
+    /// Connect the specified <paramref name="rotor" /> object to the right side of this
+    /// <see cref="Rotor" /> object.
+    /// </summary>
+    /// <param name="rotor">
+    /// The <see cref="Rotor" /> object that is to be connected to the right side of this
+    /// <see cref="Rotor" /> object.
+    /// </param>
+    /// <exception cref="ArgumentNullException">
+    /// Thrown if the <paramref name="rotor" /> parameter is <see langword="null" />.
+    /// </exception>
+    /// <exception cref="InvalidOperationException">
+    /// Thrown if this method is called more than once for this <see cref="Rotor" /> object.
+    /// </exception>
+    public void ConnectRightComponent(IRotor rotor)
+    {
+        ArgumentNullException.ThrowIfNull(rotor, nameof(rotor));
+
+        if (RightCipherWheel is not null)
+        {
+            throw new InvalidOperationException("Invalid attempt to connect a rotor to the right side of this rotor when one is already connected.");
+        }
+
+        RightCipherWheel = rotor;
     }
 
     /// <summary>
@@ -136,8 +136,8 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// value.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="seed" /> value is used for randomizing the connections between the
-    /// inbound and outbound sides of this <see cref="Rotor" /> object.
+    /// The <paramref name="seed" /> value is used for randomizing the connections between the right
+    /// and left sides of this <see cref="Rotor" /> object.
     /// </remarks>
     /// <param name="seed">
     /// A <see langword="string" /> value used for randomizing the connections within this
@@ -160,8 +160,8 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
             throw new ArgumentException($"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}.", nameof(seed));
         }
 
-        // This array is used to keep track of which index positions on this reflector object have
-        // already been connected to some other index position.
+        // This array is used to keep track of which index positions on the left side of this rotor
+        // object have already been connected to an index position on the right side of this rotor.
         bool[] slotIsTaken = new bool[TableSize];
         char[] displacements = seed.ToCharArray();
         int arraySize = displacements.Length;
@@ -171,7 +171,8 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
 
         for (int inboundIndex = 0; inboundIndex < TableSize; inboundIndex++)
         {
-            // Find an available outbound point to connect the inbound point to.
+            // Find an available point on the left side of the rotor to connect to the point on the
+            // right side.
             outboundIndex = DisplaceIndex(outboundIndex, displacements[seedIndex]);
             outboundIndex = FindAvailableConnectionPoint(outboundIndex, slotIsTaken);
 
@@ -204,9 +205,9 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// <para />
     /// The transformed value is returned to the caller if this is the first <see cref="Rotor" /> in
     /// sequence and <c> TransformIsInProgress </c> is <see langword="true" />. <br /> Otherwise,
-    /// the transformed value is sent on to the next outbound component (if <c>
-    /// TransformIsInProgress </c> is <see langword="false" />), or the next inbound component (if
-    /// <c> TransformIsInProgress </c> is <see langword="true" />).
+    /// the transformed value is sent on to the next component on the left (if <c>
+    /// TransformIsInProgress </c> is <see langword="false" />), or the next component on the right
+    /// (if <c> TransformIsInProgress </c> is <see langword="true" />).
     /// </remarks>
     /// <param name="originalValue">
     /// The original value that is to be transformed.
@@ -217,32 +218,32 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called prior to initializing this <see cref="Rotor" /> object, or
-    /// if an outbound <see cref="CipherWheel" /> object hasn't been connected to this
+    /// if a <see cref="CipherWheel" /> object hasn't been connected to the left side of this
     /// <see cref="Rotor" />.
     /// </exception>
     public override int Transform(int originalValue)
     {
         if (IsInitialized)
         {
-            if (OutboundCipherWheel is null)
+            if (LeftCipherWheel is null)
             {
-                throw new InvalidOperationException("An outbound cipher wheel hasn't been connected to this rotor.");
+                throw new InvalidOperationException("A cipher wheel hasn't been connected to the left side of this rotor.");
             }
 
             if (TransformIsInProgress)
             {
                 TransformIsInProgress = false;
-                int transformedValueOut = GetTransformedValue(_outboundTransformTable, originalValue);
+                int outboundTransformedValue = GetTransformedValue(_outboundTransformTable, originalValue);
 
-                return InboundCipherWheel is not null ? InboundCipherWheel.Transform(transformedValueOut) : transformedValueOut;
+                return RightCipherWheel is not null ? RightCipherWheel.Transform(outboundTransformedValue) : outboundTransformedValue;
             }
 
             TransformIsInProgress = true;
             Rotate();
 
-            int transformedValueIn = GetTransformedValue(_inboundTransformTable, originalValue);
+            int inboundTransformedValue = GetTransformedValue(_inboundTransformTable, originalValue);
 
-            return OutboundCipherWheel.Transform(transformedValueIn);
+            return LeftCipherWheel.Transform(inboundTransformedValue);
         }
 
         throw new InvalidOperationException("The rotor must be initialized before the Transform method is called.");
@@ -262,7 +263,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// The value located at the specified <paramref name="index" /> location of the inbound
     /// transform table.
     /// </returns>
-    internal int GetInboundValue(int index) => _inboundTransformTable[index];
+    internal int GetInboundTransformedValue(int index) => _inboundTransformTable[index];
 
     /// <summary>
     /// Gets the value from the outbound transform table at the specified <paramref name="index" />
@@ -278,7 +279,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
     /// The value located at the specified <paramref name="index" /> location of the outbound
     /// transform table.
     /// </returns>
-    internal int GetOutboundValue(int index) => _outboundTransformTable[index];
+    internal int GetOutboundTransformedValue(int index) => _outboundTransformTable[index];
 
     /// <summary>
     /// This method allows a test method to set the initial state of this <see cref="Rotor" />

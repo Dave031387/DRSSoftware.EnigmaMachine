@@ -397,22 +397,22 @@ public class EnigmaMachineTests
         _mockRotor2.Reset();
         _mockRotor3.Reset();
         _mockReflector
-            .Setup(m => m.ConnectOutboundComponent(_mockRotor3.Object))
+            .Setup(m => m.ConnectRightComponent(_mockRotor3.Object))
             .Verifiable(Times.Once);
         _mockRotor1
-            .Setup(m => m.ConnectOutboundComponent(_mockRotor2.Object))
+            .Setup(m => m.ConnectLeftComponent(_mockRotor2.Object))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(m => m.ConnectInboundComponent(_mockRotor1.Object))
+            .Setup(m => m.ConnectRightComponent(_mockRotor1.Object))
             .Verifiable(Times.Once);
         _mockRotor2
-            .Setup(m => m.ConnectOutboundComponent(_mockRotor3.Object))
+            .Setup(m => m.ConnectLeftComponent(_mockRotor3.Object))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(m => m.ConnectInboundComponent(_mockRotor2.Object))
+            .Setup(m => m.ConnectRightComponent(_mockRotor2.Object))
             .Verifiable(Times.Once);
         _mockRotor3
-            .Setup(m => m.ConnectOutboundComponent(_mockReflector.Object))
+            .Setup(m => m.ConnectLeftComponent(_mockReflector.Object))
             .Verifiable(Times.Once);
         return new(_mockReflector.Object, _mockRotor1.Object, _mockRotor2.Object, _mockRotor3.Object);
     }

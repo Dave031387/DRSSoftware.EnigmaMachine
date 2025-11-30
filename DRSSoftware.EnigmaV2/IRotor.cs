@@ -21,31 +21,31 @@ public interface IRotor : ICipherWheel
     }
 
     /// <summary>
-    /// Connect the specified <paramref name="rotor" /> object to the inbound side of this
-    /// <see cref="Rotor" /> object.
-    /// </summary>
-    /// <remarks>
-    /// This property is <see langword="null" /> for the first <see cref="Rotor" /> in sequence
-    /// since it doesn't have any inbound <see cref="Rotor" /> object attached to it.
-    /// </remarks>
-    /// <param name="rotor">
-    /// The <see cref="Rotor" /> object that is to be connected to the inbound side of this
-    /// <see cref="Rotor" /> object.
-    /// </param>
-    public void ConnectInboundComponent(IRotor rotor);
-
-    /// <summary>
     /// Connect the specified <paramref name="cipherWheel" /> object (either <see cref="Rotor" /> or
-    /// <see cref="Reflector" />) to the outbound side of this <see cref="Rotor" /> object.
+    /// <see cref="Reflector" />) to the left side of this <see cref="Rotor" /> object.
     /// </summary>
     /// <remarks>
-    /// The outbound side of the last <see cref="Rotor" /> in sequence will be connected to a
+    /// The left side of the last <see cref="Rotor" /> in sequence will be connected to a
     /// <see cref="Reflector" /> object. All other rotors will be connected to the next
     /// <see cref="Rotor" /> in sequence.
     /// </remarks>
     /// <param name="cipherWheel">
     /// The <see cref="CipherWheel" /> object ( <see cref="Rotor" /> or <see cref="Reflector" />)
-    /// that is to be connected to the outbound side of this <see cref="Rotor" /> object.
+    /// that is to be connected to the left side of this <see cref="Rotor" /> object.
     /// </param>
-    public void ConnectOutboundComponent(ICipherWheel cipherWheel);
+    public void ConnectLeftComponent(ICipherWheel cipherWheel);
+
+    /// <summary>
+    /// Connect the specified <paramref name="rotor" /> object to the right side of this
+    /// <see cref="Rotor" /> object.
+    /// </summary>
+    /// <remarks>
+    /// This property is <see langword="null" /> for the first <see cref="Rotor" /> in sequence
+    /// since that rotor doesn't have any <see cref="Rotor" /> object attached to its right side.
+    /// </remarks>
+    /// <param name="rotor">
+    /// The <see cref="Rotor" /> object that is to be connected to the right side of this
+    /// <see cref="Rotor" /> object.
+    /// </param>
+    public void ConnectRightComponent(IRotor rotor);
 }

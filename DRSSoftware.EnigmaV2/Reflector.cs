@@ -42,7 +42,7 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
     }
 
     /// <summary>
-    /// Connect the specified <paramref name="rotor" /> object to the outbound side of this
+    /// Connect the specified <paramref name="rotor" /> object to the right side of this
     /// <see cref="Reflector" /> object.
     /// </summary>
     /// <param name="rotor">
@@ -55,16 +55,16 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called more than once for this <see cref="Reflector" /> object.
     /// </exception>
-    public void ConnectOutboundComponent(IRotor rotor)
+    public void ConnectRightComponent(IRotor rotor)
     {
         ArgumentNullException.ThrowIfNull(rotor, nameof(rotor));
 
-        if (OutboundCipherWheel is not null)
+        if (RightCipherWheel is not null)
         {
-            throw new InvalidOperationException("Invalid attempt to add an outbound rotor when one is already defined for this reflector.");
+            throw new InvalidOperationException("Invalid attempt to connect a rotor to the right side of the reflector one when one is already connected.");
         }
 
-        OutboundCipherWheel = rotor;
+        RightCipherWheel = rotor;
     }
 
     /// <summary>
@@ -72,8 +72,9 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
     /// value.
     /// </summary>
     /// <remarks>
-    /// The <paramref name="seed" /> value is used for randomizing the connections in the outbound
-    /// transform table.
+    /// The <paramref name="seed" /> value is used for randomizing the connections right side of
+    /// this <see cref="Reflector" /> object. <br /> The seed string must not be
+    /// <see langword="null" /> or empty and must be at least 10 characters in length.
     /// </remarks>
     /// <param name="seed">
     /// A <see langword="string" /> value used for randomizing the connections within this
@@ -151,23 +152,23 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
     /// </returns>
     /// <exception cref="InvalidOperationException">
     /// Thrown if this method is called prior to initializing this <see cref="Reflector" /> object
-    /// or if an outbound <see cref="Rotor" /> object hasn't been connected to this
+    /// or if a <see cref="Rotor" /> object hasn't been connected to the right side of this
     /// <see cref="Reflector" />.
     /// </exception>
     public override int Transform(int originalValue)
     {
         if (IsInitialized)
         {
-            if (OutboundCipherWheel is null)
+            if (RightCipherWheel is null)
             {
-                throw new InvalidOperationException("The outbound rotor hasn't been connected to the reflector.");
+                throw new InvalidOperationException("A rotor hasn't been connected to the right side of the reflector.");
             }
 
             Rotate();
 
             int transformedValue = GetTransformedValue(_outboundTransformTable, originalValue);
 
-            return OutboundCipherWheel.Transform(transformedValue);
+            return RightCipherWheel.Transform(transformedValue);
         }
 
         throw new InvalidOperationException("The reflector must be initialized before calling the Transform method.");

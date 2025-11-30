@@ -7,12 +7,12 @@
 public interface IReflector : ICipherWheel
 {
     /// <summary>
-    /// Connect the specified <paramref name="rotor" /> object to the outbound side of this
+    /// Connect the specified <paramref name="rotor" /> object to the right side of this
     /// <see cref="Reflector" /> object.
     /// </summary>
     /// <param name="rotor">
-    /// The <see cref="Rotor" /> object that is to be connected to the outbound side of this
+    /// The <see cref="Rotor" /> object that is to be connected to the right side of this
     /// <see cref="Reflector" /> object.
     /// </param>
-    public void ConnectOutboundComponent(IRotor rotor);
+    public void ConnectRightComponent(IRotor rotor);
 }
