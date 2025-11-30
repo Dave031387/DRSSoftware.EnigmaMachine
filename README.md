@@ -249,7 +249,7 @@ The class library also provides four public interfaces that define the contracts
 
 These classes and interfaces will be described more fully in the sections that follow.
 
-### ICipherWheel Interface
+### The CipherWheel class and ICipherWheel Interface
 The **Rotor** and **Reflector** classes share a lot in common. This common functionality has been encapsulated in the abstract **CipherWheel** class
 which both the **Rotor** and **Reflector** classes inherit from. The **ICipherWheel** interface defines the contract for the **CipherWheel** class.
 Note that the **CipherWheel** class is normally only accessed indirectly through the **Rotor** and **Reflector** classes.
@@ -280,3 +280,10 @@ The **ICipherWheel** interface also defines the following public methods:
 
 The *Initialize* and *Transform* methods of the **CipherWheel** class are both abstract methods because their exact implementation differs between the
 **Rotor** and **Reflector** classes.
+
+The **CipherWheel** class has a single constructor that takes an integer parameter representing the cycle size for the rotor or reflector. This
+constructor must be called by any derived classes in order to properly initialize the *CycleSize* property.
+
+```csharp
+public CipherWheel(int cycleSize) {}
+```

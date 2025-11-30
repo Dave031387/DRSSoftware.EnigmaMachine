@@ -292,14 +292,21 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// <paramref name="baseValue" /> and <paramref name="offset" />, wrapping around if the result
     /// exceeds the array size or is negative.
     /// </summary>
+    /// <remarks>
+    /// This method uses the C# modulus operator on potentially negative numbers. When this occurs,
+    /// the result will be either negative or zero. <br /> If the result is negative, the method
+    /// adjusts it by adding the <paramref name="arraySize" /> to ensure a positive index within the
+    /// valid range.
+    /// </remarks>
     /// <param name="baseValue">
-    /// The base index value to start from.
+    /// The base index value to start from. Should be a positive value or zero.
     /// </param>
     /// <param name="arraySize">
     /// The size of the array. Must be greater than zero.
     /// </param>
     /// <param name="offset">
-    /// The offset that is to be applied to the <paramref name="baseValue" />.
+    /// The offset that is to be applied to the <paramref name="baseValue" />. May be positive or
+    /// negative or zero.
     /// </param>
     /// <returns>
     /// The adjusted value, guaranteed to be within the range [0, <paramref name="arraySize" /> -
@@ -307,9 +314,8 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// </returns>
     protected static int GetIndexValueWithOffset(int baseValue, int arraySize, int offset)
     {
-        int index = baseValue + offset;
-
-        return index >= arraySize ? index - arraySize : index < 0 ? index + arraySize : index;
+        int index = (baseValue + offset) % arraySize;
+        return index < 0 ? arraySize + index : index;
     }
 
     /// <summary>
