@@ -28,7 +28,7 @@ public class ReflectorTests
         Mock<IRotor> mock = new(MockBehavior.Strict);
         Reflector reflector = new(_cycleSize);
         reflector.ConnectRightComponent(new Rotor(11));
-        string expected = "Invalid attempt to connect a rotor to the right side of the reflector one when one is already connected.";
+        string expected = "A Rotor can't be connected to the right side of this Reflector because one is already connected.";
 
         // Act
         Action action = () => reflector.ConnectRightComponent(new Rotor(13));
@@ -148,7 +148,7 @@ public class ReflectorTests
     {
         // Arrange
         Reflector reflector = new(_cycleSize);
-        string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
+        string expected = $"The seed string passed into the Initialize method of the Reflector class must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
 
         // Act
         Action action = () => reflector.Initialize(seed);
@@ -233,7 +233,7 @@ public class ReflectorTests
         // Arrange
         Reflector reflector = new(_cycleSize);
         reflector.Initialize(_seed);
-        string expected = "A rotor hasn't been connected to the right side of the reflector.";
+        string expected = "A Rotor must be connected to the right side of this Reflector before calling the Transform method.";
 
         // Act
         Action action = () => reflector.Transform(32);

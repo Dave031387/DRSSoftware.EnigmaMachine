@@ -99,7 +99,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
 
         if (LeftCipherWheel is not null)
         {
-            throw new InvalidOperationException("Invalid attempt to connect a cipher wheel to the left side of this rotor when one is already connected.");
+            throw new InvalidOperationException($"The {cipherWheel.GetType().Name} can't be connected to the left side of this {nameof(Rotor)} because a {LeftCipherWheel.GetType().Name} is already connected.");
         }
 
         LeftCipherWheel = cipherWheel;
@@ -125,7 +125,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
 
         if (RightCipherWheel is not null)
         {
-            throw new InvalidOperationException("Invalid attempt to connect a rotor to the right side of this rotor when one is already connected.");
+            throw new InvalidOperationException($"The {nameof(Rotor)} can't be connected to the right side of this {nameof(Rotor)} because one is already connected.");
         }
 
         RightCipherWheel = rotor;
@@ -157,7 +157,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
 
         if (seed.Length < MinSeedLength)
         {
-            throw new ArgumentException($"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}.", nameof(seed));
+            throw new ArgumentException($"The seed string passed into the {nameof(Initialize)} method of the {nameof(Rotor)} class must be at least {MinSeedLength} characters long, but it was {seed.Length}.", nameof(seed));
         }
 
         // This array is used to keep track of which index positions on the left side of this rotor
@@ -227,7 +227,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
         {
             if (LeftCipherWheel is null)
             {
-                throw new InvalidOperationException("A cipher wheel hasn't been connected to the left side of this rotor.");
+                throw new InvalidOperationException($"A {nameof(Rotor)} or {nameof(Reflector)} must be connected to the left side of this {nameof(Rotor)} before calling the {nameof(Transform)} method.");
             }
 
             if (TransformIsInProgress)
@@ -246,7 +246,7 @@ public sealed class Rotor(int cycleSize) : CipherWheel(cycleSize), IRotor
             return LeftCipherWheel.Transform(inboundTransformedValue);
         }
 
-        throw new InvalidOperationException("The rotor must be initialized before the Transform method is called.");
+        throw new InvalidOperationException($"The {nameof(Rotor)} must be initialized before the {nameof(Transform)} method is called.");
     }
 
     /// <summary>

@@ -9,9 +9,12 @@ public class CipherWheelTests
     [InlineData(TableSize)]
     public void DisplaceIndexWhenIndexOutOfRange_ShouldThrowException(int index)
     {
-        // Arrange/Act
-        Action action = () => MyCipherWheel.TestDisplaceIndex(index, ' ');
-        string expected = $"The index passed into the DisplaceIndex method must be greater than or equal to zero and less than {TableSize}, but it was {index}. (Parameter '{nameof(index)}')";
+        // Arrange
+        MyCipherWheel cipherWheel = new(1);
+
+        // Act
+        Action action = () => cipherWheel.TestDisplaceIndex(index, ' ');
+        string expected = $"The index value passed into the DisplaceIndex method of the MyCipherWheel class must be greater than or equal to 0 and less than {TableSize}, but it was {index}. (Parameter '{nameof(index)}')";
 
         // Assert
         action
@@ -30,10 +33,11 @@ public class CipherWheelTests
     public void DisplaceIndexWhenSeedCharIsInRangeAndNotMinChar_ShouldReturnCorrectIndexValue(char seedChar, int expected)
     {
         // Arrange
+        MyCipherWheel cipherWheel = new(1);
         int index = 10;
 
         // Act
-        int actual = MyCipherWheel.TestDisplaceIndex(index, seedChar);
+        int actual = cipherWheel.TestDisplaceIndex(index, seedChar);
 
         // Assert
         actual
@@ -50,11 +54,12 @@ public class CipherWheelTests
     public void DisplaceIndexWhenSeedCharIsMinCharOrOutOfRange_ShouldDisplaceByOne(char seedChar)
     {
         // Arrange
+        MyCipherWheel cipherWheel = new(1);
         int index = 10;
         int expected = index + 1;
 
         // Act
-        int actual = MyCipherWheel.TestDisplaceIndex(index, seedChar);
+        int actual = cipherWheel.TestDisplaceIndex(index, seedChar);
 
         // Assert
         actual
@@ -66,9 +71,10 @@ public class CipherWheelTests
     public void FindAvailableConnectionPointWhenNoneAreAvailable_ShouldThrowException()
     {
         // Arrange
+        MyCipherWheel cipherWheel = new(1);
         bool[] slotIsTaken = new bool[TableSize];
         int startIndex = 32;
-        string expected = "The FindAvailableSlot method is unable to find an available slot.";
+        string expected = "The FindAvailableConnectionPoint method of the MyCipherWheel class is unable to find an available connection point.";
 
         for (int i = 0; i < TableSize; i++)
         {
@@ -76,7 +82,7 @@ public class CipherWheelTests
         }
 
         // Act
-        Action action = () => MyCipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
+        Action action = () => cipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
 
         // Assert
         action
@@ -95,6 +101,7 @@ public class CipherWheelTests
     public void FindAvailableConnectionPointWhenSomeAreAvailable_ShouldReturnIndexToNextAvailableSlot(int startIndex, int expected)
     {
         // Arrange
+        MyCipherWheel cipherWheel = new(1);
         bool[] slotIsTaken = new bool[TableSize];
 
         for (int i = 0; i < TableSize; i++)
@@ -105,7 +112,7 @@ public class CipherWheelTests
         }
 
         // Act
-        int actual = MyCipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
+        int actual = cipherWheel.TestFindAvailableSlot(startIndex, slotIsTaken);
 
         // Assert
         actual
@@ -114,6 +121,30 @@ public class CipherWheelTests
         slotIsTaken[expected]
             .Should()
             .BeTrue();
+    }
+
+    [Theory]
+    [InlineData(0, 0, 0)]
+    [InlineData(0, 10, 10)]
+    [InlineData(0, -3, 47)]
+    [InlineData(-10, 5, 45)]
+    [InlineData(10, -10, 0)]
+    [InlineData(5, -15, 40)]
+    [InlineData(40, 9, 49)]
+    [InlineData(-33, 33, 0)]
+    [InlineData(74, -25, 49)]
+    [InlineData(45, 12, 7)]
+    [InlineData(0, 49, 49)]
+    [InlineData(57, 13, 20)]
+    public void GetIndexValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
+    {
+        // Arrange/Act
+        int actual = MyCipherWheel.TestGetValueWithOffset(baseValue, 50, offset);
+
+        // Assert
+        actual
+            .Should()
+            .Be(expected);
     }
 
     [Theory]
@@ -135,30 +166,6 @@ public class CipherWheelTests
 
         // Act
         int actual = myCipherWheel.TestGetTransformedValue(table, baseValue);
-
-        // Assert
-        actual
-            .Should()
-            .Be(expected);
-    }
-
-    [Theory]
-    [InlineData(0, 0, 0)]
-    [InlineData(0, 10, 10)]
-    [InlineData(0, -3, 47)]
-    [InlineData(-10, 5, 45)]
-    [InlineData(10, -10, 0)]
-    [InlineData(5, -15, 40)]
-    [InlineData(40, 9, 49)]
-    [InlineData(-33, 33, 0)]
-    [InlineData(74, -25, 49)]
-    [InlineData(45, 12, 7)]
-    [InlineData(0, 49, 49)]
-    [InlineData(57, 13, 20)]
-    public void GetIndexValueWithOffset_ShouldReturnExpectedValue(int baseValue, int offset, int expected)
-    {
-        // Arrange/Act
-        int actual = MyCipherWheel.TestGetValueWithOffset(baseValue, 50, offset);
 
         // Assert
         actual
@@ -198,7 +205,7 @@ public class CipherWheelTests
     {
         // Arrange
         MyCipherWheel myCipherWheel = new(1);
-        string expected = "The cipher wheel must be initialized before the cipher index can be set.";
+        string expected = "The MyCipherWheel must be initialized before calling the SetCipherIndex method.";
 
         // Act
         Action action = () => myCipherWheel.SetCipherIndex(5);
@@ -220,7 +227,7 @@ public class CipherWheelTests
         // Arrange
         MyCipherWheel myCipherWheel = new(1);
         myCipherWheel.SetState(null, null, true);
-        string expected = $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {value}. (Parameter 'indexValue')";
+        string expected = $"The index value passed into the SetCipherIndex method of the MyCipherWheel class must be greater than or equal to 0 and less than {TableSize}, but it was {value}. (Parameter 'indexValue')";
 
         // Act
         Action action = () => myCipherWheel.SetCipherIndex(value);
@@ -274,13 +281,13 @@ public class CipherWheelTests
 [ExcludeFromCodeCoverage]
 internal sealed class MyCipherWheel(int cycleSize) : CipherWheel(cycleSize)
 {
-    public static int TestDisplaceIndex(int index, char seedChar) => DisplaceIndex(index, seedChar);
-
-    public static int TestFindAvailableSlot(int startIndex, bool[] slotIsTaken) => FindAvailableConnectionPoint(startIndex, slotIsTaken);
-
     public static int TestGetValueWithOffset(int baseValue, int arraySize, int offset) => GetIndexValueWithOffset(baseValue, arraySize, offset);
 
     public override void Initialize(string seed) => throw new NotImplementedException();
+
+    public int TestDisplaceIndex(int index, char seedChar) => DisplaceIndex(index, seedChar);
+
+    public int TestFindAvailableSlot(int startIndex, bool[] slotIsTaken) => FindAvailableConnectionPoint(startIndex, slotIsTaken);
 
     public int TestGetTransformedValue(int[] table, int valueIn) => GetTransformedValue(table, valueIn);
 

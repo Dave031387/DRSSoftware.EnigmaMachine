@@ -96,7 +96,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
 
         if (numberOfRotors is 0)
         {
-            throw new ArgumentException("The rotors collection passed into the constructor must contain at least one element.", nameof(rotors));
+            throw new ArgumentException($"The {nameof(Rotor)}s collection passed into the {nameof(EnigmaMachine)} constructor must contain at least one element.", nameof(rotors));
         }
 
         MyReflector = reflector;
@@ -106,7 +106,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         {
             if (rotors[i] is null)
             {
-                throw new ArgumentException($"The rotor at index {i} is null. All rotors passed into the constructor must be non-null.", nameof(rotors));
+                throw new ArgumentException($"All {nameof(Rotor)}s passed into the {nameof(EnigmaMachine)} constructor must be non-null, but the {nameof(Rotor)} at index {i} is null.", nameof(rotors));
             }
 
             _rotors[i] = rotors[i];
@@ -289,7 +289,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         if (indexes.Length != numberOfCipherWheels)
         {
             string word = indexes.Length is 1 ? "was" : "were";
-            throw new ArgumentException($"Exactly {numberOfCipherWheels} index values must be passed into the SetIndexes method, but there {word} {indexes.Length}.", nameof(indexes));
+            throw new ArgumentException($"Exactly {numberOfCipherWheels} index values must be passed into the {nameof(SetCipherIndexes)} method of the {nameof(EnigmaMachine)} class, but there {word} {indexes.Length}.", nameof(indexes));
         }
 
         if (IsInitialized)
@@ -303,7 +303,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         }
         else
         {
-            throw new InvalidOperationException("The Enigma machine must be initialized before setting the indexes.");
+            throw new InvalidOperationException($"The {nameof(EnigmaMachine)} must be initialized before calling the {nameof(SetCipherIndexes)} method.");
         }
     }
 
@@ -364,7 +364,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
             return new([.. outChars]);
         }
 
-        throw new InvalidOperationException("The Enigma machine must be initialized before calling the Transform method.");
+        throw new InvalidOperationException($"The {nameof(EnigmaMachine)} must be initialized before calling the {nameof(Transform)} method.");
     }
 
     /// <summary>
@@ -471,7 +471,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
 
         for (int i = 0; i < numberOfRotors; i++)
         {
-            if (i is not 0)
+            if (i > 0)
             {
                 _rotors[i].ConnectRightComponent(_rotors[i - 1]);
             }

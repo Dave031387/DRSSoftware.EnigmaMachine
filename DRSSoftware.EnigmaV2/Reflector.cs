@@ -61,7 +61,7 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
 
         if (RightCipherWheel is not null)
         {
-            throw new InvalidOperationException("Invalid attempt to connect a rotor to the right side of the reflector one when one is already connected.");
+            throw new InvalidOperationException($"A {nameof(Rotor)} can't be connected to the right side of this {nameof(Reflector)} because one is already connected.");
         }
 
         RightCipherWheel = rotor;
@@ -94,7 +94,7 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
 
         if (seed.Length < MinSeedLength)
         {
-            throw new ArgumentException($"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}.", nameof(seed));
+            throw new ArgumentException($"The seed string passed into the {nameof(Initialize)} method of the {nameof(Reflector)} class must be at least {MinSeedLength} characters long, but it was {seed.Length}.", nameof(seed));
         }
 
         // This array is used to keep track of which index positions on this reflector object have
@@ -161,7 +161,7 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
         {
             if (RightCipherWheel is null)
             {
-                throw new InvalidOperationException("A rotor hasn't been connected to the right side of the reflector.");
+                throw new InvalidOperationException($"A {nameof(Rotor)} must be connected to the right side of this {nameof(Reflector)} before calling the {nameof(Transform)} method.");
             }
 
             Rotate();
@@ -171,6 +171,6 @@ internal sealed class Reflector(int cycleSize) : CipherWheel(cycleSize), IReflec
             return RightCipherWheel.Transform(transformedValue);
         }
 
-        throw new InvalidOperationException("The reflector must be initialized before calling the Transform method.");
+        throw new InvalidOperationException($"The {nameof(Reflector)} must be initialized before calling the {nameof(Transform)} method.");
     }
 }

@@ -138,7 +138,7 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
         {
             if (indexValue is < 0 or > MaxIndex)
             {
-                throw new ArgumentOutOfRangeException(nameof(indexValue), $"The value passed into the SetIndex method must be greater than or equal to zero and less than {TableSize}, but it was {indexValue}.");
+                throw new ArgumentOutOfRangeException(nameof(indexValue), $"The index value passed into the {nameof(SetCipherIndex)} method of the {GetType().Name} class must be greater than or equal to 0 and less than {TableSize}, but it was {indexValue}.");
             }
 
             CipherIndex = indexValue;
@@ -146,7 +146,7 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
         }
         else
         {
-            throw new InvalidOperationException("The cipher wheel must be initialized before the cipher index can be set.");
+            throw new InvalidOperationException($"The {GetType().Name} must be initialized before calling the {nameof(SetCipherIndex)} method.");
         }
     }
 
@@ -208,6 +208,37 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     }
 
     /// <summary>
+    /// Calculates the adjusted index value within the bounds of an array using the specified
+    /// <paramref name="baseValue" /> and <paramref name="offset" />, wrapping around if the result
+    /// exceeds the array size or is negative.
+    /// </summary>
+    /// <remarks>
+    /// This method uses the C# modulus operator on potentially negative numbers. When this occurs,
+    /// the result will be either negative or zero. <br /> If the result is negative, the method
+    /// adjusts it by adding the <paramref name="arraySize" /> to ensure a positive index within the
+    /// valid range.
+    /// </remarks>
+    /// <param name="baseValue">
+    /// The base index value to start from. Should be a positive value or zero.
+    /// </param>
+    /// <param name="arraySize">
+    /// The size of the array. Must be greater than zero.
+    /// </param>
+    /// <param name="offset">
+    /// The offset that is to be applied to the <paramref name="baseValue" />. May be positive or
+    /// negative or zero.
+    /// </param>
+    /// <returns>
+    /// The adjusted value, guaranteed to be within the range [0, <paramref name="arraySize" /> -
+    /// 1].
+    /// </returns>
+    protected static int GetIndexValueWithOffset(int baseValue, int arraySize, int offset)
+    {
+        int index = (baseValue + offset) % arraySize;
+        return index < 0 ? arraySize + index : index;
+    }
+
+    /// <summary>
     /// Calculates a new index value by applying an offset derived from the specified
     /// <paramref name="seed" /> character.
     /// </summary>
@@ -227,11 +258,11 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// Thrown if <paramref name="index" /> is less than 0 or greater than the maximum allowable
     /// index value.
     /// </exception>
-    protected static int DisplaceIndex(int index, char seed)
+    protected int DisplaceIndex(int index, char seed)
     {
         if (index is < 0 or > MaxIndex)
         {
-            throw new ArgumentOutOfRangeException(nameof(index), $"The index passed into the DisplaceIndex method must be greater than or equal to zero and less than {TableSize}, but it was {index}.");
+            throw new ArgumentOutOfRangeException(nameof(index), $"The index value passed into the {nameof(DisplaceIndex)} method of the {GetType().Name} class must be greater than or equal to 0 and less than {TableSize}, but it was {index}.");
         }
 
         int offset = seed is < MinChar or > MaxChar ? 1 : seed == MinChar ? 1 : CharToInt(seed);
@@ -268,7 +299,7 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
     /// Thrown if no available slot can be found. (Should never occur if the method is used
     /// correctly.)
     /// </exception>
-    protected static int FindAvailableConnectionPoint(int startIndex, bool[] slotIsTaken)
+    protected int FindAvailableConnectionPoint(int startIndex, bool[] slotIsTaken)
     {
         ArgumentNullException.ThrowIfNull(slotIsTaken, nameof(slotIsTaken));
 
@@ -280,43 +311,12 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
 
             if (index == startIndex)
             {
-                throw new InvalidOperationException("The FindAvailableSlot method is unable to find an available slot.");
+                throw new InvalidOperationException($"The {nameof(FindAvailableConnectionPoint)} method of the {GetType().Name} class is unable to find an available connection point.");
             }
         }
 
         slotIsTaken[index] = true;
         return index;
-    }
-
-    /// <summary>
-    /// Calculates the adjusted index value within the bounds of an array using the specified
-    /// <paramref name="baseValue" /> and <paramref name="offset" />, wrapping around if the result
-    /// exceeds the array size or is negative.
-    /// </summary>
-    /// <remarks>
-    /// This method uses the C# modulus operator on potentially negative numbers. When this occurs,
-    /// the result will be either negative or zero. <br /> If the result is negative, the method
-    /// adjusts it by adding the <paramref name="arraySize" /> to ensure a positive index within the
-    /// valid range.
-    /// </remarks>
-    /// <param name="baseValue">
-    /// The base index value to start from. Should be a positive value or zero.
-    /// </param>
-    /// <param name="arraySize">
-    /// The size of the array. Must be greater than zero.
-    /// </param>
-    /// <param name="offset">
-    /// The offset that is to be applied to the <paramref name="baseValue" />. May be positive or
-    /// negative or zero.
-    /// </param>
-    /// <returns>
-    /// The adjusted value, guaranteed to be within the range [0, <paramref name="arraySize" /> -
-    /// 1].
-    /// </returns>
-    protected static int GetIndexValueWithOffset(int baseValue, int arraySize, int offset)
-    {
-        int index = (baseValue + offset) % arraySize;
-        return index < 0 ? arraySize + index : index;
     }
 
     /// <summary>

@@ -26,7 +26,7 @@ public class RotorTests
         // Arrange
         Rotor rotor = new(1);
         rotor.ConnectLeftComponent(new Rotor(11));
-        string expected = "Invalid attempt to connect a cipher wheel to the left side of this rotor when one is already connected.";
+        string expected = "The Rotor can't be connected to the left side of this Rotor because a Rotor is already connected.";
 
         // Act
         Action action = () => rotor.ConnectLeftComponent(new Rotor(13));
@@ -75,7 +75,7 @@ public class RotorTests
         // Arrange
         Rotor rotor = new(1);
         rotor.ConnectRightComponent(new Rotor(11));
-        string expected = "Invalid attempt to connect a rotor to the right side of this rotor when one is already connected.";
+        string expected = "The Rotor can't be connected to the right side of this Rotor because one is already connected.";
 
         // Act
         Action action = () => rotor.ConnectRightComponent(new Rotor(13));
@@ -222,7 +222,7 @@ public class RotorTests
     {
         // Arrange
         Rotor rotor = new(1);
-        string expected = $"The seed string passed into the Initialize method must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
+        string expected = $"The seed string passed into the Initialize method of the Rotor class must be at least {MinSeedLength} characters long, but it was {seed.Length}. (Parameter 'seed')";
 
         // Act
         Action action = () => rotor.Initialize(seed);
@@ -361,7 +361,7 @@ public class RotorTests
         // Arrange
         Rotor rotor = new(1);
         rotor.Initialize(_seed);
-        string expected = "A cipher wheel hasn't been connected to the left side of this rotor.";
+        string expected = "A Rotor or Reflector must be connected to the left side of this Rotor before calling the Transform method.";
 
         // Act
         Action action = () => rotor.Transform(53);

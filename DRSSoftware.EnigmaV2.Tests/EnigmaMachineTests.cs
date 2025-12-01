@@ -51,7 +51,7 @@ public class EnigmaMachineTests
     public void CreateNewEnigmaMachineWithNoRotors_ShouldThrowException()
     {
         // Arrange
-        string expected = "The rotors collection passed into the constructor must contain at least one element. (Parameter 'rotors')";
+        string expected = "The Rotors collection passed into the EnigmaMachine constructor must contain at least one element. (Parameter 'rotors')";
 
         // Act
         Action action = () => _ = new EnigmaMachine(_mockReflector.Object, []);
@@ -79,7 +79,7 @@ public class EnigmaMachineTests
     public void CreateNewEnigmaMachineWithNullRotorInList_ShouldThrowException()
     {
         // Arrange
-        string expected = "The rotor at index 1 is null. All rotors passed into the constructor must be non-null. (Parameter 'rotors')";
+        string expected = "All Rotors passed into the EnigmaMachine constructor must be non-null, but the Rotor at index 1 is null. (Parameter 'rotors')";
 
         // Act
         Action action = () => _ = new EnigmaMachine(_mockReflector.Object, [_mockRotor1.Object, null!, _mockRotor3.Object]);
@@ -271,7 +271,7 @@ public class EnigmaMachineTests
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
         int[] indexes = [1, 2, 3, 4];
-        string expected = "The Enigma machine must be initialized before setting the indexes.";
+        string expected = "The EnigmaMachine must be initialized before calling the SetCipherIndexes method.";
 
         // Act
         Action action = () => enigmaMachine.SetCipherIndexes(indexes);
@@ -311,7 +311,7 @@ public class EnigmaMachineTests
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
         enigmaMachine.SetState(true, null);
-        string expected = $"Exactly 4 index values must be passed into the SetIndexes method, but there {word} {indexes.Length}. (Parameter 'indexes')";
+        string expected = $"Exactly 4 index values must be passed into the SetCipherIndexes method of the EnigmaMachine class, but there {word} {indexes.Length}. (Parameter 'indexes')";
 
         // Act
         Action action = () => enigmaMachine.SetCipherIndexes(indexes);
@@ -360,7 +360,7 @@ public class EnigmaMachineTests
     {
         // Arrange
         EnigmaMachine enigmaMachine = CreateEnigmaMachine();
-        string expected = "The Enigma machine must be initialized before calling the Transform method.";
+        string expected = "The EnigmaMachine must be initialized before calling the Transform method.";
 
         // Act
         Action action = () => enigmaMachine.Transform("test");
