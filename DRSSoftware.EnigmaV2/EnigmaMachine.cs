@@ -18,17 +18,6 @@ namespace DRSSoftware.EnigmaV2;
 public sealed class EnigmaMachine : IEnigmaMachine
 {
     /// <summary>
-    /// An array which is used to store the initial index settings of the <see cref="Reflector" />
-    /// and <see cref="Rotor" /> objects of this <see cref="EnigmaMachine" />.
-    /// </summary>
-    /// <remarks>
-    /// This array is filled by the <c> "SetIndexes(int[])" </c> method and used by the <c>
-    /// "ResetIndexes()" </c> method. <br /> The last entry in this array is the
-    /// <see cref="Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
-    /// </remarks>
-    private readonly int[] _cipherWheelIndexes;
-
-    /// <summary>
     /// An array of integer values that will be used as the cycle size values that will be passed
     /// into the constructors of the <see cref="Reflector" /> and <see cref="Rotor" /> classes when
     /// the default <see cref="EnigmaMachine" /> constructor is used.
@@ -40,11 +29,22 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// contains one or more of these objects.
     /// </summary>
     /// <remarks>
-    /// This array contains a fixed number of rotors, defined by <see cref="NumberOfRotors" /> if
-    /// the default constructor is used, or defined by the number of rotors passed into the
-    /// alternate constructor if it is used.
+    /// This array contains a fixed number of rotors, defined by
+    /// <see cref="DefaultNumberOfRotors" /> if the default constructor is used, or defined by the
+    /// number of rotors passed into the alternate constructor if it is used.
     /// </remarks>
     private readonly IRotor[] _rotors;
+
+    /// <summary>
+    /// An array which is used to store the initial index settings of the <see cref="Reflector" />
+    /// and <see cref="Rotor" /> objects of this <see cref="EnigmaMachine" />.
+    /// </summary>
+    /// <remarks>
+    /// This array is filled by the <c> "SetIndexes(int[])" </c> method and used by the <c>
+    /// "ResetIndexes()" </c> method. <br /> The last entry in this array is the
+    /// <see cref="Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
+    /// </remarks>
+    private int[] _cipherWheelIndexes = [];
 
     /// <summary>
     /// Initializes a new instance of the <see cref="EnigmaMachine" /> class.
@@ -58,6 +58,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     public EnigmaMachine()
     {
         int cycleSizeIndex = 0;
+        NumberOfRotors = DefaultNumberOfRotors;
         _rotors = new IRotor[NumberOfRotors];
 
         for (int i = 0; i < NumberOfRotors; i++)
@@ -73,7 +74,6 @@ public sealed class EnigmaMachine : IEnigmaMachine
         MyReflector = new Reflector(_cycleSizes[cycleSizeIndex]);
 
         BuildEnigmaMachine();
-        _cipherWheelIndexes = GetCipherWheelIndexArray(NumberOfRotors);
     }
 
     /// <summary>
@@ -92,17 +92,17 @@ public sealed class EnigmaMachine : IEnigmaMachine
         ArgumentNullException.ThrowIfNull(reflector, nameof(reflector));
         ArgumentNullException.ThrowIfNull(rotors, nameof(rotors));
 
-        int numberOfRotors = rotors.Length;
+        NumberOfRotors = rotors.Length;
 
-        if (numberOfRotors is 0)
+        if (NumberOfRotors is 0)
         {
             throw new ArgumentException($"The {nameof(Rotor)}s collection passed into the {nameof(EnigmaMachine)} constructor must contain at least one element.", nameof(rotors));
         }
 
         MyReflector = reflector;
-        _rotors = new IRotor[numberOfRotors];
+        _rotors = new IRotor[NumberOfRotors];
 
-        for (int i = 0; i < numberOfRotors; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
             if (rotors[i] is null)
             {
@@ -113,7 +113,6 @@ public sealed class EnigmaMachine : IEnigmaMachine
         }
 
         BuildEnigmaMachine();
-        _cipherWheelIndexes = GetCipherWheelIndexArray(numberOfRotors);
     }
 
     /// <summary>
@@ -140,52 +139,61 @@ public sealed class EnigmaMachine : IEnigmaMachine
     }
 
     /// <summary>
+    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
+    /// </summary>
+    public int NumberOfRotors
+    {
+        get;
+        private set;
+    }
+
+    /// <summary>
     /// Gets a reference to the first <see cref="Rotor" /> for this <see cref="EnigmaMachine" />, or
     /// <see langword="null" /> if the first rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor1 => _rotors.Length > 0 ? _rotors[0] : null;
+    public IRotor? Rotor1 => NumberOfRotors > 0 ? _rotors[0] : null;
 
     /// <summary>
     /// Gets a reference to the second <see cref="Rotor" /> for this <see cref="EnigmaMachine" />,
     /// or <see langword="null" /> if the second rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor2 => _rotors.Length > 1 ? _rotors[1] : null;
+    public IRotor? Rotor2 => NumberOfRotors > 1 ? _rotors[1] : null;
 
     /// <summary>
     /// Gets a reference to the third <see cref="Rotor" /> for this <see cref="EnigmaMachine" />, or
     /// <see langword="null" /> if the third rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor3 => _rotors.Length > 2 ? _rotors[2] : null;
+    public IRotor? Rotor3 => NumberOfRotors > 2 ? _rotors[2] : null;
 
     /// <summary>
     /// Gets a reference to the fourth <see cref="Rotor" /> for this <see cref="EnigmaMachine" />,
     /// or <see langword="null" /> if the fourth rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor4 => _rotors.Length > 3 ? _rotors[3] : null;
+    public IRotor? Rotor4 => NumberOfRotors > 3 ? _rotors[3] : null;
 
     /// <summary>
     /// Gets a reference to the fifth <see cref="Rotor" /> for this <see cref="EnigmaMachine" />, or
     /// <see langword="null" /> if the fifth rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor5 => _rotors.Length > 4 ? _rotors[4] : null;
+    public IRotor? Rotor5 => NumberOfRotors > 4 ? _rotors[4] : null;
 
     /// <summary>
     /// Gets a reference to the sixth <see cref="Rotor" /> for this <see cref="EnigmaMachine" />, or
     /// <see langword="null" /> if the sixth rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor6 => _rotors.Length > 5 ? _rotors[5] : null;
+    public IRotor? Rotor6 => NumberOfRotors > 5 ? _rotors[5] : null;
 
     /// <summary>
     /// Gets a reference to the seventh <see cref="Rotor" /> for this <see cref="EnigmaMachine" />,
     /// or <see langword="null" /> if the seventh rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor7 => _rotors.Length > 6 ? _rotors[6] : null;
+    public IRotor? Rotor7 => NumberOfRotors > 6 ? _rotors[6] : null;
 
     /// <summary>
     /// Gets a reference to the eighth <see cref="Rotor" /> for this <see cref="EnigmaMachine" />,
     /// or <see langword="null" /> if the eighth rotor hasn't been defined.
     /// </summary>
-    public IRotor? Rotor8 => _rotors.Length > 7 ? _rotors[7] : null;
+    public IRotor? Rotor8 => NumberOfRotors > 7 ? _rotors[7] : null;
 
     /// <summary>
     /// Gets a copy of the <see cref="_cipherWheelIndexes" /> array containing the initial indexes
@@ -226,7 +234,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         char[] chars = seed.ToCharArray();
         MyReflector.Initialize(seed);
 
-        for (int i = 0; i < _rotors.Length; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
             string rotorSeed = GenerateNewSeed(chars, i + 2);
             _rotors[i].Initialize(rotorSeed);
@@ -248,7 +256,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     {
         if (IsInitialized)
         {
-            for (int i = 0; i < _rotors.Length; i++)
+            for (int i = 0; i < NumberOfRotors; i++)
             {
                 _rotors[i].SetCipherIndex(_cipherWheelIndexes[i]);
             }
@@ -284,7 +292,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     {
         ArgumentNullException.ThrowIfNull(indexes, nameof(indexes));
 
-        int numberOfCipherWheels = _rotors.Length + 1;
+        int numberOfCipherWheels = NumberOfRotors + 1;
 
         if (indexes.Length != numberOfCipherWheels)
         {
@@ -347,8 +355,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
                     continue;
                 }
 
-                char c = nextChar is LineFeed ? MaxChar : nextChar is < MinChar or >= MaxChar ? MinChar : nextChar;
-                int original = CharToInt(c);
+                int original = CharToInt(nextChar);
                 int transformed = Rotor1!.Transform(original);
 
                 if (transformed is MaxIndex)
@@ -429,17 +436,6 @@ public sealed class EnigmaMachine : IEnigmaMachine
     }
 
     /// <summary>
-    /// Allocate and return an integer array whose length is equal to the number of rotors plus one.
-    /// </summary>
-    /// <param name="numberOfRotors">
-    /// The number of rotors that make up the <see cref="EnigmaMachine" />.
-    /// </param>
-    /// <returns>
-    /// An integer array whose length is equal to the number of rotors plus one.
-    /// </returns>
-    private static int[] GetCipherWheelIndexArray(int numberOfRotors) => new int[numberOfRotors + 1];
-
-    /// <summary>
     /// Builds the <see cref="EnigmaMachine" /> by establishing the connections between the
     /// <see cref="Reflector" /> and various <see cref="Rotor" /> objects.
     /// </summary>
@@ -467,16 +463,14 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// </remarks>
     private void BuildEnigmaMachine()
     {
-        int numberOfRotors = _rotors.Length;
-
-        for (int i = 0; i < numberOfRotors; i++)
+        for (int i = 0; i < NumberOfRotors; i++)
         {
             if (i > 0)
             {
                 _rotors[i].ConnectRightComponent(_rotors[i - 1]);
             }
 
-            if (i < numberOfRotors - 1)
+            if (i < NumberOfRotors - 1)
             {
                 _rotors[i].ConnectLeftComponent(_rotors[i + 1]);
             }
@@ -487,6 +481,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         }
 
         MyReflector.ConnectRightComponent(_rotors[^1]);
+        _cipherWheelIndexes = new int[NumberOfRotors + 1];
         IsInitialized = false;
     }
 }

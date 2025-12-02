@@ -7,7 +7,7 @@
 /// <remarks>
 /// This class contains constants that define the character range, table size, and other
 /// configuration values for the <see cref="EnigmaMachine" />, as well as utility methods for
-/// character and index manipulation.
+/// converting between character and integer values.
 /// </remarks>
 internal static class Common
 {
@@ -15,6 +15,16 @@ internal static class Common
     /// Represents the carriage return character ('\r', or U+000D).
     /// </summary>
     internal const char CarriageReturn = '\r';
+
+    /// <summary>
+    /// Represents the default <see cref="Rotor" /> count used in configuring the
+    /// <see cref="EnigmaMachine" />.
+    /// </summary>
+    /// <remarks>
+    /// This constant is used by the default constructor of the <see cref="EnigmaMachine" /> class
+    /// to specify the number of <see cref="Rotor" /> objects to configure.
+    /// </remarks>
+    internal const int DefaultNumberOfRotors = 4;
 
     /// <summary>
     /// Represents the line feed character ('\n', or U+000A).
@@ -58,12 +68,6 @@ internal static class Common
     internal const int MinSeedLength = 10;
 
     /// <summary>
-    /// Represents the <see cref="Rotor" /> count (number of cipher wheels) used in the
-    /// <see cref="EnigmaMachine" />.
-    /// </summary>
-    internal const int NumberOfRotors = 4;
-
-    /// <summary>
     /// Represents the number of positions on the <see cref="Reflector" /> and each
     /// <see cref="Rotor" /> of the <see cref="EnigmaMachine" />.
     /// </summary>
@@ -74,34 +78,38 @@ internal static class Common
     internal const int TableSize = MaxIndex + 1;
 
     /// <summary>
-    /// Converts a character to its corresponding integer value based on the minimum character value
-    /// supported by the <see cref="EnigmaMachine" />.
+    /// Converts a character <paramref name="c" /> to its corresponding integer value based on the
+    /// minimum character value supported by the <see cref="EnigmaMachine" />.
     /// </summary>
     /// <remarks>
     /// The conversion is performed by subtracting the <see cref="MinChar" /> value from the
-    /// character's Unicode value. Ensure that the input character is within the valid range for the
-    /// intended conversion.
+    /// character's Unicode value. <br /> The returned value is guaranteed to be between 0 and
+    /// <see cref="MaxIndex" /> inclusive. <br /> If the character is outside the valid range then
+    /// it will be converted to 0.
     /// </remarks>
     /// <param name="c">
-    /// The character to convert.
+    /// The character that is to be converted to an integer value.
     /// </param>
     /// <returns>
-    /// The integer value of the character after applying the offset.
+    /// The integer value obtained by subtracting the minimum character value from the given value
+    /// <paramref name="c" />.
     /// </returns>
-    internal static int CharToInt(char c) => c - MinChar;
+    internal static int CharToInt(char c) => c is LineFeed ? MaxIndex : c is < MinChar or >= MaxChar ? 0 : c - MinChar;
 
     /// <summary>
-    /// Converts an integer to its corresponding character representation.
+    /// Converts the integer value <paramref name="i" /> to its corresponding character
+    /// representation.
     /// </summary>
     /// <remarks>
     /// The converted value is computed by adding the <see cref="MinChar" /> value to
-    /// <paramref name="i" />.
+    /// <paramref name="i" />. <br /> The integer value will be converted to the space character if
+    /// it is less than 0 or greater than <see cref="MaxIndex" />.
     /// </remarks>
     /// <param name="i">
-    /// The integer to convert. Must be within the valid range for character conversion.
+    /// The integer that is to be converted to a character value.
     /// </param>
     /// <returns>
-    /// The character corresponding to the specified integer.
+    /// The character value corresponding to the specified integer value <paramref name="i" />.
     /// </returns>
-    internal static char IntToChar(int i) => (char)(i + MinChar);
+    internal static char IntToChar(int i) => i is < 0 or > MaxIndex ? MinChar : (char)(i + MinChar);
 }

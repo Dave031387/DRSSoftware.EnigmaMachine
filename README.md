@@ -283,7 +283,7 @@ The *Initialize* and *Transform* methods of the **CipherWheel** class are both a
 derived classes.
 
 The **CipherWheel** class has a single constructor that takes an integer parameter representing the cycle size for the rotor or reflector. This
-constructor must be called by any derived classes in order to properly initialize the *CycleSize* property.
+constructor must be called by the constructor of any derived classes in order to properly initialize the *CycleSize* property.
 
 ```csharp
 public CipherWheel(int cycleSize) {}
@@ -346,3 +346,33 @@ public Reflector(int cycleSize) : base(cycleSize) {}
 ```
 
 ### The EnigmaMachine Class and IEnigmaMachine Interface
+The **EnigmaMachine** class represents the entire Enigma machine. It implements the **IEnigmaMachine** interface.
+
+The **IEnigmaMachine** interface defines the following read-only public properties:
+- `IsInitialized` - This property indicates whether the Enigma machine has been properly initialized. (Refer to the *Initialize* method description
+  below for more details.)
+- `MyReflector` - This property gets the reflector component of the Enigma machine. (See the **Reflector** class description
+  [above](#the-reflector-class-and-ireflector-interface) for more details.)
+- `NumberOfRotors` - This property gets the number of rotors currently configured in the Enigma machine.
+- `Rotor1` - This property gets the first rotor component of the Enigma machine (the right-most rotor). (See the **Rotor** class description
+  [above](#the-rotor-class-and-irotor-interface) for more details.)
+- `Rotor2` - This property gets the second rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use only one rotor.
+- `Rotor3` - This property gets the third rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than three rotors.
+- `Rotor4` - This property gets the fourth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than four rotors.
+- `Rotor5` - This property gets the fifth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than five rotors.
+- `Rotor6` - This property gets the sixth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than six rotors.
+- `Rotor7` - This property gets the seventh rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than seven rotors.
+- `Rotor8` - This property gets the eighth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+  configured to use less than eight rotors.
+
+The **IEnigmaMachine** interface also defines the following public methods:
+- `Initialize(string seed)` - This method initializes the Enigma machine by calling the *Initialize* method of each rotor and the reflector using
+  different seed values derived from the given seed string. This method must be called before the Enigma machine can be used. If this method is called
+  again with a different seed value, it will reinitialize the rotors and reflector with new random wiring based on the new seed value. The
+  *IsInitialized* property is set to *true* upon successful completion of this method.

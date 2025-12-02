@@ -265,7 +265,8 @@ public abstract class CipherWheel(int cycleSize) : ICipherWheel
             throw new ArgumentOutOfRangeException(nameof(index), $"The index value passed into the {nameof(DisplaceIndex)} method of the {GetType().Name} class must be greater than or equal to 0 and less than {TableSize}, but it was {index}.");
         }
 
-        int offset = seed is < MinChar or > MaxChar ? 1 : seed == MinChar ? 1 : CharToInt(seed);
+        int seedValue = CharToInt(seed);
+        int offset = seedValue < 1 ? 1 : seedValue;
         return GetIndexValueWithOffset(index, TableSize, offset);
     }
 

@@ -35,6 +35,14 @@ public interface IEnigmaMachine
     }
 
     /// <summary>
+    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
+    /// </summary>
+    int NumberOfRotors
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets a reference to the first <see cref="Rotor" /> for this <see cref="EnigmaMachine" />, or
     /// <see langword="null" /> if the first <see cref="Rotor" /> hasn't been defined.
     /// </summary>

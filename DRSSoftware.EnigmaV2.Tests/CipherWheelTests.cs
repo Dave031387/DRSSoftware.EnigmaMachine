@@ -27,10 +27,9 @@ public class CipherWheelTests
     [InlineData(MinChar + 1, 11)]
     [InlineData(MinChar + 2, 12)]
     [InlineData(MinChar + 44, 54)]
-    [InlineData(MaxChar, 9)]
     [InlineData(MaxChar - 1, 8)]
     [InlineData(MaxChar - 37, 68)]
-    public void DisplaceIndexWhenSeedCharIsInRangeAndNotMinChar_ShouldReturnCorrectIndexValue(char seedChar, int expected)
+    public void DisplaceIndexWhenSeedCharIsBetweenMinCharAndMaxChar_ShouldReturnCorrectIndexValue(char seedChar, int expected)
     {
         // Arrange
         MyCipherWheel cipherWheel = new(1);
@@ -47,11 +46,12 @@ public class CipherWheelTests
 
     [Theory]
     [InlineData(MinChar)]
+    [InlineData(MaxChar)]
     [InlineData(MinChar - 1)]
     [InlineData(MaxChar + 1)]
     [InlineData(MinChar - 10)]
     [InlineData(MaxChar + 10)]
-    public void DisplaceIndexWhenSeedCharIsMinCharOrOutOfRange_ShouldDisplaceByOne(char seedChar)
+    public void DisplaceIndexWhenSeedCharIsOutOfRange_ShouldDisplaceByOne(char seedChar)
     {
         // Arrange
         MyCipherWheel cipherWheel = new(1);
