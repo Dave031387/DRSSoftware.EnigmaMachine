@@ -255,28 +255,28 @@ which both the **Rotor** and **Reflector** classes inherit from. The **ICipherWh
 Note that the **CipherWheel** class is normally only accessed indirectly through the **Rotor** and **Reflector** classes.
 
 The **ICipherWheel** interface defines the following read-only public properties:
-- `CipherIndex` - This property corresponds to what was known as the alphabet ring position on the original Enigma machine. It determines the starting
-  rotational position of the rotor or reflector. Valid values are between 0 and 95 inclusive, where 0 corresponds to the space character (Unicode
-  0020) and 95 corresponds to the DEL (delete) character (Unicode 007F).
-- `CycleCount` - This property keeps track of how many character transforms have taken place since the last time the rotor or reflector was rotated.
-  The property value is incremented by 1 with each character transform.
-- `CycleSize` - This property determines how many character transforms must take place before the rotor or reflector is rotated one position. Valid
-  values are between 0 and 95 inclusive. Once the *CycleCount* reaches the *CycleSize* value, the rotor or reflector is rotated one position and the
-  *CycleCount* is reset back to zero. A *CycleSize* of 0 means that the rotor or reflector will never rotate.
-- `IsInitialized` - This property indicates whether the rotor or reflector has been properly initialized. (Refer to the *Initialize* method
+- `int CipherIndex` - This property corresponds to what was known as the alphabet ring position on the original Enigma machine. It determines the
+  starting rotational position of the rotor or reflector. Valid values are between 0 and 95 inclusive, where 0 corresponds to the space character
+  (Unicode 0020) and 95 corresponds to the DEL (delete) character (Unicode 007F).
+- `int CycleCount` - This property keeps track of how many character transforms have taken place since the last time the rotor or reflector was
+  rotated. The property value is incremented by 1 with each character transform.
+- `int CycleSize` - This property determines how many character transforms must take place before the rotor or reflector is rotated one position.
+  Valid values are between 0 and 95 inclusive. Once the *CycleCount* reaches the *CycleSize* value, the rotor or reflector is rotated one position and
+  the *CycleCount* is reset back to zero. A *CycleSize* of 0 means that the rotor or reflector will never rotate.
+- `bool IsInitialized` - This property indicates whether the rotor or reflector has been properly initialized. (Refer to the *Initialize* method
   description below for more details.)
 
 The **ICipherWheel** interface also defines the following public methods:
-- `Initialize(int seed)` - This method initializes the rotor or reflector by setting up the internal wiring based on the given seed value. The seed is
-  used to randomize the connections between the input and output pins of the rotor or reflector. This method must be called before the rotor or
-  reflector can be used. If this method is called again with a different seed value, it will reinitialize the rotor or reflector with a new random
+- `void Initialize(int seed)` - This method initializes the rotor or reflector by setting up the internal wiring based on the given seed value. The
+  seed is used to randomize the connections between the input and output pins of the rotor or reflector. This method must be called before the rotor
+  or reflector can be used. If this method is called again with a different seed value, it will reinitialize the rotor or reflector with a new random
   wiring based on the new seed value.
-- `SetCipherIndex(int index)` - This method sets the *CipherIndex* property to the given index value. Valid values are between 0 and 95 inclusive. The
-  *CycleCount* property is also set to an initial value based on the new *CipherIndex* value and the *CycleSize* property.
-- `Transform(int originalValue)` - This method processes the given original value through the rotor or reflector and returns the transformed value.
-  The *originalValue* parameter must be between 0 and 95 inclusive, where 0 corresponds to the space character (Unicode 0020) and 95 corresponds to
-  the DEL (delete) character (Unicode 007F). The method also increments the *CycleCount* property and rotates the rotor or reflector if necessary
-  based on the *CycleSize* property.
+- `void SetCipherIndex(int index)` - This method sets the *CipherIndex* property to the given index value. Valid values are between 0 and 95
+  inclusive. The *CycleCount* property is also set to an initial value based on the new *CipherIndex* value and the *CycleSize* property.
+- `int Transform(int originalValue)` - This method processes the given original value through the rotor or reflector and returns the transformed
+  value. The *originalValue* parameter must be between 0 and 95 inclusive, where 0 corresponds to the space character (Unicode 0020) and 95
+  corresponds to the DEL (delete) character (Unicode 007F). The method also increments the *CycleCount* property and rotates the rotor or reflector if
+  necessary based on the *CycleSize* property.
 
 The *Initialize* and *Transform* methods of the **CipherWheel** class are both abstract methods because their exact implementation differs between the
 **Rotor** and **Reflector** classes. However, the *SetCipherIndex* method is implemented in the **CipherWheel** class since it works the same for both
@@ -294,18 +294,18 @@ The **Rotor** class represents a single rotor of the Enigma machine. It inherits
 interface. The **IRotor** interface derives from the **ICipherWheel** interface and adds one property and two methods specific to the **Rotor** class.
 
 > [!NOTE]
-> Rotors have two sides - left and right. Transforms can take place in either direction depending on whether the signal is going inbound towards the
+> *Rotors have two sides - left and right. Transforms can take place in either direction depending on whether the signal is going inbound towards the
 > reflector or outbound coming back from the reflector. Inbound transforms go from right to left through the rotor, while outbound transforms go from
-> left to right through the rotor.
+> left to right through the rotor.*
 
 The **IRotor** interface defines the following read-only public property in addition to those inherited from the **ICipherWheel** interface:
-- `TransformIsInProgress` - This property is set to *true* when the *Transform* method has processed an inbound character transform. It is set back to
-  *false* when the *Transform* method has completed processing the oubound character transform. The sole purpose of this property is to enable the
-  rotor to keep track of the inbound vs. outbound character transform since the wiring is traversed in opposite directions for each.
+- `bool TransformIsInProgress` - This property is set to *true* when the *Transform* method has processed an inbound character transform. It is set
+  back to *false* when the *Transform* method has completed processing the oubound character transform. The sole purpose of this property is to enable
+  the rotor to keep track of the inbound vs. outbound character transform since the wiring is traversed in opposite directions for each.
 
 The **IRotor** interface also defines the following public methods in addition to those inherited from the **ICipherWheel** interface:
-- `ConnectRightComponent(IRotor rotor)` - This method connects the left side of the given rotor to the right side of this rotor.
-- `ConnectLeftComponent(ICipherWheel cipherWheel)` - This method connects the left side of this rotor to the right side of the given cipher
+- `void ConnectRightComponent(IRotor rotor)` - This method connects the left side of the given rotor to the right side of this rotor.
+- `void ConnectLeftComponent(ICipherWheel cipherWheel)` - This method connects the left side of this rotor to the right side of the given cipher
   wheel. The given cipher wheel will either be another rotor or a reflector.
 
 The **Rotor** class provides the implementation for the *Initialize* and *Transform* methods inherited from the **CipherWheel** class. The
@@ -326,12 +326,12 @@ The **Reflector** class represents the reflector of the Enigma machine. It inher
 class.
 
 > [!NOTE]
-> Unlike the rotors, the reflector only has one side (the right side) that connects to the left side of the left-most rotor. Inbound transforms always
-> enter the reflector from the rotor on the right side of the reflector. The reflector then sends the signal back out through a different pin to the
-> same rotor, thus starting the outbound leg of the transform.
+> *Unlike the rotors, the reflector only has one side (the right side) that connects to the left side of the left-most rotor. Inbound transforms
+> always enter the reflector from the rotor on the right side of the reflector. The reflector then sends the signal back out through a different pin
+> to the same rotor, thus starting the outbound leg of the transform.*
 
 The **IReflector** interface defines the following public method in addition to those inherited from the **ICipherWheel** interface:
-- `ConnectRightComponent(IRotor rotor)` - This method connects the right side of this reflector to the left side of the given rotor.
+- `void ConnectRightComponent(IRotor rotor)` - This method connects the right side of this reflector to the left side of the given rotor.
 
 The **Reflector** class provides the implementation for the *Initialize* and *Transform* methods inherited from the **CipherWheel** class. The
 *Initialize* method sets up the internal wiring of the reflector based on the given seed value. The *Transform* method processes the given original
@@ -349,30 +349,180 @@ public Reflector(int cycleSize) : base(cycleSize) {}
 The **EnigmaMachine** class represents the entire Enigma machine. It implements the **IEnigmaMachine** interface.
 
 The **IEnigmaMachine** interface defines the following read-only public properties:
-- `IsInitialized` - This property indicates whether the Enigma machine has been properly initialized. (Refer to the *Initialize* method description
-  below for more details.)
-- `MyReflector` - This property gets the reflector component of the Enigma machine. (See the **Reflector** class description
+- `bool IsInitialized` - This property indicates whether the Enigma machine has been properly initialized. (Refer to the *Initialize* method
+  description below for more details.)
+- `IReflector MyReflector` - This property gets the reflector component of the Enigma machine. (See the **Reflector** class description
   [above](#the-reflector-class-and-ireflector-interface) for more details.)
-- `NumberOfRotors` - This property gets the number of rotors currently configured in the Enigma machine.
-- `Rotor1` - This property gets the first rotor component of the Enigma machine (the right-most rotor). (See the **Rotor** class description
+- `int NumberOfRotors` - This property gets the number of rotors currently configured in the Enigma machine.
+- `IRotor Rotor1` - This property gets the first rotor component of the Enigma machine (the right-most rotor). (See the **Rotor** class description
   [above](#the-rotor-class-and-irotor-interface) for more details.)
-- `Rotor2` - This property gets the second rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor2` - This property gets the second rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use only one rotor.
-- `Rotor3` - This property gets the third rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor3` - This property gets the third rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than three rotors.
-- `Rotor4` - This property gets the fourth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor4` - This property gets the fourth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than four rotors.
-- `Rotor5` - This property gets the fifth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor5` - This property gets the fifth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than five rotors.
-- `Rotor6` - This property gets the sixth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor6` - This property gets the sixth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than six rotors.
-- `Rotor7` - This property gets the seventh rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor7` - This property gets the seventh rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than seven rotors.
-- `Rotor8` - This property gets the eighth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
+- `IRotor Rotor8` - This property gets the eighth rotor component of the Enigma machine. The property value will be *null* if the Enigma machine is
   configured to use less than eight rotors.
 
 The **IEnigmaMachine** interface also defines the following public methods:
-- `Initialize(string seed)` - This method initializes the Enigma machine by calling the *Initialize* method of each rotor and the reflector using
+- `void Initialize(string seed)` - This method initializes the Enigma machine by calling the *Initialize* method of each rotor and the reflector using
   different seed values derived from the given seed string. This method must be called before the Enigma machine can be used. If this method is called
   again with a different seed value, it will reinitialize the rotors and reflector with new random wiring based on the new seed value. The
   *IsInitialized* property is set to *true* upon successful completion of this method.
+- `void ResetCipherIndexes()` - This method resets the *CipherIndex* and *CycleCount* properties of each rotor and the reflector back to their initial
+  values. This will be the values set by the last call to the *SetCipherIndexes* method, or zero if the *SetCipherIndexes* method was never called.
+- `void SetCipherIndexes(params int[] indexes)` - This method sets the *CipherIndex* property of each rotor and the reflector to the corresponding
+  value in the given *indexes* array. The length of the *indexes* array must be equal to the number of rotors plus one (for the reflector). Valid
+  values for each index are between 0 and 95 inclusive. The last value in the *indexes* array corresponds to the reflector.
+- `string Transform(string text)` - This method processes the given text message through the Enigma machine and returns the transformed message. The
+  method handles all ASCII characters between the space character (Unicode 0020) and the tilde (~) character (Unicode 017E). It also handles carriage
+  return/line feed (CRLF) sequences, or just single line feeds, converting them to Unicode 017F while being processed and then converting them back
+  when done.
+
+The **EnigmaMachine** class has two public constructors. The default constructor creates an Enigma machine with four rotors and a reflector with
+pre-defined cycle sizes for each. The second constructor takes a variable list of objects. The first object must be an object implementing the
+**IReflector** interface. The remaining objects must be objects implementing the **IRotor** interface. This constructor allows the caller to create an
+Enigma machine with any number of rotors. The user also has control over the cycle sizes of each rotor and the reflector since they are set when the
+rotor and reflector objects are created.
+
+```csharp
+public EnigmaMachine() {}
+public EnigmaMachine(IReflector reflector, params IRotor[] rotors) {}
+```
+<br />
+
+> [!NOTE]
+> *Although you are able to create an Enigma machine with any number of rotors using the second constructor, keep in mind that you will only be able
+> to access the first eight rotors through the public properties of the **EnigmaMachine** class. Normally this shouldn't be an issue unless there is a
+> need to display the rotor settings in a user interface.*
+
+### Building an Enigma Machine
+This section provides an example of how to build and use an Enigma machine using the **Enigma V2** class library. The example will have the following
+characteristics:
+- The Enigma machine will be built with three rotors and one reflector.
+- The cycle sizes for the rotors and reflector will be set to 1, 5, 13, and 7 respectively.
+- The seed string used for initializing the Enigma machine will be "ThisIsTheSecretSeedString".
+- The cipher indexes for the rotors and reflector will be set to 22, 4, 65, and 48 respectively.
+
+Given these characteristics, the following code snippet shows how to build and use the Enigma machine:
+
+```csharp
+using DRSSoftware.EnigmaV2;
+
+// Create the rotors and reflector with the desired cycle sizes
+IRotor rotor1 = new Rotor(1);
+IRotor rotor2 = new Rotor(5);
+IRotor rotor3 = new Rotor(13);
+IReflector reflector = new Reflector(7);
+
+// Create the Enigma machine with the rotors and reflector
+IEnigmaMachine enigmaMachine = new EnigmaMachine(reflector, rotor1, rotor2, rotor3);
+
+// Initialize the Enigma machine with the seed string
+enigmaMachine.Initialize("ThisIsTheSecretSeedString");
+
+// Set the cipher indexes for the rotors and reflector
+enigmaMachine.SetCipherIndexes(22, 4, 65, 48);
+
+// Define the message to be encrypted
+string plainTextMessage = "This is the secret message that will be encrypted.\nIt's rather simple, but it illustrates what we're trying to do.";
+
+// Encrypt the message
+string encryptedMessage = enigmaMachine.Transform(plainTextMessage);
+
+// Output the encrypted message
+Console.WriteLine("Encrypted Message:");
+Console.WriteLine(encryptedMessage);
+
+// Now, let's decrypt the message back to plain text
+// Reset the cipher indexes back to their initial values
+enigmaMachine.ResetCipherIndexes();
+
+// Decrypt the message
+string decryptedMessage = enigmaMachine.Transform(encryptedMessage);
+
+// Output the decrypted message
+Console.WriteLine("\nDecrypted Message:");
+Console.WriteLine(decryptedMessage);
+
+// Verify that the decrypted message matches the original plain text message
+Console.WriteLine($"\nDecryption Successful: {decryptedMessage == plainTextMessage}");
+```
+
+<br />
+
+The **EnigmaMachine** class makes it easy to build and use an Enigma machine with just a few lines of code. The example above demonstrates how to
+create the rotors and reflector, initialize the machine, set the cipher indexes, encrypt a message, and then decrypt it back. All of this could have
+been done with a little more work by using the **Rotor** and **Reflector** classes directly and not using the **EnigmaMachine** class. The following
+code snippet shows how to do this using the same characterstics that were mentioned above:
+
+```csharp
+using DRSSoftware.EnigmaV2;
+
+// Create the rotors and reflector with the desired cycle sizes
+IRotor rotor1 = new Rotor(1);
+IRotor rotor2 = new Rotor(5);
+IRotor rotor3 = new Rotor(13);
+IReflector reflector = new Reflector(7);
+
+// Connect the rotors and reflector together
+rotor1.ConnectLeftComponent(rotor2);
+rotor2.ConnectLeftComponent(rotor3);
+rotor3.ConnectLeftComponent(reflector);
+reflector.ConnectRightComponent(rotor3);
+rotor3.ConnectRightComponent(rotor2);
+rotor2.ConnectRightComponent(rotor1);
+
+// Initialize the Enigma machine with the seed strings
+rotor1.Initialize("ThisIsTheFirstSeedString");
+rotor2.Initialize("ThisIsTheSecondSeedString");
+rotor3.Initialize("ThisIsTheThirdSeedString");
+reflector.Initialize("ThisIsTheFourthSeedString");
+
+// Set the cipher indexes for the rotors and reflector
+rotor1.SetCipherIndex(22);
+rotor2.SetCipherIndex(4);
+rotor3.SetCipherIndex(65);
+reflector.SetCipherIndex(48);
+
+// Define the message to be encrypted
+string plainTextMessage = "This is the secret message that will be encrypted.\nIt's rather simple, but it illustrates what we're trying to do.";
+
+// Encrypt the message
+string encryptedMessage = rotor1.Transform(plainTextMessage);
+
+// Output the encrypted message
+Console.WriteLine("Encrypted Message:");
+Console.WriteLine(encryptedMessage);
+
+// Now, let's decrypt the message back to plain text
+// Reset the cipher indexes back to their initial values
+rotor1.SetCipherIndex(22);
+rotor2.SetCipherIndex(4);
+rotor3.SetCipherIndex(65);
+reflector.SetCipherIndex(48);
+
+// Decrypt the message
+string decryptedMessage = rotor1.Transform(encryptedMessage);
+
+// Output the decrypted message
+Console.WriteLine("\nDecrypted Message:");
+Console.WriteLine(decryptedMessage);
+
+// Verify that the decrypted message matches the original plain text message
+Console.WriteLine($"\nDecryption Successful: {decryptedMessage == plainTextMessage}");
+```
+
+<br />
+
+This example is logically equivalent to the first example with one exception - a unique seed string must be provided for each rotor and the reflector
+when initializing them directly. When using the **EnigmaMachine** class, a single seed string is used to derive unique seed values for each rotor and
+the reflector. Other than that, the process of encrypting and decrypting messages is the same. It should be obvious, however, that using the
+**EnigmaMachine** class is much simpler and less error-prone than using the **Rotor** and **Reflector** classes directly.
