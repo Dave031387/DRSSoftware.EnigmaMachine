@@ -56,10 +56,22 @@ internal static class Common
     internal const int MaxIndex = MaxChar - MinChar;
 
     /// <summary>
+    /// Specifies the maximum number of rotors supported by the <see cref="EnigmaMachine" />
+    /// constructor that takes a single <see langword="int" /> parameter.
+    /// </summary>
+    internal const int MaxRotors = 8;
+
+    /// <summary>
     /// Represents the minimum valid character value (the space character, or U+0020) supported by
     /// the <see cref="EnigmaMachine" />.
     /// </summary>
     internal const char MinChar = '\u0020';
+
+    /// <summary>
+    /// Specifies the minimum number of rotors required for the operation of the
+    /// <see cref="EnigmaMachine" />.
+    /// </summary>
+    internal const int MinRotors = 1;
 
     /// <summary>
     /// Represents the minimum length of the seed value that is used for initializing the

@@ -51,7 +51,7 @@ public class EnigmaMachineTests
     public void CreateNewEnigmaMachineWithNoRotors_ShouldThrowException()
     {
         // Arrange
-        string expected = "The Rotors collection passed into the EnigmaMachine constructor must contain at least one element. (Parameter 'rotors')";
+        string expected = "The Rotors collection passed into the EnigmaMachine constructor must contain at least 1 element. (Parameter 'rotors')";
 
         // Act
         Action action = () => _ = new EnigmaMachine(_mockReflector.Object, []);

@@ -22,7 +22,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// into the constructors of the <see cref="Reflector" /> and <see cref="Rotor" /> classes when
     /// the default <see cref="EnigmaMachine" /> constructor is used.
     /// </summary>
-    private readonly int[] _cycleSizes = [1, 11, 7, 17, 13, 23, 29, 37, 41, 47];
+    private readonly int[] _cycleSizes = [1, 11, 7, 17, 13, 23, 29, 37, 41];
 
     /// <summary>
     /// Represents the collection of <see cref="Rotor" /> objects. Each <see cref="EnigmaMachine" />
@@ -47,18 +47,40 @@ public sealed class EnigmaMachine : IEnigmaMachine
     private int[] _cipherWheelIndexes = [];
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="EnigmaMachine" /> class.
+    /// Initializes a new instance of the <see cref="EnigmaMachine" /> class with the default number
+    /// of rotors.
     /// </summary>
     /// <remarks>
-    /// The constructor automatically configures the Enigma machine by invoking the necessary setup
-    /// logic. <br /> It also instantiates the <see cref="Reflector" /> object and the required
-    /// number of <see cref="Rotor" /> objects as determined by the <c> NumberOfRotors </c>
-    /// constant.
+    /// The constructor automatically instantiates the <see cref="Reflector" /> object and the
+    /// required number of <see cref="Rotor" /> objects as determined by the <c>
+    /// DefaultNumberOfRotors </c> constant.
     /// </remarks>
-    public EnigmaMachine()
+    public EnigmaMachine() : this(DefaultNumberOfRotors)
     {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="EnigmaMachine" /> class with the specified
+    /// number of rotors.
+    /// </summary>
+    /// <remarks>
+    /// The constructor automatically instantiates the <see cref="Reflector" /> object and the
+    /// required number of <see cref="Rotor" /> objects as determined by the
+    /// <paramref name="numberOfRotors" /> parameter.
+    /// </remarks>
+    /// <param name="numberOfRotors">
+    /// Specifies the number of <see cref="Rotor" /> objects to be created for this
+    /// <see cref="EnigmaMachine" />. (Must be at least 1 and no more than 8.)
+    /// </param>
+    public EnigmaMachine(int numberOfRotors)
+    {
+        if (numberOfRotors is < MinRotors or > MaxRotors)
+        {
+            throw new ArgumentOutOfRangeException(nameof(numberOfRotors), numberOfRotors, $"The {nameof(numberOfRotors)} parameter passed into the {nameof(EnigmaMachine)} constructor must be at least {MinRotors} and no more than {MaxRotors}.");
+        }
+
         int cycleSizeIndex = 0;
-        NumberOfRotors = DefaultNumberOfRotors;
+        NumberOfRotors = numberOfRotors;
         _rotors = new IRotor[NumberOfRotors];
 
         for (int i = 0; i < NumberOfRotors; i++)
@@ -94,9 +116,10 @@ public sealed class EnigmaMachine : IEnigmaMachine
 
         NumberOfRotors = rotors.Length;
 
-        if (NumberOfRotors is 0)
+        if (NumberOfRotors is < MinRotors)
         {
-            throw new ArgumentException($"The {nameof(Rotor)}s collection passed into the {nameof(EnigmaMachine)} constructor must contain at least one element.", nameof(rotors));
+            string word = MinRotors > 1 ? "elements" : "element";
+            throw new ArgumentException($"The {nameof(Rotor)}s collection passed into the {nameof(EnigmaMachine)} constructor must contain at least {MinRotors} {word}.", nameof(rotors));
         }
 
         MyReflector = reflector;

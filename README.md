@@ -386,25 +386,30 @@ The **IEnigmaMachine** interface also defines the following public methods:
   return/line feed (CRLF) sequences, or just single line feeds, converting them to Unicode 017F while being processed and then converting them back
   when done.
 
-The **EnigmaMachine** class has two public constructors. The default constructor creates an Enigma machine with four rotors and a reflector with
-pre-defined cycle sizes for each. The second constructor takes a variable list of objects. The first object must be an object implementing the
-**IReflector** interface. The remaining objects must be objects implementing the **IRotor** interface. This constructor allows the caller to create an
-Enigma machine with any number of rotors. The user also has control over the cycle sizes of each rotor and the reflector since they are set when the
-rotor and reflector objects are created.
+The **EnigmaMachine** class has three constructors as shown below:
+- The first constructor is the default constructor. It creates an Enigma machine with four rotors and a reflector with pre-defined cycle sizes for
+  each.
+- The second constructor takes an integer parameter representing the number of rotors to create. It creates an Enigma machine with the given number of
+  rotors and a reflector with pre-defined cycle sizes for each.
+- The third constructor takes a variable list of objects. The first object must be an object implementing the **IReflector** interface. The remaining
+  objects must be objects implementing the **IRotor** interface. This constructor allows the caller to create an Enigma machine with any number of
+  rotors. The user also has control over the cycle sizes of each rotor and the reflector since they are set when the rotor and reflector objects are
+  created.
 
 ```csharp
 public EnigmaMachine() {}
+public EnigmaMachine(int numberOfRotors) {}
 public EnigmaMachine(IReflector reflector, params IRotor[] rotors) {}
 ```
 <br />
 
 > [!NOTE]
-> *Although you are able to create an Enigma machine with any number of rotors using the second constructor, keep in mind that you will only be able
-> to access the first eight rotors through the public properties of the **EnigmaMachine** class. Normally this shouldn't be an issue unless there is a
+> *Although you are able to create an Enigma machine with any number of rotors using the third constructor, keep in mind that you will only be able to
+> access the first eight rotors through the public properties of the **EnigmaMachine** class. Normally this shouldn't be an issue unless there is a
 > need to display the rotor settings in a user interface.*
 
 ### Building an Enigma Machine
-This section provides an example of how to build and use an Enigma machine using the **Enigma V2** class library. The example will have the following
+This section provides examples of how to build and use an Enigma machine using the **Enigma V2** class library. The examples will have the following
 characteristics:
 - The Enigma machine will be built with three rotors and one reflector.
 - The cycle sizes for the rotors and reflector will be set to 1, 5, 13, and 7 respectively.
@@ -460,8 +465,8 @@ Console.WriteLine($"\nDecryption Successful: {decryptedMessage == plainTextMessa
 
 The **EnigmaMachine** class makes it easy to build and use an Enigma machine with just a few lines of code. The example above demonstrates how to
 create the rotors and reflector, initialize the machine, set the cipher indexes, encrypt a message, and then decrypt it back. All of this could have
-been done with a little more work by using the **Rotor** and **Reflector** classes directly and not using the **EnigmaMachine** class. The following
-code snippet shows how to do this using the same characterstics that were mentioned above:
+been done with a little more work by using the **Rotor** and **Reflector** classes directly and not using the **EnigmaMachine** class at all. The
+following code snippet shows how to do this using nearly the same characterstics that were mentioned above:
 
 ```csharp
 using DRSSoftware.EnigmaV2;
@@ -526,3 +531,101 @@ This example is logically equivalent to the first example with one exception - a
 when initializing them directly. When using the **EnigmaMachine** class, a single seed string is used to derive unique seed values for each rotor and
 the reflector. Other than that, the process of encrypting and decrypting messages is the same. It should be obvious, however, that using the
 **EnigmaMachine** class is much simpler and less error-prone than using the **Rotor** and **Reflector** classes directly.
+
+We could also use the **EnigmaMachine** constructor that takes a single integer argument specifying the number of rotors to create. This would look
+like the following example:
+
+```csharp
+using DRSSoftware.EnigmaV2;
+
+// Create the Enigma machine with the four rotors and a reflector
+IEnigmaMachine enigmaMachine = new EnigmaMachine(3);
+
+// Initialize the Enigma machine with the seed string
+enigmaMachine.Initialize("ThisIsTheSecretSeedString");
+
+// Set the cipher indexes for the rotors and reflector
+enigmaMachine.SetCipherIndexes(22, 4, 65, 48);
+
+// Define the message to be encrypted
+string plainTextMessage = "This is the secret message that will be encrypted.\nIt's rather simple, but it illustrates what we're trying to do.";
+
+// Encrypt the message
+string encryptedMessage = enigmaMachine.Transform(plainTextMessage);
+
+// Output the encrypted message
+Console.WriteLine("Encrypted Message:");
+Console.WriteLine(encryptedMessage);
+
+// Now, let's decrypt the message back to plain text
+// Reset the cipher indexes back to their initial values
+enigmaMachine.ResetCipherIndexes();
+
+// Decrypt the message
+string decryptedMessage = enigmaMachine.Transform(encryptedMessage);
+
+// Output the decrypted message
+Console.WriteLine("\nDecrypted Message:");
+Console.WriteLine(decryptedMessage);
+
+// Verify that the decrypted message matches the original plain text message
+Console.WriteLine($"\nDecryption Successful: {decryptedMessage == plainTextMessage}");
+```
+
+<br />
+
+The constructor used in this example allows you to create an Enigma machine having between 1 and 8 rotors. However, the cycle sizes assigned to the
+rotors and reflector are pre-defined and cannot be changed. Therefore this version doesn't meet the characteristics listed at the start of this
+section, but it does provide a somewhat easier way to create an Enigma machine than the first example shown above.
+
+> [!NOTE]
+> *The cycle sizes assigned to the rotors and reflector when using this constructor are taken consecutively from the following list: 1, 11, 7, 17, 13,
+> 23, 29, 37, and 41. Therefore, the cycle sizes for the rotors in the above example would be 1, 11, and 7, and the cycle size for the reflector would
+> be 17.*
+
+Finally, the **EnigmaMachine** class also has a default constructor. The following code snippet shows how to use this constructor to build and use an
+Enigma machine:
+
+```csharp
+using DRSSoftware.EnigmaV2;
+
+// Create the Enigma machine with the four rotors and a reflector
+IEnigmaMachine enigmaMachine = new EnigmaMachine();
+
+// Initialize the Enigma machine with the seed string
+enigmaMachine.Initialize("ThisIsTheSecretSeedString");
+
+// Set the cipher indexes for the rotors and reflector
+enigmaMachine.SetCipherIndexes(22, 4, 65, 31, 48);
+
+// Define the message to be encrypted
+string plainTextMessage = "This is the secret message that will be encrypted.\nIt's rather simple, but it illustrates what we're trying to do.";
+
+// Encrypt the message
+string encryptedMessage = enigmaMachine.Transform(plainTextMessage);
+
+// Output the encrypted message
+Console.WriteLine("Encrypted Message:");
+Console.WriteLine(encryptedMessage);
+
+// Now, let's decrypt the message back to plain text
+// Reset the cipher indexes back to their initial values
+enigmaMachine.ResetCipherIndexes();
+
+// Decrypt the message
+string decryptedMessage = enigmaMachine.Transform(encryptedMessage);
+
+// Output the decrypted message
+Console.WriteLine("\nDecrypted Message:");
+Console.WriteLine(decryptedMessage);
+
+// Verify that the decrypted message matches the original plain text message
+Console.WriteLine($"\nDecryption Successful: {decryptedMessage == plainTextMessage}");
+```
+
+<br />
+
+The default constructor takes away more of the flexibility that we had with the constructor used in the first example above. The default constructor
+will always create an Enigma machine with four rotors and a reflector with pre-defined cycle sizes (1, 11, 7, 17, and 13 respectively). Therefore this
+version fails to meet the characteristics listed at the start of this section even more so than the previous example. However, it does provide the
+easiest way to create an Enigma machine of all the examples shown in this section.
