@@ -1,4 +1,4 @@
-﻿namespace DRSSoftware.EnigmaMachine;
+﻿namespace DRSSoftware.EnigmaMachine.Views;
 
 using System.Windows;
 

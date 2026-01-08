@@ -38,8 +38,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Views\" />
-    <Folder Include="ViewModels\" />
+    <ProjectReference Include="..\DRSSoftware.EnigmaV2\DRSSoftware.EnigmaV2.csproj" />
   </ItemGroup>
 
 </Project>
