@@ -4,17 +4,25 @@ using System.Windows.Input;
 using DRSSoftware.EnigmaMachine.Commands;
 
 /// <summary>
-/// View model used for design-time data binding in the user interface.
+/// View model used for design-time data binding in the MainWindow view.
 /// </summary>
-public class DesignTimeViewModel : ViewModelBase, IMainWindowViewModel
+public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
 {
     private string _inputText = "Sample input text for design time. Some more text to make it longer so that the scroll bar shows up.";
     private string _outputText = "Sample output text for design time. Some more text to make it longer so that the scroll bar shows up.";
 
     /// <summary>
-    /// Gets the command used for en-cloaking the output text in the Enigma machine.
+    /// Gets the command used for cloaking the output text in the Enigma machine.
     /// </summary>
     public ICommand CloakCommand
+    {
+        get;
+    } = new RelayCommand(static _ => { }, static _ => true);
+
+    /// <summary>
+    /// Gets the command used for reconfiguring the Enigma machine.
+    /// </summary>
+    public ICommand ConfigureCommand
     {
         get;
     } = new RelayCommand(static _ => { }, static _ => true);
@@ -74,14 +82,6 @@ public class DesignTimeViewModel : ViewModelBase, IMainWindowViewModel
             }
         }
     }
-
-    /// <summary>
-    /// Gets the command used for reconfiguring the Enigma machine.
-    /// </summary>
-    public ICommand ReconfigureCommand
-    {
-        get;
-    } = new RelayCommand(static _ => { }, static _ => true);
 
     /// <summary>
     /// Gets the command used for resetting the state of the Enigma machine.

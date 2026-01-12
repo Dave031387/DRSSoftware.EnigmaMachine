@@ -106,7 +106,7 @@ internal static class Common
     /// The integer value obtained by subtracting the minimum character value from the given value
     /// <paramref name="c" />.
     /// </returns>
-    internal static int CharToInt(char c) => c is LineFeed ? MaxIndex : c is < MinChar or >= MaxChar ? 0 : c - MinChar;
+    internal static int CharToInt(char c) => c is LineFeed ? MaxIndex : c is < MinChar or > MaxChar ? 0 : c - MinChar;
 
     /// <summary>
     /// Converts the integer value <paramref name="i" /> to its corresponding character

@@ -8,7 +8,7 @@ public class CommonTests
     [InlineData('+', 11)]
     [InlineData('U', 53)]
     [InlineData('~', 94)]
-    [InlineData('\u007f', 0)]
+    [InlineData('\u007f', 95)]
     [InlineData(LineFeed, 95)]
     [InlineData('\u0080', 0)]
     public void CharToInt_ShouldReturnCorrectValue(char c, int expected)

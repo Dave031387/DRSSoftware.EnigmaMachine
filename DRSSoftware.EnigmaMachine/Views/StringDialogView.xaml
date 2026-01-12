@@ -1,0 +1,52 @@
+﻿<Window
+    x:Class="DRSSoftware.EnigmaMachine.Views.StringDialogView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:DRSSoftware.EnigmaMachine.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
+    Title="{Binding Title}"
+    Width="450"
+    Height="200"
+    d:DataContext="{d:DesignInstance Type=vm:GetStringViewModelDT,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d">
+    <i:Interaction.Behaviors>
+        <behaviors:CloseWindowBehavior CloseTrigger="{Binding CloseTrigger}" />
+    </i:Interaction.Behaviors>
+    <Border
+        Padding="10"
+        Background="Black"
+        BorderBrush="{StaticResource borderBrush}"
+        BorderThickness="10">
+        <DockPanel LastChildFill="True">
+            <TextBlock
+                Margin="0,0,0,10"
+                DockPanel.Dock="Top"
+                Style="{StaticResource headerTextStyle}"
+                Text="{Binding HeaderText}" />
+            <StackPanel
+                HorizontalAlignment="Right"
+                DockPanel.Dock="Bottom"
+                Orientation="Horizontal">
+                <Button
+                    Command="{Binding AcceptCommand}"
+                    Content="Accept"
+                    Style="{StaticResource buttonStyle}" />
+                <Button
+                    Margin="10,0,0,0"
+                    Command="{Binding CancelCommand}"
+                    Content="Cancel"
+                    Style="{StaticResource buttonStyle}" />
+            </StackPanel>
+            <ScrollViewer
+                Margin="0,0,0,10"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto">
+                <TextBox Style="{StaticResource editableTextStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
+            </ScrollViewer>
+        </DockPanel>
+    </Border>
+</Window>

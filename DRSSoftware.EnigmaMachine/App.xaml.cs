@@ -1,6 +1,8 @@
 ﻿namespace DRSSoftware.EnigmaMachine;
 
 using System.Windows;
+using DRSSoftware.DRSBasicDI;
+using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.Utility;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
@@ -19,10 +21,18 @@ public partial class App : Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
-        MainWindow mainWindow = new()
-        {
-            DataContext = new MainWindowViewModel(new EnigmaMachineBuilder())
-        };
+
+        IContainer container = ContainerBuilder.GetInstance()
+            .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
+            .AddSingleton<IInputOutputService, InputOutputService>()
+            .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()
+            .AddSingleton<IStringDialogService, StringDialogService>()
+            .AddTransient<IStringDialogViewModel, StringDialogViewModel>()
+            .AddSingleton<MainWindow>()
+            .AddTransient<StringDialogView>()
+            .Build();
+        MainWindow mainWindow = container.Resolve<MainWindow>();
+        mainWindow.DataContext = container.Resolve<IMainWindowViewModel>();
         mainWindow.Show();
     }
 }

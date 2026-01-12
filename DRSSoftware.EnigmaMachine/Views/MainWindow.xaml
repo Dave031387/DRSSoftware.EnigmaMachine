@@ -11,13 +11,14 @@
     Height="600"
     MinWidth="750"
     MinHeight="450"
-    d:DataContext="{d:DesignInstance Type=vm:DesignTimeViewModel,
+    d:DataContext="{d:DesignInstance Type=vm:MainWindowViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <Border
         Padding="10"
         Background="Black"
-        BorderThickness="10" BorderBrush="{StaticResource borderBrush}">
+        BorderBrush="{StaticResource borderBrush}"
+        BorderThickness="10">
         <Grid>
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*" />
@@ -34,7 +35,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="0"
-                Style="{StaticResource headerStyle}"
+                Style="{StaticResource headerTextStyle}"
                 Text="Input" />
             <ScrollViewer
                 Grid.Row="1"
@@ -42,7 +43,7 @@
                 Margin="0,0,10,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource inputOutputStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource inputOutputTextStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
             <Grid Grid.Row="2" Grid.Column="0">
                 <Grid.ColumnDefinitions>
@@ -59,6 +60,7 @@
                 <Button
                     Grid.Column="1"
                     Margin="5,10,5,0"
+                    Command="{Binding DecloakCommand}"
                     Content="De-cloak"
                     Style="{StaticResource buttonStyle}" />
             </Grid>
@@ -67,7 +69,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="1"
-                Style="{StaticResource headerStyle}"
+                Style="{StaticResource headerTextStyle}"
                 Text="Control" />
             <Grid Grid.Row="1" Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -79,7 +81,7 @@
                     Grid.Row="1"
                     Margin="5"
                     Command="{Binding EncryptCommand}"
-                    Content="--> Encrypt -->"
+                    Content="--&gt; Encrypt --&gt;"
                     Style="{StaticResource buttonStyle}" />
             </Grid>
             <Grid Grid.Row="2" Grid.Column="1">
@@ -91,8 +93,8 @@
                 <Button
                     Grid.Column="0"
                     Margin="5,10,5,0"
-                    Command="{Binding ReconfigureCommand}"
-                    Content="Reconfigure"
+                    Command="{Binding ConfigureCommand}"
+                    Content="Configure"
                     Style="{StaticResource buttonStyle}" />
                 <Button
                     Grid.Column="2"
@@ -106,7 +108,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="2"
-                Style="{StaticResource headerStyle}"
+                Style="{StaticResource headerTextStyle}"
                 Text="Output" />
             <ScrollViewer
                 Grid.Row="1"
@@ -114,7 +116,7 @@
                 Margin="0,0,10,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource inputOutputStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource inputOutputTextStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
             <Grid Grid.Row="2" Grid.Column="2">
                 <Grid.ColumnDefinitions>
@@ -125,11 +127,13 @@
                 <Button
                     Grid.Column="1"
                     Margin="5,10,5,0"
+                    Command="{Binding CloakCommand}"
                     Content="Cloak"
                     Style="{StaticResource buttonStyle}" />
                 <Button
                     Grid.Column="2"
                     Margin="5,10,5,0"
+                    Command="{Binding SaveCommand}"
                     Content="Save"
                     Style="{StaticResource buttonStyle}" />
             </Grid>

@@ -331,7 +331,7 @@ public class EnigmaMachineTests
     [InlineData("~", 94, 32, "@")]
     [InlineData("\u001f", 0, 94, "~")]
     [InlineData("\u0004", 0, 95, "\r\n")]
-    [InlineData("\u007f", 0, 65, "a")]
+    [InlineData("\u007f", 95, 65, "a")]
     [InlineData("\u0100", 0, 48, "P")]
     [InlineData("\n", 95, 18, "2")]
     [InlineData("\r\n", 95, 29, "=")]

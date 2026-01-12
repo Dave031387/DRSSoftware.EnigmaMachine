@@ -9,7 +9,7 @@ using DRSSoftware.EnigmaV2;
 /// This static class is intended to simplify the construction of Enigma machine objects by
 /// encapsulating common setup patterns. All members are static and thread-safe.
 /// </remarks>
-public sealed class EnigmaMachineBuilder : IEnigmaMachineBuilder
+internal sealed class EnigmaMachineBuilder : IEnigmaMachineBuilder
 {
     /// <summary>
     /// Create a new instance of an Enigma machine with default settings.
