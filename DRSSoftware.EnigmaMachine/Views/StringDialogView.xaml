@@ -10,7 +10,7 @@
     Title="{Binding Title}"
     Width="450"
     Height="200"
-    d:DataContext="{d:DesignInstance Type=vm:GetStringViewModelDT,
+    d:DataContext="{d:DesignInstance Type=vm:StringDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <i:Interaction.Behaviors>
@@ -25,7 +25,7 @@
             <TextBlock
                 Margin="0,0,0,10"
                 DockPanel.Dock="Top"
-                Style="{StaticResource headerTextStyle}"
+                Style="{StaticResource headerTextBlockStyle}"
                 Text="{Binding HeaderText}" />
             <StackPanel
                 HorizontalAlignment="Right"
@@ -45,7 +45,7 @@
                 Margin="0,0,0,10"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource editableTextStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource editableTextBoxStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
         </DockPanel>
     </Border>

@@ -35,7 +35,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="0"
-                Style="{StaticResource headerTextStyle}"
+                Style="{StaticResource headerTextBlockStyle}"
                 Text="Input" />
             <ScrollViewer
                 Grid.Row="1"
@@ -43,7 +43,7 @@
                 Margin="0,0,10,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource inputOutputTextStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource readonlyTextBoxStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
             <Grid Grid.Row="2" Grid.Column="0">
                 <Grid.ColumnDefinitions>
@@ -69,7 +69,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="1"
-                Style="{StaticResource headerTextStyle}"
+                Style="{StaticResource headerTextBlockStyle}"
                 Text="Control" />
             <Grid Grid.Row="1" Grid.Column="1">
                 <Grid.RowDefinitions>
@@ -108,7 +108,7 @@
             <TextBlock
                 Grid.Row="0"
                 Grid.Column="2"
-                Style="{StaticResource headerTextStyle}"
+                Style="{StaticResource headerTextBlockStyle}"
                 Text="Output" />
             <ScrollViewer
                 Grid.Row="1"
@@ -116,7 +116,7 @@
                 Margin="0,0,10,0"
                 HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource inputOutputTextStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
+                <TextBox Style="{StaticResource readonlyTextBoxStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
             <Grid Grid.Row="2" Grid.Column="2">
                 <Grid.ColumnDefinitions>

@@ -13,9 +13,14 @@ using DRSSoftware.EnigmaV2;
 internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
 {
     /// <summary>
+    /// Holds a reference to the Enigma machine configuration dialog service.
+    /// </summary>
+    private readonly IConfigurationDialogService _configurationDialogService;
+
+    /// <summary>
     /// Holds a reference to the Enigma machine builder.
     /// </summary>
-    private readonly IEnigmaMachineBuilder _builder;
+    private readonly IEnigmaMachineBuilder _enigmaMachineBuilder;
 
     /// <summary>
     /// Holds a reference to the dependency injection container.
@@ -25,7 +30,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// <summary>
     /// Holds a reference to the GetStringService.
     /// </summary>
-    private readonly IStringDialogService _getStringService;
+    private readonly IStringDialogService _stringDialogService;
 
     /// <summary>
     /// Holds a reference to the file input/output service.
@@ -61,7 +66,10 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// Initializes a new instance of the MainWindowViewModel class with the specified Enigma
     /// machine builder and input/output service.
     /// </summary>
-    /// <param name="builder">
+    /// <param name="configurationDialogService">
+    /// The service responsible for configuring the Enigma machine.
+    /// </param>
+    /// <param name="enigmaMachineBuilder">
     /// The builder used to construct the Enigma machine instance for this view model. Cannot be
     /// null.
     /// </param>
@@ -69,22 +77,24 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// The service responsible for handling input and output operations within the view model.
     /// Cannot be null.
     /// </param>
-    /// <param name="getStringService">
+    /// <param name="stringDialogService">
     /// The service used to obtain string input from the user.
     /// </param>
     /// <param name="container">
     /// A reference to the dependency injection container.
     /// </param>
-    internal MainWindowViewModel(IEnigmaMachineBuilder builder,
+    internal MainWindowViewModel(IConfigurationDialogService configurationDialogService,
+                                 IEnigmaMachineBuilder enigmaMachineBuilder,
                                  IInputOutputService inputOutputService,
-                                 IStringDialogService getStringService,
+                                 IStringDialogService stringDialogService,
                                  IContainer container)
     {
         _container = container;
-        _builder = builder;
-        _getStringService = getStringService;
+        _configurationDialogService = configurationDialogService;
+        _enigmaMachineBuilder = enigmaMachineBuilder;
+        _stringDialogService = stringDialogService;
         _inputOutputService = inputOutputService;
-        EnigmaMachine = _builder.Build();
+        EnigmaMachine = _enigmaMachineBuilder.Build();
 
         CloakCommand = new RelayCommand(_ => Cloak(), _ => !(string.IsNullOrEmpty(_outputText) || _fileIsCloaked));
         ConfigureCommand = new RelayCommand(_ => { }, _ => true);
@@ -202,7 +212,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     {
         string title = "Cloak Text";
         string header = "Enter the text string for cloaking the output text:";
-        string cloakText = _getStringService.GetString(title, header);
+        string cloakText = _stringDialogService.GetString(title, header);
 
         if (string.IsNullOrWhiteSpace(cloakText))
         {
@@ -221,14 +231,14 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     {
         string title = "Decloak Text";
         string header = "Enter the text string for decloaking the input text:";
-        string decloakText = _getStringService.GetString(title, header);
+        string cloakText = _stringDialogService.GetString(title, header);
 
-        if (string.IsNullOrWhiteSpace(decloakText))
+        if (string.IsNullOrWhiteSpace(cloakText))
         {
             return;
         }
 
-        InputText = CloakingService.RemoveCloak(InputText, decloakText);
+        InputText = CloakingService.RemoveCloak(InputText, cloakText);
         _fileIsDecloaked = true;
     }
 

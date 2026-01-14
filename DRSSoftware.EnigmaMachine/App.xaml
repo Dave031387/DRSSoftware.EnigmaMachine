@@ -2,38 +2,54 @@
     x:Class="DRSSoftware.EnigmaMachine.App"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:converters="clr-namespace:DRSSoftware.EnigmaMachine.Converters"
     xmlns:local="clr-namespace:DRSSoftware.EnigmaMachine">
     <Application.Resources>
         <!--  Color Resources  -->
         <Color x:Key="darkColor">#FF320032</Color>
-        <Color x:Key="headerTextColor">White</Color>
+        <Color x:Key="darkTextColor">Black</Color>
         <Color x:Key="lightColor">#FFF0A4F0</Color>
+        <Color x:Key="lightTextColor">White</Color>
         <Color x:Key="mediumColor">#FFC432C4</Color>
         <Color x:Key="textBoxBackgroundColor">#FFB4DCBC</Color>
         <!--  Brush Resources  -->
         <SolidColorBrush x:Key="buttonBackgroundBrush" Color="{StaticResource lightColor}" />
         <SolidColorBrush x:Key="darkBrush" Color="{StaticResource darkColor}" />
-        <SolidColorBrush x:Key="headerTextBrush" Color="{StaticResource headerTextColor}" />
+        <SolidColorBrush x:Key="darkTextBrush" Color="{StaticResource darkTextColor}" />
+        <SolidColorBrush x:Key="lightBrush" Color="{StaticResource lightColor}" />
+        <SolidColorBrush x:Key="lightTextBrush" Color="{StaticResource lightTextColor}" />
         <SolidColorBrush x:Key="textBoxBackgroundBrush" Color="{StaticResource textBoxBackgroundColor}" />
         <LinearGradientBrush x:Key="borderBrush" StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Offset="0.03" Color="{StaticResource darkColor}" />
             <GradientStop Offset="1" Color="{StaticResource mediumColor}" />
         </LinearGradientBrush>
         <!--  Text Styles  -->
-        <Style x:Key="headerTextStyle" TargetType="{x:Type TextBlock}">
+        <Style x:Key="titleTextBlockStyle" TargetType="{x:Type TextBlock}">
             <Setter Property="FontSize" Value="16" />
             <Setter Property="FontWeight" Value="Bold" />
-            <Setter Property="Foreground" Value="{StaticResource headerTextBrush}" />
+            <Setter Property="Foreground" Value="{StaticResource darkTextBrush}" />
+            <Setter Property="Margin" Value="10" />
+        </Style>
+        <Style x:Key="headerTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource lightTextBrush}" />
             <Setter Property="HorizontalAlignment" Value="Center" />
             <Setter Property="Margin" Value="0,0,0,10" />
         </Style>
-        <Style x:Key="inputOutputTextStyle" TargetType="{x:Type TextBox}">
+        <Style x:Key="indexTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource darkBrush}" />
+            <Setter Property="Margin" Value="10,10,2,10" />
+        </Style>
+        <Style x:Key="readonlyTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="{StaticResource textBoxBackgroundBrush}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="IsReadOnly" Value="True" />
             <Setter Property="TextWrapping" Value="Wrap" />
         </Style>
-        <Style x:Key="editableTextStyle" TargetType="{x:Type TextBox}">
+        <Style x:Key="editableTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="{StaticResource textBoxBackgroundBrush}" />
             <Setter Property="FontSize" Value="14" />
             <Setter Property="IsReadOnly" Value="false" />
@@ -47,5 +63,26 @@
             <Setter Property="Foreground" Value="{StaticResource darkBrush}" />
             <Setter Property="Padding" Value="10,5" />
         </Style>
+        <Style x:Key="radioButtonStyle" TargetType="{x:Type RadioButton}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="0,0,20,5" />
+        </Style>
+        <!--  Combo Box Styles  -->
+        <Style x:Key="configurationComboBoxStyle" TargetType="{x:Type ComboBox}">
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="HorizontalContentAlignment" Value="Right" />
+            <Setter Property="IsReadOnly" Value="True" />
+            <Setter Property="VerticalContentAlignment" Value="Center" />
+            <Setter Property="Width" Value="50" />
+        </Style>
+        <!--  Panel Styles  -->
+        <Style x:Key="configurationPanelStyle" TargetType="{x:Type StackPanel}">
+            <Setter Property="Background" Value="{StaticResource lightBrush}" />
+            <Setter Property="Margin" Value="0,0,0,10" />
+            <Setter Property="Orientation" Value="Vertical" />
+        </Style>
+        <!--  Converters  -->
+        <converters:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
     </Application.Resources>
 </Application>

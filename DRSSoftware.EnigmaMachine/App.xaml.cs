@@ -23,11 +23,14 @@ public partial class App : Application
         base.OnStartup(e);
 
         IContainer container = ContainerBuilder.GetInstance()
+            .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
+            .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
             .AddSingleton<IInputOutputService, InputOutputService>()
             .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()
             .AddSingleton<IStringDialogService, StringDialogService>()
             .AddTransient<IStringDialogViewModel, StringDialogViewModel>()
+            .AddTransient<ConfigurationDialogView>()
             .AddSingleton<MainWindow>()
             .AddTransient<StringDialogView>()
             .Build();

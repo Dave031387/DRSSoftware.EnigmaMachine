@@ -1,0 +1,166 @@
+﻿<Window
+    x:Class="DRSSoftware.EnigmaMachine.Views.ConfigurationDialogView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:DRSSoftware.EnigmaMachine.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:i="http://schemas.microsoft.com/xaml/behaviors"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
+    Title="Enigma Machine Setup"
+    Width="Auto"
+    Height="Auto"
+    d:DataContext="{d:DesignInstance Type=vm:ConfigurationDialogViewModelDT,
+                                     IsDesignTimeCreatable=True}"
+    mc:Ignorable="d">
+    <i:Interaction.Behaviors>
+        <behaviors:CloseWindowBehavior CloseTrigger="{Binding CloseTrigger}" />
+    </i:Interaction.Behaviors>
+    <Border
+        Padding="10"
+        Background="Black"
+        BorderBrush="{StaticResource borderBrush}"
+        BorderThickness="10">
+        <StackPanel>
+            <StackPanel Style="{StaticResource configurationPanelStyle}">
+                <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Number of Rotors" />
+                <StackPanel Margin="10" Orientation="Horizontal">
+                    <StackPanel>
+                        <RadioButton
+                            Content="Automatic"
+                            IsChecked="{Binding IsAutoRotorsSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                        <RadioButton
+                            Content="Manual"
+                            IsChecked="{Binding IsManualRotorsSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ComboBox
+                            IsEnabled="{Binding IsManualRotorsSelected}"
+                            ItemsSource="{Binding AvailableRotorCounts, Mode=OneTime}"
+                            SelectedItem="{Binding SelectedRotorCount}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Style="{StaticResource configurationPanelStyle}">
+                <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Rotor Indexes" />
+                <StackPanel Margin="10" Orientation="Horizontal">
+                    <StackPanel>
+                        <RadioButton
+                            Content="Automatic"
+                            IsChecked="{Binding IsAutoIndexesSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                        <RadioButton
+                            Content="Manual"
+                            IsChecked="{Binding IsManualIndexesSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="1" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex1}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="2" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex2}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="3" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex3}"
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor4Visible, Converter={StaticResource boolToVisibilityConverter}}" />
+                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="4" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex4}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock
+                            Style="{StaticResource indexTextBlockStyle}"
+                            Text="5"
+                            Visibility="{Binding IsRotor5Visible, Converter={StaticResource boolToVisibilityConverter}}" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex5}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock
+                            Style="{StaticResource indexTextBlockStyle}"
+                            Text="6"
+                            Visibility="{Binding IsRotor6Visible, Converter={StaticResource boolToVisibilityConverter}}" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex6}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock
+                            Style="{StaticResource indexTextBlockStyle}"
+                            Text="7"
+                            Visibility="{Binding IsRotor7Visible, Converter={StaticResource boolToVisibilityConverter}}" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex7}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock
+                            Style="{StaticResource indexTextBlockStyle}"
+                            Text="8"
+                            Visibility="{Binding IsRotor8Visible, Converter={StaticResource boolToVisibilityConverter}}" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding RotorIndex8}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="R" />
+                        <ComboBox
+                            IsEnabled="{Binding IsManualIndexesSelected}"
+                            ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
+                            SelectedItem="{Binding ReflectorIndex}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel Style="{StaticResource configurationPanelStyle}">
+                <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Seed Value" />
+                <StackPanel Margin="10" Orientation="Horizontal">
+                    <StackPanel VerticalAlignment="Center">
+                        <RadioButton
+                            Content="Automatic"
+                            IsChecked="{Binding IsAutoSeedSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                        <RadioButton
+                            Content="Manual"
+                            IsChecked="{Binding IsManualSeedSelected}"
+                            Style="{StaticResource radioButtonStyle}" />
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <ScrollViewer
+                            Width="640"
+                            Height="60"
+                            HorizontalScrollBarVisibility="Auto"
+                            VerticalScrollBarVisibility="Auto">
+                            <TextBox
+                                IsReadOnly="{Binding IsAutoSeedSelected}"
+                                Style="{StaticResource editableTextBoxStyle}"
+                                Text="{Binding SeedValue, UpdateSourceTrigger=PropertyChanged}" />
+                        </ScrollViewer>
+                    </StackPanel>
+                </StackPanel>
+            </StackPanel>
+            <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
+                <Button
+                    Command="{Binding AcceptCommand}"
+                    Content="Accept"
+                    Style="{StaticResource buttonStyle}" />
+            </StackPanel>
+        </StackPanel>
+    </Border>
+</Window>

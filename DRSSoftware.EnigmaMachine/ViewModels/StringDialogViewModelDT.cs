@@ -4,14 +4,14 @@ using System.Windows.Input;
 using DRSSoftware.EnigmaMachine.Commands;
 
 /// <summary>
-/// View model used for design-time data binding in the GetStringView.
+/// View model used for design-time data binding in the StringDialogView.
 /// </summary>
 internal sealed class StringDialogViewModelDT : ViewModelBase, IStringDialogViewModel
 {
     private bool _closeTrigger;
-    private string _headerText = "Enter the decloaking string:";
+    private string _headerText = "Enter a sample string:";
     private string _inputText = "Sample input text";
-    private string _title = "Decloak String Entry";
+    private string _title = "Sample String Entry";
 
     /// <summary>
     /// Gets the command used for accepting the input string.

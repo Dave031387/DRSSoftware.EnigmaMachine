@@ -16,8 +16,7 @@ internal static class CloakingService
     private const char LineFeed = '\n';
 
     /// <summary>
-    /// Represents the maximum valid character value (U+007F) supported by the
-    /// <see cref="EnigmaMachine" />.
+    /// Represents the maximum valid character value (U+007F) supported by the Enigma machine.
     /// </summary>
     private const char MaxChar = '\u007f';
 
@@ -29,7 +28,7 @@ internal static class CloakingService
 
     /// <summary>
     /// Represents the minimum valid character value (the space character, or U+0020) supported by
-    /// the <see cref="EnigmaMachine" />.
+    /// the Enigma machine.
     /// </summary>
     private const char MinChar = '\u0020';
 
@@ -166,13 +165,18 @@ internal static class CloakingService
                 continue;
             }
 
-            if (chars[i] is < MinChar or > MaxChar)
+            if (chars[i] is LineFeed)
             {
-                chars[i] = MinChar;
+                result.Add(MaxValue);
             }
-
-            int j = chars[i] is LineFeed ? MaxValue : chars[i] - MinChar;
-            result.Add(j);
+            else if (chars[i] is < MinChar or >= MaxChar)
+            {
+                result.Add(0);
+            }
+            else
+            {
+                result.Add(chars[i] - MinChar);
+            }
         }
 
         return [.. result];
