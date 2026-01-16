@@ -6,11 +6,11 @@ using System.Windows.Data;
 /// <summary>
 /// Converts a boolean value to a System.Windows.Visibility enumeration value.
 /// </summary>
-[ValueConversion(typeof(bool), typeof(System.Windows.Visibility))]
-public class BoolToVisibilityConverter : IValueConverter
+[ValueConversion(typeof(bool), typeof(System.Windows.Media.Brush))]
+public class BoolToStatusBrushConverter : IValueConverter
 {
     /// <summary>
-    /// Converts a boolean value to a System.Windows.Visibility enumeration value.
+    /// Converts a boolean value to a System.Windows.Media.Brush value.
     /// </summary>
     /// <param name="value">
     /// The boolean value to be converted.
@@ -37,7 +37,9 @@ public class BoolToVisibilityConverter : IValueConverter
             throw new ArgumentException("The bound value must be of type bool.", nameof(value));
         }
 
-        return boolValue ? System.Windows.Visibility.Visible : System.Windows.Visibility.Collapsed;
+        return boolValue
+            ? System.Windows.Media.Brushes.Green
+            : System.Windows.Media.Brushes.Red;
     }
 
     /// <summary>

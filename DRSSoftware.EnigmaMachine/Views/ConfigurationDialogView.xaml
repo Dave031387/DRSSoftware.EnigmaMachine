@@ -8,8 +8,10 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
     Title="Enigma Machine Setup"
-    Width="Auto"
-    Height="Auto"
+    Width="830"
+    Height="640"
+    MinWidth="830"
+    MinHeight="640"
     d:DataContext="{d:DesignInstance Type=vm:ConfigurationDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
@@ -75,14 +77,17 @@
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex3}"
-                            Style="{StaticResource configurationComboBoxStyle}"
+                            Style="{StaticResource configurationComboBoxStyle}" />
+                        <TextBlock
+                            Style="{StaticResource indexTextBlockStyle}"
+                            Text="4"
                             Visibility="{Binding IsRotor4Visible, Converter={StaticResource boolToVisibilityConverter}}" />
-                        <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="4" />
                         <ComboBox
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex4}"
-                            Style="{StaticResource configurationComboBoxStyle}" />
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor4Visible, Converter={StaticResource boolToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource indexTextBlockStyle}"
                             Text="5"
@@ -91,7 +96,8 @@
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex5}"
-                            Style="{StaticResource configurationComboBoxStyle}" />
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor5Visible, Converter={StaticResource boolToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource indexTextBlockStyle}"
                             Text="6"
@@ -100,7 +106,8 @@
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex6}"
-                            Style="{StaticResource configurationComboBoxStyle}" />
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor6Visible, Converter={StaticResource boolToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource indexTextBlockStyle}"
                             Text="7"
@@ -109,7 +116,8 @@
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex7}"
-                            Style="{StaticResource configurationComboBoxStyle}" />
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor7Visible, Converter={StaticResource boolToVisibilityConverter}}" />
                         <TextBlock
                             Style="{StaticResource indexTextBlockStyle}"
                             Text="8"
@@ -118,7 +126,8 @@
                             IsEnabled="{Binding IsManualIndexesSelected}"
                             ItemsSource="{Binding AvailableIndexValues, Mode=OneTime}"
                             SelectedItem="{Binding RotorIndex8}"
-                            Style="{StaticResource configurationComboBoxStyle}" />
+                            Style="{StaticResource configurationComboBoxStyle}"
+                            Visibility="{Binding IsRotor8Visible, Converter={StaticResource boolToVisibilityConverter}}" />
                         <TextBlock Style="{StaticResource indexTextBlockStyle}" Text="R" />
                         <ComboBox
                             IsEnabled="{Binding IsManualIndexesSelected}"
@@ -155,10 +164,34 @@
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
+            <StackPanel Style="{StaticResource configurationPanelStyle}">
+                <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Options" />
+                <StackPanel Orientation="Horizontal">
+                    <CheckBox
+                        Content="Use Embedded Configuration"
+                        IsChecked="{Binding UseEmbeddedConfiguration}"
+                        Style="{StaticResource checkBoxStyle}" />
+                    <TextBlock
+                        Width="540"
+                        Margin="10"
+                        FontSize="14"
+                        TextWrapping="Wrap">
+                        Selecting this option will cause the Enigma machine configuration to be embedded into the encrypted text file.
+                        This allows the recipient to decrypt the message without needing to know the configuration in advance.
+                        If this option is used, then you should cloak the output text before saving it to a file. Then all the
+                        recipient of the encrypted message needs to know is the cloaking string.
+                    </TextBlock>
+                </StackPanel>
+            </StackPanel>
             <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
                 <Button
                     Command="{Binding AcceptCommand}"
                     Content="Accept"
+                    Style="{StaticResource buttonStyle}" />
+                <Button
+                    Margin="10,0,0,0"
+                    Command="{Binding CancelCommand}"
+                    Content="Cancel"
                     Style="{StaticResource buttonStyle}" />
             </StackPanel>
         </StackPanel>

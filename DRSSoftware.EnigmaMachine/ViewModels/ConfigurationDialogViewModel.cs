@@ -4,53 +4,191 @@ using System.Collections.ObjectModel;
 using System.Security.Cryptography;
 using System.Windows.Input;
 using DRSSoftware.EnigmaMachine.Commands;
+using DRSSoftware.EnigmaMachine.Utility;
 
 /// <summary>
 /// Represents the view model for the Enigma machine configuration dialog.
 /// </summary>
 internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurationDialogViewModel
 {
+    /// <summary>
+    /// A value that is one higher than the maximum length of an automatically generated seed value.
+    /// </summary>
     private const int AutoSeedMaxLength = 65;
+
+    /// <summary>
+    /// A value equal to the minimum length of an automatically generated seed value.
+    /// </summary>
     private const int AutoSeedMinLength = 32;
+
+    /// <summary>
+    /// A value that is one higher than the maximum rotor index value.
+    /// </summary>
     private const int IndexValueLimit = MaxIndexValue + 1;
+
+    /// <summary>
+    /// A value equal to the maximum rotor index value.
+    /// </summary>
     private const int MaxIndexValue = 95;
+
+    /// <summary>
+    /// A value equal to the maximum number of rotors supported by the Enigma machine.
+    /// </summary>
     private const int MaxRotorCount = 8;
+
+    /// <summary>
+    /// A value equal to the minimum rotor index value.
+    /// </summary>
     private const int MinIndexValue = 0;
+
+    /// <summary>
+    /// A value equal to the minimum number of rotors supported by the Enigma machine.
+    /// </summary>
     private const int MinRotorCount = 3;
+
+    /// <summary>
+    /// A value that is one higher than the maximum number of rotors supported by the Enigma
+    /// machine.
+    /// </summary>
     private const int RotorCountLimit = MaxRotorCount + 1;
+
+    /// <summary>
+    /// A value equal to the number of available rotor count options.
+    /// </summary>
+    private const int RotorOptionsLimit = RotorCountLimit - MinRotorCount;
+
+    /// <summary>
+    /// The backing field for the CloseTrigger property.
+    /// </summary>
     private bool _closeTrigger;
+
+    /// <summary>
+    /// The backing field for the IsAutoIndexesSelected property.
+    /// </summary>
     private bool _isAutoIndexesSelected;
+
+    /// <summary>
+    /// The backing field for the IsAutoRotorsSelected property.
+    /// </summary>
     private bool _isAutoRotorsSelected;
+
+    /// <summary>
+    /// The backing field for the IsAutoSeedSelected property.
+    /// </summary>
     private bool _isAutoSeedSelected;
+
+    /// <summary>
+    /// The backing field for the IsManualIndexesSelected property.
+    /// </summary>
     private bool _isManualIndexesSelected = true;
+
+    /// <summary>
+    /// The backing field for the IsManualRotorsSelected property.
+    /// </summary>
     private bool _isManualRotorsSelected = true;
+
+    /// <summary>
+    /// The backing field for the IsManualSeedSelected property.
+    /// </summary>
     private bool _isManualSeedSelected = true;
+
+    /// <summary>
+    /// The backing field for the IsRotor4Visible property.
+    /// </summary>
     private bool _isRotor4Visible;
+
+    /// <summary>
+    /// The backing field for the IsRotor5Visible property.
+    /// </summary>
     private bool _isRotor5Visible;
+
+    /// <summary>
+    /// The backing field for the IsRotor6Visible property.
+    /// </summary>
     private bool _isRotor6Visible;
+
+    /// <summary>
+    /// The backing field for the IsRotor7Visible property.
+    /// </summary>
     private bool _isRotor7Visible;
+
+    /// <summary>
+    /// The backing field for the IsRotor8Visible property.
+    /// </summary>
     private bool _isRotor8Visible;
+
+    /// <summary>
+    /// The backing field for the ReflectorIndex property.
+    /// </summary>
     private int _reflectorIndex;
+
+    /// <summary>
+    /// The backing field for the RotorIndex1 property.
+    /// </summary>
     private int _rotorIndex1;
+
+    /// <summary>
+    /// The backing field for the RotorIndex2 property.
+    /// </summary>
     private int _rotorIndex2;
+
+    /// <summary>
+    /// The backing field for the RotorIndex3 property.
+    /// </summary>
     private int _rotorIndex3;
+
+    /// <summary>
+    /// The backing field for the RotorIndex4 property.
+    /// </summary>
     private int _rotorIndex4;
+
+    /// <summary>
+    /// The backing field for the RotorIndex5 property.
+    /// </summary>
     private int _rotorIndex5;
+
+    /// <summary>
+    /// The backing field for the RotorIndex6 property.
+    /// </summary>
     private int _rotorIndex6;
+
+    /// <summary>
+    /// The backing field for the RotorIndex7 property.
+    /// </summary>
     private int _rotorIndex7;
+
+    /// <summary>
+    /// The backing field for the RotorIndex8 property.
+    /// </summary>
     private int _rotorIndex8;
+
+    /// <summary>
+    /// The backing field for the SeedValue property.
+    /// </summary>
     private string _seedValue = string.Empty;
+
+    /// <summary>
+    /// The backing field for the SelectedRotorCount property.
+    /// </summary>
     private int _selectedRotorCount = 3;
+
+    /// <summary>
+    /// The backing field for the UseEmbeddedConfiguration property.
+    /// </summary>
+    private bool _useEmbeddedConfiguration;
 
     /// <summary>
     /// Creates a new instance of the <see cref="ConfigurationDialogViewModel" /> class.
     /// </summary>
     public ConfigurationDialogViewModel()
-        => AcceptCommand = new RelayCommand(_ => Accept(),
-                                            _ => !string.IsNullOrWhiteSpace(_seedValue) && _seedValue.Length > 9);
+    {
+        AcceptCommand = new RelayCommand(_ => Accept(), _ => IsValidConfiguration);
+        CancelCommand = new RelayCommand(_ => Cancel(), _ => true);
+    }
 
     /// <summary>
-    /// Gets an ICommand used for accepting the user-specified configuration settings.
+    /// Gets an ICommand used for accepting the user-specified configuration settings and closing
+    /// the associated dialog.
     /// </summary>
     public ICommand AcceptCommand
     {
@@ -63,7 +201,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     public ReadOnlyCollection<int> AvailableIndexValues
     {
         get;
-    } = new List<int>([.. Enumerable.Range(0, MaxIndexValue)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(0, IndexValueLimit)]).AsReadOnly();
 
     /// <summary>
     /// Gets a list of available rotor counts.
@@ -71,7 +209,16 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     public ReadOnlyCollection<int> AvailableRotorCounts
     {
         get;
-    } = new List<int>([.. Enumerable.Range(MinRotorCount, MaxRotorCount)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(MinRotorCount, RotorOptionsLimit)]).AsReadOnly();
+
+    /// <summary>
+    /// Gets an ICommand used for discarding the user-specified configuration settings and closing
+    /// the associated dialog.
+    /// </summary>
+    public ICommand CancelCommand
+    {
+        get;
+    }
 
     /// <summary>
     /// Gets or sets a value used for indicating whether the associated view should be closed.
@@ -88,6 +235,15 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
             }
         }
     }
+
+    /// <summary>
+    /// Gets the user-specified Enigma machine configuration.
+    /// </summary>
+    public EnigmaConfiguration EnigmaConfiguration
+    {
+        get;
+        private set;
+    } = new();
 
     /// <summary>
     /// Gets or sets a value indicating whether automatic rotor indexes selection is enabled.
@@ -461,9 +617,78 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     }
 
     /// <summary>
-    /// Closes the associated configuration dialog by setting the CloseTrigger to true.
+    /// Gets or sets a value indicating whether or not the Enigma machine configuration should be
+    /// embedded into the encrypted text file.
     /// </summary>
-    private void Accept() => CloseTrigger = true;
+    public bool UseEmbeddedConfiguration
+    {
+        get => _useEmbeddedConfiguration;
+        set
+        {
+            if (_useEmbeddedConfiguration != value)
+            {
+                _useEmbeddedConfiguration = value;
+                OnPropertyChanged();
+            }
+        }
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether the current configuration is valid based on the seed value.
+    /// </summary>
+    private bool IsValidConfiguration => !string.IsNullOrWhiteSpace(_seedValue) && _seedValue.Length > 9;
+
+    /// <summary>
+    /// Initializes the view model with the current Enigma machine configuration.
+    /// </summary>
+    /// <param name="enigmaConfiguration">
+    /// An <see cref="Utility.EnigmaConfiguration" /> object containing the current configuration of
+    /// the Enigma machine.
+    /// </param>
+    public void Initialize(EnigmaConfiguration enigmaConfiguration)
+    {
+        EnigmaConfiguration = enigmaConfiguration;
+        ReflectorIndex = EnigmaConfiguration.ReflectorIndex;
+        RotorIndex1 = EnigmaConfiguration.RotorIndex1;
+        RotorIndex2 = EnigmaConfiguration.RotorIndex2;
+        RotorIndex3 = EnigmaConfiguration.RotorIndex3;
+        RotorIndex4 = EnigmaConfiguration.RotorIndex4;
+        RotorIndex5 = EnigmaConfiguration.RotorIndex5;
+        RotorIndex6 = EnigmaConfiguration.RotorIndex6;
+        RotorIndex7 = EnigmaConfiguration.RotorIndex7;
+        RotorIndex8 = EnigmaConfiguration.RotorIndex8;
+        SelectedRotorCount = EnigmaConfiguration.NumberOfRotors;
+        SeedValue = EnigmaConfiguration.SeedValue;
+        UseEmbeddedConfiguration = EnigmaConfiguration.UseEmbeddedConfiguration;
+        ShowVisibleRotors();
+    }
+
+    /// <summary>
+    /// Saves the configuration and closes the associated configuration dialog by setting the
+    /// CloseTrigger to true.
+    /// </summary>
+    private void Accept()
+    {
+        EnigmaConfiguration.ReflectorIndex = ReflectorIndex;
+        EnigmaConfiguration.RotorIndex1 = RotorIndex1;
+        EnigmaConfiguration.RotorIndex2 = RotorIndex2;
+        EnigmaConfiguration.RotorIndex3 = RotorIndex3;
+        EnigmaConfiguration.RotorIndex4 = RotorIndex4;
+        EnigmaConfiguration.RotorIndex5 = RotorIndex5;
+        EnigmaConfiguration.RotorIndex6 = RotorIndex6;
+        EnigmaConfiguration.RotorIndex7 = RotorIndex7;
+        EnigmaConfiguration.RotorIndex8 = RotorIndex8;
+        EnigmaConfiguration.NumberOfRotors = SelectedRotorCount;
+        EnigmaConfiguration.SeedValue = SeedValue;
+        EnigmaConfiguration.UseEmbeddedConfiguration = UseEmbeddedConfiguration;
+        CloseTrigger = true;
+    }
+
+    /// <summary>
+    /// Discards any changes and closes the associated configuration dialog by setting the
+    /// CloseTrigger to true.
+    /// </summary>
+    private void Cancel() => CloseTrigger = true;
 
     /// <summary>
     /// Generate random index values for the reflector and rotors.
@@ -508,10 +733,10 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     private void ShowVisibleRotors()
     {
-        IsRotor8Visible = _selectedRotorCount >= 8;
-        IsRotor7Visible = _selectedRotorCount >= 7;
-        IsRotor6Visible = _selectedRotorCount >= 6;
-        IsRotor5Visible = _selectedRotorCount >= 5;
-        IsRotor4Visible = _selectedRotorCount >= 4;
+        IsRotor4Visible = _selectedRotorCount > 3;
+        IsRotor5Visible = _selectedRotorCount > 4;
+        IsRotor6Visible = _selectedRotorCount > 5;
+        IsRotor7Visible = _selectedRotorCount > 6;
+        IsRotor8Visible = _selectedRotorCount > 7;
     }
 }

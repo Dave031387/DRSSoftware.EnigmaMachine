@@ -8,21 +8,14 @@ using DRSSoftware.EnigmaV2;
 public interface IEnigmaMachineBuilder
 {
     /// <summary>
-    /// Create a new instance of an Enigma machine with default settings.
+    /// Creates and configures a new Enigma machine instance based on the specified settings.
     /// </summary>
-    /// <returns>
-    /// A new <see cref="IEnigmaMachine" /> instance.
-    /// </returns>
-    public IEnigmaMachine Build();
-
-    /// <summary>
-    /// Creates a new instance of an Enigma machine with the specified number of rotors.
-    /// </summary>
-    /// <param name="numberOfRotors">
-    /// The number of rotors to be configured into the Enigma machine.
+    /// <param name="configuration">
+    /// The configuration parameters that define the initial state and wiring of the Enigma machine.
     /// </param>
     /// <returns>
-    /// A new <see cref="IEnigmaMachine" /> instance.
+    /// An instance of <see cref="IEnigmaMachine" /> initialized according to the provided
+    /// configuration.
     /// </returns>
-    public IEnigmaMachine Build(int numberOfRotors);
+    public IEnigmaMachine Build(EnigmaConfiguration configuration);
 }

@@ -12,21 +12,57 @@ using DRSSoftware.EnigmaV2;
 internal sealed class EnigmaMachineBuilder : IEnigmaMachineBuilder
 {
     /// <summary>
-    /// Create a new instance of an Enigma machine with default settings.
+    /// Creates and configures a new Enigma machine instance based on the specified settings.
     /// </summary>
-    /// <returns>
-    /// A new <see cref="IEnigmaMachine" /> instance.
-    /// </returns>
-    public IEnigmaMachine Build() => new EnigmaMachine();
-
-    /// <summary>
-    /// Creates a new instance of an Enigma machine with the specified number of rotors.
-    /// </summary>
-    /// <param name="numberOfRotors">
-    /// The number of rotors to be configured into the Enigma machine.
+    /// <remarks>
+    /// The reflector and rotor index values are ignored if a seed value isn't specified.
+    /// </remarks>
+    /// <param name="configuration">
+    /// The configuration parameters that define the initial state and wiring of the Enigma machine.
     /// </param>
     /// <returns>
-    /// A new <see cref="IEnigmaMachine" /> instance.
+    /// An instance of <see cref="IEnigmaMachine" /> initialized according to the provided
+    /// configuration.
     /// </returns>
-    public IEnigmaMachine Build(int numberOfRotors) => new EnigmaMachine(numberOfRotors);
+    public IEnigmaMachine Build(EnigmaConfiguration configuration)
+    {
+        EnigmaMachine enigmaMachine = new(configuration.NumberOfRotors);
+
+        if (string.IsNullOrWhiteSpace(configuration.SeedValue))
+        {
+            return enigmaMachine;
+        }
+
+        enigmaMachine.Initialize(configuration.SeedValue);
+
+        int[] cipherIndexes = new int[configuration.NumberOfRotors + 1];
+        int[] newIndexes =
+        [
+            configuration.RotorIndex1,
+            configuration.RotorIndex2,
+            configuration.RotorIndex3,
+            configuration.RotorIndex4,
+            configuration.RotorIndex5,
+            configuration.RotorIndex6,
+            configuration.RotorIndex7,
+            configuration.RotorIndex8
+        ];
+        bool mustSetIndexes = false;
+
+        for (int i = 0; i < configuration.NumberOfRotors; i++)
+        {
+            cipherIndexes[i] = newIndexes[i];
+            mustSetIndexes |= newIndexes[i] != 0;
+        }
+
+        cipherIndexes[^1] = configuration.ReflectorIndex;
+        mustSetIndexes |= configuration.ReflectorIndex != 0;
+
+        if (mustSetIndexes)
+        {
+            enigmaMachine.SetCipherIndexes(cipherIndexes);
+        }
+
+        return enigmaMachine;
+    }
 }

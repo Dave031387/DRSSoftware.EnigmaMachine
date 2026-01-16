@@ -2,6 +2,7 @@
 
 using System.Collections.ObjectModel;
 using System.Windows.Input;
+using DRSSoftware.EnigmaMachine.Utility;
 
 /// <summary>
 /// Defines the property and methods for an Enigma machine configuration dialog view model.
@@ -9,7 +10,8 @@ using System.Windows.Input;
 public interface IConfigurationDialogViewModel
 {
     /// <summary>
-    /// Gets an ICommand used for accepting the user-specified configuration settings.
+    /// Gets an ICommand used for accepting the user-specified configuration settings and closing
+    /// the associated dialog.
     /// </summary>
     public ICommand AcceptCommand
     {
@@ -33,12 +35,29 @@ public interface IConfigurationDialogViewModel
     }
 
     /// <summary>
+    /// Gets an ICommand used for discarding the user-specified configuration settings and closing
+    /// the associated dialog.
+    /// </summary>
+    public ICommand CancelCommand
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets or sets a value used for indicating whether the associated view should be closed.
     /// </summary>
     public bool CloseTrigger
     {
         get;
         set;
+    }
+
+    /// <summary>
+    /// Gets the user-specified Enigma machine configuration.
+    /// </summary>
+    public EnigmaConfiguration EnigmaConfiguration
+    {
+        get;
     }
 
     /// <summary>
@@ -238,4 +257,23 @@ public interface IConfigurationDialogViewModel
         get;
         set;
     }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether or not the Enigma machine configuration should be
+    /// embedded into the encrypted text file.
+    /// </summary>
+    public bool UseEmbeddedConfiguration
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Initializes the view model with the current Enigma machine configuration.
+    /// </summary>
+    /// <param name="enigmaConfiguration">
+    /// An <see cref="EnigmaConfiguration" /> object containing the current configuration of the
+    /// Enigma machine.
+    /// </param>
+    public void Initialize(EnigmaConfiguration enigmaConfiguration);
 }

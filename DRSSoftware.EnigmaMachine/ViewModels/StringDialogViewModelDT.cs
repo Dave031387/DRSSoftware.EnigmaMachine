@@ -8,11 +8,6 @@ using DRSSoftware.EnigmaMachine.Commands;
 /// </summary>
 internal sealed class StringDialogViewModelDT : ViewModelBase, IStringDialogViewModel
 {
-    private bool _closeTrigger;
-    private string _headerText = "Enter a sample string:";
-    private string _inputText = "Sample input text";
-    private string _title = "Sample String Entry";
-
     /// <summary>
     /// Gets the command used for accepting the input string.
     /// </summary>
@@ -28,15 +23,8 @@ internal sealed class StringDialogViewModelDT : ViewModelBase, IStringDialogView
     /// </summary>
     public bool CloseTrigger
     {
-        get => _closeTrigger;
-        set
-        {
-            if (_closeTrigger != value)
-            {
-                _closeTrigger = value;
-                OnPropertyChanged();
-            }
-        }
+        get;
+        set;
     }
 
     /// <summary>
@@ -44,46 +32,25 @@ internal sealed class StringDialogViewModelDT : ViewModelBase, IStringDialogView
     /// </summary>
     public string HeaderText
     {
-        get => _headerText;
-        set
-        {
-            if (!_headerText.Equals(value, StringComparison.Ordinal))
-            {
-                _headerText = value;
-                OnPropertyChanged();
-            }
-        }
-    }
+        get;
+        set;
+    } = "Enter a sample string:";
 
     /// <summary>
     /// Gets or sets the input text entered by the user.
     /// </summary>
     public string InputText
     {
-        get => _inputText;
-        set
-        {
-            if (!_inputText.Equals(value, StringComparison.Ordinal))
-            {
-                _inputText = value;
-                OnPropertyChanged();
-            }
-        }
-    }
+        get;
+        set;
+    } = "Sample input text";
 
     /// <summary>
     /// Gets or sets the window title.
     /// </summary>
     public string Title
     {
-        get => _title;
-        set
-        {
-            if (!_title.Equals(value, StringComparison.Ordinal))
-            {
-                _title = value;
-                OnPropertyChanged();
-            }
-        }
-    }
+        get;
+        set;
+    } = "Sample String Entry";
 }

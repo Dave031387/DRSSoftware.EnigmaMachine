@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using System.Windows;
 using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
@@ -28,6 +29,8 @@ internal sealed class StringDialogService(IContainer container) : IStringDialogS
     public string GetString(string title, string header)
     {
         StringDialogView view = _container.Resolve<StringDialogView>();
+        view.Owner = Application.Current.MainWindow;
+        view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IStringDialogViewModel viewModel = _container.Resolve<IStringDialogViewModel>();
         viewModel.Title = title;
         viewModel.HeaderText = header;

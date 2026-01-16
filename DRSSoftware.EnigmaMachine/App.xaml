@@ -18,6 +18,7 @@
         <SolidColorBrush x:Key="darkTextBrush" Color="{StaticResource darkTextColor}" />
         <SolidColorBrush x:Key="lightBrush" Color="{StaticResource lightColor}" />
         <SolidColorBrush x:Key="lightTextBrush" Color="{StaticResource lightTextColor}" />
+        <SolidColorBrush x:Key="propertyBackgroundBrush" Color="#FF600060" />
         <SolidColorBrush x:Key="textBoxBackgroundBrush" Color="{StaticResource textBoxBackgroundColor}" />
         <LinearGradientBrush x:Key="borderBrush" StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Offset="0.03" Color="{StaticResource darkColor}" />
@@ -43,6 +44,12 @@
             <Setter Property="Foreground" Value="{StaticResource darkBrush}" />
             <Setter Property="Margin" Value="10,10,2,10" />
         </Style>
+        <Style x:Key="propertyTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="FontWeight" Value="Bold" />
+            <Setter Property="Foreground" Value="{StaticResource lightTextBrush}" />
+            <Setter Property="Margin" Value="5" />
+        </Style>
         <Style x:Key="readonlyTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="{StaticResource textBoxBackgroundBrush}" />
             <Setter Property="FontSize" Value="14" />
@@ -63,6 +70,10 @@
             <Setter Property="Foreground" Value="{StaticResource darkBrush}" />
             <Setter Property="Padding" Value="10,5" />
         </Style>
+        <Style x:Key="checkBoxStyle" TargetType="{x:Type CheckBox}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Margin" Value="10" />
+        </Style>
         <Style x:Key="radioButtonStyle" TargetType="{x:Type RadioButton}">
             <Setter Property="FontSize" Value="14" />
             <Setter Property="Margin" Value="0,0,20,5" />
@@ -82,7 +93,15 @@
             <Setter Property="Margin" Value="0,0,0,10" />
             <Setter Property="Orientation" Value="Vertical" />
         </Style>
+        <Style x:Key="propertiesPanelStyle" TargetType="{x:Type StackPanel}">
+            <Setter Property="Background" Value="{StaticResource propertyBackgroundBrush}" />
+            <Setter Property="HorizontalAlignment" Value="Stretch" />
+            <Setter Property="Orientation" Value="Horizontal" />
+            <Setter Property="SnapsToDevicePixels" Value="True" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
         <!--  Converters  -->
+        <converters:BoolToStatusBrushConverter x:Key="boolToStatusBrushConverter" />
         <converters:BoolToVisibilityConverter x:Key="boolToVisibilityConverter" />
     </Application.Resources>
 </Application>
