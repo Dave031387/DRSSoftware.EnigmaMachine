@@ -3,12 +3,21 @@
 /// <summary>
 /// A static class used for applying and removing cloaking transformations on text.
 /// </summary>
-internal static class CloakingService
+/// <param name="numberGenerator">
+/// A reference to an object used for generating cryptographically secure random integer values.
+/// </param>
+internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : ICloakingService
 {
     /// <summary>
     /// Represents the carriage return character ('\r', or U+000D).
     /// </summary>
     private const char CarriageReturn = '\r';
+
+    /// <summary>
+    /// Represents the number of character pairs that make up the cloaking indicator string and the
+    /// embedded configuration indicator string.
+    /// </summary>
+    private const int IndicatorSize = 3;
 
     /// <summary>
     /// Represents the line feed character ('\n', or U+000A).
@@ -19,6 +28,11 @@ internal static class CloakingService
     /// Represents the maximum valid character value (U+007F) supported by the Enigma machine.
     /// </summary>
     private const char MaxChar = '\u007f';
+
+    /// <summary>
+    /// Represents a character value that is one higher than the maximum cloaking indicator value.
+    /// </summary>
+    private const char MaxIndicatorChar = '\u007d';
 
     /// <summary>
     /// The maximum integer value corresponding to the maximum character value supported by the
@@ -33,24 +47,36 @@ internal static class CloakingService
     private const char MinChar = '\u0020';
 
     /// <summary>
-    /// Applies a cloaking transformation to the specified output text using the provided cloak text
-    /// as a key.
+    /// Holds a reference to an object used for generating cryptographically secure random integer
+    /// values.
     /// </summary>
+    private readonly ISecureNumberGenerator _numberGenerator = numberGenerator;
+
+    /// <summary>
+    /// Cloak the given <paramref name="inputText" /> using the supplied
+    /// <paramref name="cloakText" />.
+    /// </summary>
+    /// <remarks>
+    /// A special cloaking indicator string will be prepended to the cloaked text to indicate that
+    /// the text has been cloaked.
+    /// </remarks>
     /// <param name="inputText">
     /// The text to be transformed by applying the cloak.
     /// </param>
     /// <param name="cloakText">
-    /// The cloak text used to transform the output text.
+    /// The string used for performing the cloaking transformation.
     /// </param>
     /// <returns>
-    /// A string representing the result of applying the cloak transformation to the output text.
+    /// The string obtained by applying the cloaking transformation to the input string.
     /// </returns>
-    internal static string ApplyCloak(string inputText, string cloakText)
+    public string ApplyCloak(string inputText, string cloakText)
     {
         int[] inValues = StringToIntArray(inputText);
         int[] cloakValues = StringToIntArray(cloakText);
         int[] outValues = new int[inValues.Length];
         int cloakIndex = 0;
+
+        string indicatorString = GenerateIndicatorString();
 
         for (int i = 0; i < inValues.Length; i++)
         {
@@ -62,25 +88,68 @@ internal static class CloakingService
             }
         }
 
-        return IntArrayToString(outValues);
+        return indicatorString + IntArrayToString(outValues);
     }
 
     /// <summary>
-    /// Removes the cloaking transformation from the specified input text using the provided cloak
-    /// text as a key.
+    /// Determine whether or not the supplied <paramref name="inputText" /> starts with a cloaking
+    /// indicator string.
     /// </summary>
+    /// <param name="inputText">
+    /// The input text to be checked for the indicator string.
+    /// </param>
+    /// <returns>
+    /// <see langword="true" /> if the <paramref name="inputText" /> starts with and indicator
+    /// string.
+    /// </returns>
+    public bool HasIndicatorString(string inputText)
+    {
+        if (inputText.Length < IndicatorSize * 2)
+        {
+            return false;
+        }
+
+        for (int i = 0; i < IndicatorSize; i++)
+        {
+            int firstCharValue = inputText[i];
+            int secondCharValue = inputText[i + IndicatorSize];
+
+            if (firstCharValue + secondCharValue != MinChar + MaxIndicatorChar)
+            {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Remove the cloak from the given <paramref name="inputText" /> using the supplied
+    /// <paramref name="cloakText" />.
+    /// </summary>
+    /// <remarks>
+    /// The method assumes that the input text has been previously cloaked using the same
+    /// <paramref name="cloakText" />. The cloaking indicator string is removed from the
+    /// <paramref name="inputText" /> before removing the cloak.
+    /// </remarks>
     /// <param name="inputText">
     /// The text to be transformed by removing the cloak.
     /// </param>
     /// <param name="cloakText">
-    /// The cloak text used to transform the input text.
+    /// The string used for undoing the cloaking transformation.
     /// </param>
     /// <returns>
-    /// A string representing the result of removing the cloak transformation from the input text.
+    /// The string obtained by removing the cloaking transformation from the input string. The input
+    /// string will be returned unchanged if it does not start with a cloaking indicator string.
     /// </returns>
-    internal static string RemoveCloak(string inputText, string cloakText)
+    public string RemoveCloak(string inputText, string cloakText)
     {
-        int[] inValues = StringToIntArray(inputText);
+        if (!HasIndicatorString(inputText))
+        {
+            return inputText;
+        }
+
+        int[] inValues = StringToIntArray(inputText[(IndicatorSize * 2)..]);
         int[] cloakValues = StringToIntArray(cloakText);
         int[] outValues = new int[inValues.Length];
         int cloakIndex = 0;
@@ -180,5 +249,29 @@ internal static class CloakingService
         }
 
         return [.. result];
+    }
+
+    /// <summary>
+    /// Generates a random indicator string used for cloaking or embedding configuration data.
+    /// </summary>
+    /// <remarks>
+    /// Each character in the first half of the indicator string, when added to the corresponding
+    /// character in the second half of the string, will equal (MinChar + MaxChar).
+    /// </remarks>
+    /// <returns>
+    /// A new randomly generated indicator string.
+    /// </returns>
+    private string GenerateIndicatorString()
+    {
+        char[] indicatorChars = new char[IndicatorSize * 2];
+
+        for (int i = 0; i < IndicatorSize; i++)
+        {
+            int indicatorValue = _numberGenerator.GetNext(MinChar, MaxIndicatorChar);
+            indicatorChars[i] = (char)indicatorValue;
+            indicatorChars[i + IndicatorSize] = (char)(MaxIndicatorChar - indicatorValue + MinChar);
+        }
+
+        return new string(indicatorChars);
     }
 }

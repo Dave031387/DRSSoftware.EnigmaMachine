@@ -15,6 +15,10 @@
     d:DataContext="{d:DesignInstance Type=vm:ConfigurationDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
+    <Window.InputBindings>
+        <KeyBinding Key="Enter" Command="{Binding AcceptCommand}" />
+        <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
+    </Window.InputBindings>
     <i:Interaction.Behaviors>
         <behaviors:CloseWindowBehavior CloseTrigger="{Binding CloseTrigger}" />
     </i:Interaction.Behaviors>
@@ -157,6 +161,7 @@
                             HorizontalScrollBarVisibility="Auto"
                             VerticalScrollBarVisibility="Auto">
                             <TextBox
+                                x:Name="seedTextBox"
                                 IsReadOnly="{Binding IsAutoSeedSelected}"
                                 Style="{StaticResource editableTextBoxStyle}"
                                 Text="{Binding SeedValue, UpdateSourceTrigger=PropertyChanged}" />

@@ -41,14 +41,6 @@ internal interface IMainWindowViewModel
     }
 
     /// <summary>
-    /// Gets the command used for encrypting the input text to product the output text.
-    /// </summary>
-    public ICommand EncryptCommand
-    {
-        get;
-    }
-
-    /// <summary>
     /// Gets or sets the input text to be encrypted or decrypted.
     /// </summary>
     public string InputText
@@ -237,6 +229,15 @@ internal interface IMainWindowViewModel
     /// Gets the command used for saving the output text from the Enigma machine.
     /// </summary>
     public ICommand SaveCommand
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the command used for applying the Enigma transform on the input text to product the
+    /// output text.
+    /// </summary>
+    public ICommand TransformCommand
     {
         get;
     }

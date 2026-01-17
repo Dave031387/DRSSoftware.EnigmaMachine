@@ -23,11 +23,13 @@ public partial class App : Application
         base.OnStartup(e);
 
         IContainer container = ContainerBuilder.GetInstance()
+            .AddSingleton<ICloakingService, CloakingService>()
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
             .AddSingleton<IInputOutputService, InputOutputService>()
             .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()
+            .AddSingleton<ISecureNumberGenerator, SecureNumberGenerator>()
             .AddSingleton<IStringDialogService, StringDialogService>()
             .AddTransient<IStringDialogViewModel, StringDialogViewModel>()
             .AddTransient<ConfigurationDialogView>()

@@ -78,8 +78,8 @@
                 LastChildFill="True">
                 <Button
                     Margin="5"
-                    Command="{Binding EncryptCommand}"
-                    Content="--&gt; Encrypt --&gt;"
+                    Command="{Binding TransformCommand}"
+                    Content="--&gt; Apply Transform --&gt;"
                     DockPanel.Dock="Top"
                     Style="{StaticResource buttonStyle}" />
                 <Button

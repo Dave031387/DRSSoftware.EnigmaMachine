@@ -13,5 +13,18 @@ public partial class ConfigurationDialogView : Window
     public ConfigurationDialogView()
     {
         InitializeComponent();
+        Loaded += OnWindowLoaded;
     }
+
+    /// <summary>
+    /// Sets focus to the seed text box when the window is loaded.
+    /// </summary>
+    /// <param name="sender">
+    /// The event sender.
+    /// </param>
+    /// <param name="e">
+    /// The event arguments.
+    /// </param>
+    private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        => seedTextBox.Focus();
 }

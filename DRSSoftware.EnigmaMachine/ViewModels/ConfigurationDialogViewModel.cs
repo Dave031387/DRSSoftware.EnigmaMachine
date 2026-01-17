@@ -1,7 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.ViewModels;
 
 using System.Collections.ObjectModel;
-using System.Security.Cryptography;
 using System.Windows.Input;
 using DRSSoftware.EnigmaMachine.Commands;
 using DRSSoftware.EnigmaMachine.Utility;
@@ -56,6 +55,11 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// A value equal to the number of available rotor count options.
     /// </summary>
     private const int RotorOptionsLimit = RotorCountLimit - MinRotorCount;
+
+    /// <summary>
+    /// Holds a reference to the secure random number generator.
+    /// </summary>
+    private readonly ISecureNumberGenerator _numberGenerator;
 
     /// <summary>
     /// The backing field for the CloseTrigger property.
@@ -180,10 +184,11 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// <summary>
     /// Creates a new instance of the <see cref="ConfigurationDialogViewModel" /> class.
     /// </summary>
-    public ConfigurationDialogViewModel()
+    public ConfigurationDialogViewModel(ISecureNumberGenerator numberGenerator)
     {
         AcceptCommand = new RelayCommand(_ => Accept(), _ => IsValidConfiguration);
         CancelCommand = new RelayCommand(_ => Cancel(), _ => true);
+        _numberGenerator = numberGenerator;
     }
 
     /// <summary>
@@ -695,34 +700,34 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     private void GenerateRandomIndexValues()
     {
-        ReflectorIndex = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex1 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex2 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex3 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex4 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex5 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex6 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex7 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
-        RotorIndex8 = RandomNumberGenerator.GetInt32(MinIndexValue, IndexValueLimit);
+        ReflectorIndex = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex1 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex2 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex3 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex4 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex5 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex6 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex7 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        RotorIndex8 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
     }
 
     /// <summary>
     /// Pick a random rotor count within the valid range.
     /// </summary>
     private void GenerateRandomRotorCount()
-        => SelectedRotorCount = RandomNumberGenerator.GetInt32(MinRotorCount, RotorCountLimit);
+        => SelectedRotorCount = _numberGenerator.GetNext(MinRotorCount, RotorCountLimit);
 
     /// <summary>
     /// Generate a random seed string value having a random length between 32 and 64.
     /// </summary>
     private void GenerateRandomSeedValue()
     {
-        int seedLength = RandomNumberGenerator.GetInt32(AutoSeedMinLength, AutoSeedMaxLength);
+        int seedLength = _numberGenerator.GetNext(AutoSeedMinLength, AutoSeedMaxLength);
         char[] seedChars = new char[seedLength];
 
         for (int i = 0; i < seedLength; i++)
         {
-            seedChars[i] = (char)(RandomNumberGenerator.GetInt32(MinIndexValue, MaxIndexValue) + ' ');
+            seedChars[i] = (char)(_numberGenerator.GetNext(MinIndexValue, MaxIndexValue) + ' ');
         }
 
         SeedValue = new string(seedChars);

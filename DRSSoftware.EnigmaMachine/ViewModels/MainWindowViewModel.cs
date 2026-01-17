@@ -12,6 +12,17 @@ using DRSSoftware.EnigmaV2;
 internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
 {
     /// <summary>
+    /// An indicator value used to determine if the embedded configuration is present in the input
+    /// text.
+    /// </summary>
+    private const int EmbeddedConfigurationValue = 126;
+
+    /// <summary>
+    /// Holds a reference to the service used for cloaking and decloaking text.
+    /// </summary>
+    private readonly ICloakingService _cloakingService;
+
+    /// <summary>
     /// Holds a reference to the Enigma machine configuration dialog service.
     /// </summary>
     private readonly IConfigurationDialogService _configurationDialogService;
@@ -32,6 +43,11 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     private readonly IInputOutputService _inputOutputService;
 
     /// <summary>
+    /// Holds a reference to the cryptographically secure random number generator.
+    /// </summary>
+    private readonly ISecureNumberGenerator _numberGenerator;
+
+    /// <summary>
     /// Holds a reference to the GetStringService.
     /// </summary>
     private readonly IStringDialogService _stringDialogService;
@@ -40,21 +56,6 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// Backing field for the ConfigurationStatus property.
     /// </summary>
     private string _configurationStatus = "Not Configured";
-
-    /// <summary>
-    /// Indicates whether or not the output text file has been cloaked.
-    /// </summary>
-    private bool _fileIsCloaked;
-
-    /// <summary>
-    /// Indicates whether or not the input text file has been decloaked.
-    /// </summary>
-    private bool _fileIsDecloaked;
-
-    /// <summary>
-    /// Indicates whether or not the input text file has been loaded.
-    /// </summary>
-    private bool _fileIsLoaded;
 
     /// <summary>
     /// Backing field for the InputText property.
@@ -155,6 +156,9 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// Initializes a new instance of the MainWindowViewModel class with the specified Enigma
     /// machine builder and input/output service.
     /// </summary>
+    /// <param name="cloakingService">
+    /// The service used for cloaking and decloaking text.
+    /// </param>
     /// <param name="configurationDialogService">
     /// The service responsible for configuring the Enigma machine.
     /// </param>
@@ -166,29 +170,36 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// The service responsible for handling input and output operations within the view model.
     /// Cannot be null.
     /// </param>
+    /// <param name="numberGenerator">
+    /// The service used for generating cryptographically secure random integer values.
+    /// </param>
     /// <param name="stringDialogService">
     /// The service used to obtain string input from the user.
     /// </param>
-    internal MainWindowViewModel(IConfigurationDialogService configurationDialogService,
+    internal MainWindowViewModel(ICloakingService cloakingService,
+                                 IConfigurationDialogService configurationDialogService,
                                  IEnigmaMachineBuilder enigmaMachineBuilder,
                                  IInputOutputService inputOutputService,
+                                 ISecureNumberGenerator numberGenerator,
                                  IStringDialogService stringDialogService)
     {
         // Services
+        _cloakingService = cloakingService;
         _configurationDialogService = configurationDialogService;
         _enigmaMachineBuilder = enigmaMachineBuilder;
         _stringDialogService = stringDialogService;
         _inputOutputService = inputOutputService;
+        _numberGenerator = numberGenerator;
 
         // Commands
-        CloakCommand = new RelayCommand(_ => Cloak(), _ => !(string.IsNullOrEmpty(_outputText) || _fileIsCloaked));
+        CloakCommand = new RelayCommand(_ => Cloak(), _ => CanCloak());
         ConfigureCommand = new RelayCommand(_ => Configure(), _ => true);
-        DecloakCommand = new RelayCommand(_ => Decloak(), _ => _fileIsLoaded && !_fileIsDecloaked);
-        EncryptCommand = new RelayCommand(_ => Encrypt(), _ => !string.IsNullOrWhiteSpace(_inputText));
+        DecloakCommand = new RelayCommand(_ => Decloak(), _ => CanDecloak());
+        TransformCommand = new RelayCommand(_ => Transform(), _ => CanTransform());
         LoadCommand = new RelayCommand(_ => LoadFile(), _ => true);
-        MoveCommand = new RelayCommand(_ => Move(), _ => !string.IsNullOrEmpty(_outputText));
-        ResetCommand = new RelayCommand(_ => Reset(), _ => true);
-        SaveCommand = new RelayCommand(_ => { }, _ => !string.IsNullOrEmpty(_outputText));
+        MoveCommand = new RelayCommand(_ => Move(), _ => OutputTextIsAvailable);
+        ResetCommand = new RelayCommand(_ => Reset(), _ => IsTransformExecuted);
+        SaveCommand = new RelayCommand(_ => SaveFile(), _ => OutputTextIsAvailable);
 
         // Initialization
         _enigmaConfiguration = new();
@@ -239,14 +250,6 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     }
 
     /// <summary>
-    /// Gets the command used for encrypting the input text to product the output text.
-    /// </summary>
-    public ICommand EncryptCommand
-    {
-        get;
-    }
-
-    /// <summary>
     /// Gets a reference to the Enigma machine instance.
     /// </summary>
     public IEnigmaMachine EnigmaMachine
@@ -266,6 +269,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             if (_inputText.Equals(value, StringComparison.Ordinal) is false)
             {
                 _inputText = value;
+                InputTextIsCloaked = _cloakingService.HasIndicatorString(_inputText);
                 OnPropertyChanged();
             }
         }
@@ -410,6 +414,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             if (_outputText.Equals(value, StringComparison.Ordinal) is false)
             {
                 _outputText = value;
+                OutputTextIsCloaked = _cloakingService.HasIndicatorString(_outputText);
                 OnPropertyChanged();
             }
         }
@@ -576,6 +581,15 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     }
 
     /// <summary>
+    /// Gets the command used for applying the Enigma transform on the input text to product the
+    /// output text.
+    /// </summary>
+    public ICommand TransformCommand
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets or sets a value that determines whether or not the Enigma configuration will be
     /// embedded into the encrypted text file.
     /// </summary>
@@ -593,6 +607,68 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     }
 
     /// <summary>
+    /// Gets a value indicating whether or not the input text is available for processing.
+    /// </summary>
+    private bool InputTextIsAvailable => !string.IsNullOrWhiteSpace(InputText);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether or not the input text is cloaked.
+    /// </summary>
+    private bool InputTextIsCloaked
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether the Transform command has been executed since the
+    /// last execution of either the Configure or Reset commands.
+    /// </summary>
+    bool IsTransformExecuted
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Gets a value indicating whether or not the output text is available for processing.
+    /// </summary>
+    private bool OutputTextIsAvailable => !string.IsNullOrWhiteSpace(OutputText);
+
+    /// <summary>
+    /// Gets or sets a value indicating whether or not the output text has been cloaked.
+    /// </summary>
+    private bool OutputTextIsCloaked
+    {
+        get;
+        set;
+    }
+
+    /// <summary>
+    /// Determines whether or not the Cloak command can be executed.
+    /// </summary>
+    /// <returns>
+    /// A value indicating whether or not the Cloak command can be executed.
+    /// </returns>
+    private bool CanCloak() => OutputTextIsAvailable && !OutputTextIsCloaked;
+
+    /// <summary>
+    /// Determines whether or not the Decloak command can be executed.
+    /// </summary>
+    /// <returns>
+    /// A value indicating whether or not the Decloak command can be executed.
+    /// </returns>
+    private bool CanDecloak() => InputTextIsAvailable && InputTextIsCloaked;
+
+    /// <summary>
+    /// Determines whether or not the Transform command can be executed.
+    /// </summary>
+    /// <returns>
+    /// A value indicating whether or not the Transform command can be executed.
+    /// </returns>
+    private bool CanTransform() => IsConfigured && InputTextIsAvailable && !IsTransformExecuted;
+
+    /// <summary>
     /// Applies a cloaking transformation to the output text using a user-provided cloaking string.
     /// </summary>
     private void Cloak()
@@ -606,8 +682,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             return;
         }
 
-        InputText = CloakingService.ApplyCloak(OutputText, cloakText);
-        _fileIsCloaked = true;
+        OutputText = _cloakingService.ApplyCloak(OutputText, cloakText);
     }
 
     /// <summary>
@@ -618,6 +693,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         _enigmaConfiguration.Update(_configurationDialogService.GetConfiguration(_enigmaConfiguration));
         EnigmaMachine = _enigmaMachineBuilder.Build(_enigmaConfiguration);
         UpdateProperties();
+        IsTransformExecuted = false;
     }
 
     /// <summary>
@@ -635,15 +711,62 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             return;
         }
 
-        InputText = CloakingService.RemoveCloak(InputText, cloakText);
-        _fileIsDecloaked = true;
+        InputText = _cloakingService.RemoveCloak(InputText, cloakText);
     }
+
+    /// <summary>
+    /// Load the contents of the text file that is to be encrypted or decrypted by the Enigma
+    /// machine.
+    /// </summary>
+    /// <remarks>
+    /// The <see cref="InputText" /> property will be set to the contents of the text file, or it
+    /// will be left unchanged if the operation is cancelled or an exception is thrown.
+    /// </remarks>
+    private void LoadFile()
+    {
+        string inputText = _inputOutputService.LoadTextFile();
+
+        if (!string.IsNullOrEmpty(inputText))
+        {
+            InputText = inputText;
+        }
+    }
+
+    /// <summary>
+    /// Moves the output text to the input text box and clears the output text box.
+    /// </summary>
+    /// <remarks>
+    /// This method also calls the Reset method to reset the state of the Enigma machine after
+    /// moving the text.
+    /// </remarks>
+    private void Move()
+    {
+        InputText = OutputText;
+        OutputText = string.Empty;
+        Reset();
+    }
+
+    /// <summary>
+    /// Resets the state of the Enigma machine back to its initial state before any text was
+    /// encrypted.
+    /// </summary>
+    private void Reset()
+    {
+        EnigmaMachine.ResetCipherIndexes();
+        UpdateProperties();
+        IsTransformExecuted = false;
+    }
+
+    /// <summary>
+    /// Saves the output text to a text file.
+    /// </summary>
+    private void SaveFile() => _inputOutputService.SaveTextFile(OutputText);
 
     /// <summary>
     /// Encrypts the input text using the configured Enigma machine settings and updates the output
     /// text.
     /// </summary>
-    private void Encrypt()
+    private void Transform()
     {
         OutputText = EnigmaMachine.Transform(InputText);
 
@@ -676,45 +799,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         {
             RotorIndex8 = EnigmaMachine.Rotor8!.CipherIndex;
         }
-    }
 
-    /// <summary>
-    /// Load the contents of the text file that is to be encrypted or decrypted by the Enigma
-    /// machine.
-    /// </summary>
-    /// <remarks>
-    /// The <see cref="InputText" /> property will be set to the contents of the text file, or it
-    /// will be left unchanged if the operation is cancelled or an exception is thrown.
-    /// </remarks>
-    private void LoadFile()
-    {
-        string inputText = _inputOutputService.LoadTextFile();
-
-        if (string.IsNullOrEmpty(inputText) is false)
-        {
-            InputText = inputText;
-            _fileIsLoaded = true;
-            _fileIsDecloaked = false;
-        }
-    }
-
-    /// <summary>
-    /// Moves the output text to the input text box and clears the output text box.
-    /// </summary>
-    private void Move()
-    {
-        InputText = OutputText;
-        OutputText = string.Empty;
-    }
-
-    /// <summary>
-    /// Resets the state of the Enigma machine back to its initial state before any text was
-    /// encrypted.
-    /// </summary>
-    private void Reset()
-    {
-        EnigmaMachine.ResetCipherIndexes();
-        UpdateProperties();
+        IsTransformExecuted = true;
     }
 
     /// <summary>

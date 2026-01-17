@@ -42,14 +42,6 @@ public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
     } = new RelayCommand(static _ => { }, static _ => true);
 
     /// <summary>
-    /// Gets the command used for encrypting the input text to product the output text.
-    /// </summary>
-    public ICommand EncryptCommand
-    {
-        get;
-    } = new RelayCommand(static _ => { }, static _ => true);
-
-    /// <summary>
     /// Gets or sets the sample input text to be displayed during design time.
     /// </summary>
     public string InputText
@@ -239,6 +231,15 @@ public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
     /// Gets the command used for saving the output text from the Enigma machine.
     /// </summary>
     public ICommand SaveCommand
+    {
+        get;
+    } = new RelayCommand(static _ => { }, static _ => true);
+
+    /// <summary>
+    /// Gets the command used for applying the Enigma transform on the input text to product the
+    /// output text.
+    /// </summary>
+    public ICommand TransformCommand
     {
         get;
     } = new RelayCommand(static _ => { }, static _ => true);

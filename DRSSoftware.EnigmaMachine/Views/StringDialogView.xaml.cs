@@ -13,5 +13,18 @@ public partial class StringDialogView : Window
     public StringDialogView()
     {
         InitializeComponent();
+        Loaded += OnWindowLoaded;
     }
+
+    /// <summary>
+    /// Sets focus to the input text box when the window is loaded.
+    /// </summary>
+    /// <param name="sender">
+    /// The event sender.
+    /// </param>
+    /// <param name="e">
+    /// The event arguments.
+    /// </param>
+    private void OnWindowLoaded(object sender, RoutedEventArgs e)
+        => inputTextBox.Focus();
 }

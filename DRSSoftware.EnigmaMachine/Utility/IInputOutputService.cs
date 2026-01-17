@@ -6,13 +6,19 @@
 internal interface IInputOutputService
 {
     /// <summary>
-    /// Load the requested text file and return its contents as a string.
+    /// Loads a text file and returns its content as a string.
     /// </summary>
-    /// <remarks>
-    /// If the load operation was cancelled or failed, an empty string is returned.
-    /// </remarks>
     /// <returns>
-    /// The string contents of the requested file.
+    /// The string contents of the selected text file. If no file is selected or an error occurs,
+    /// returns an empty string.
     /// </returns>
     public string LoadTextFile();
+
+    /// <summary>
+    /// Saves the provided string content to a text file.
+    /// </summary>
+    /// <param name="content">
+    /// The string content to be saved to the text file.
+    /// </param>
+    void SaveTextFile(string content);
 }
