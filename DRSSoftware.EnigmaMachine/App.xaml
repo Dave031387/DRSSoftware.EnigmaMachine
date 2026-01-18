@@ -50,6 +50,11 @@
             <Setter Property="Foreground" Value="{StaticResource lightTextBrush}" />
             <Setter Property="Margin" Value="5" />
         </Style>
+        <Style x:Key="smallTextBlockStyle" TargetType="{x:Type TextBlock}">
+            <Setter Property="FontSize" Value="14" />
+            <Setter Property="Foreground" Value="{StaticResource darkTextBrush}" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
         <Style x:Key="readonlyTextBoxStyle" TargetType="{x:Type TextBox}">
             <Setter Property="Background" Value="{StaticResource textBoxBackgroundBrush}" />
             <Setter Property="FontSize" Value="14" />

@@ -1,51 +1,13 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
 /// <summary>
-/// A static class used for applying and removing cloaking transformations on text.
+/// A service used for applying and removing cloaking transformations on text.
 /// </summary>
 /// <param name="numberGenerator">
 /// A reference to an object used for generating cryptographically secure random integer values.
 /// </param>
 internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : ICloakingService
 {
-    /// <summary>
-    /// Represents the carriage return character ('\r', or U+000D).
-    /// </summary>
-    private const char CarriageReturn = '\r';
-
-    /// <summary>
-    /// Represents the number of character pairs that make up the cloaking indicator string and the
-    /// embedded configuration indicator string.
-    /// </summary>
-    private const int IndicatorSize = 3;
-
-    /// <summary>
-    /// Represents the line feed character ('\n', or U+000A).
-    /// </summary>
-    private const char LineFeed = '\n';
-
-    /// <summary>
-    /// Represents the maximum valid character value (U+007F) supported by the Enigma machine.
-    /// </summary>
-    private const char MaxChar = '\u007f';
-
-    /// <summary>
-    /// Represents a character value that is one higher than the maximum cloaking indicator value.
-    /// </summary>
-    private const char MaxIndicatorChar = '\u007d';
-
-    /// <summary>
-    /// The maximum integer value corresponding to the maximum character value supported by the
-    /// Enigma machine.
-    /// </summary>
-    private const int MaxValue = MaxChar - MinChar;
-
-    /// <summary>
-    /// Represents the minimum valid character value (the space character, or U+0020) supported by
-    /// the Enigma machine.
-    /// </summary>
-    private const char MinChar = '\u0020';
-
     /// <summary>
     /// Holds a reference to an object used for generating cryptographically secure random integer
     /// values.
@@ -99,7 +61,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// The input text to be checked for the indicator string.
     /// </param>
     /// <returns>
-    /// <see langword="true" /> if the <paramref name="inputText" /> starts with and indicator
+    /// <see langword="true" /> if the <paramref name="inputText" /> starts with an indicator
     /// string.
     /// </returns>
     public bool HasIndicatorString(string inputText)
@@ -114,7 +76,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
             int firstCharValue = inputText[i];
             int secondCharValue = inputText[i + IndicatorSize];
 
-            if (firstCharValue + secondCharValue != MinChar + MaxIndicatorChar)
+            if (firstCharValue + secondCharValue != CloakedIndicatorValue)
             {
                 return false;
             }
@@ -185,7 +147,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         {
             int value = values[i];
 
-            while (value < 0)
+            while (value < MinValue)
             {
                 value += MaxValue + 1;
             }
@@ -240,7 +202,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
             }
             else if (chars[i] is < MinChar or >= MaxChar)
             {
-                result.Add(0);
+                result.Add(MinValue);
             }
             else
             {
@@ -252,12 +214,8 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     }
 
     /// <summary>
-    /// Generates a random indicator string used for cloaking or embedding configuration data.
+    /// Generates a random indicator string used for cloaking.
     /// </summary>
-    /// <remarks>
-    /// Each character in the first half of the indicator string, when added to the corresponding
-    /// character in the second half of the string, will equal (MinChar + MaxChar).
-    /// </remarks>
     /// <returns>
     /// A new randomly generated indicator string.
     /// </returns>
@@ -267,9 +225,9 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
 
         for (int i = 0; i < IndicatorSize; i++)
         {
-            int indicatorValue = _numberGenerator.GetNext(MinChar, MaxIndicatorChar);
+            int indicatorValue = _numberGenerator.GetNext(MinChar, CloakingIndicatorChar);
             indicatorChars[i] = (char)indicatorValue;
-            indicatorChars[i + IndicatorSize] = (char)(MaxIndicatorChar - indicatorValue + MinChar);
+            indicatorChars[i + IndicatorSize] = (char)(CloakedIndicatorValue - indicatorValue);
         }
 
         return new string(indicatorChars);

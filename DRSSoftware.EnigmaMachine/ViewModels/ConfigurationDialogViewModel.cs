@@ -11,50 +11,9 @@ using DRSSoftware.EnigmaMachine.Utility;
 internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurationDialogViewModel
 {
     /// <summary>
-    /// A value that is one higher than the maximum length of an automatically generated seed value.
-    /// </summary>
-    private const int AutoSeedMaxLength = 65;
-
-    /// <summary>
     /// A value equal to the minimum length of an automatically generated seed value.
     /// </summary>
     private const int AutoSeedMinLength = 32;
-
-    /// <summary>
-    /// A value that is one higher than the maximum rotor index value.
-    /// </summary>
-    private const int IndexValueLimit = MaxIndexValue + 1;
-
-    /// <summary>
-    /// A value equal to the maximum rotor index value.
-    /// </summary>
-    private const int MaxIndexValue = 95;
-
-    /// <summary>
-    /// A value equal to the maximum number of rotors supported by the Enigma machine.
-    /// </summary>
-    private const int MaxRotorCount = 8;
-
-    /// <summary>
-    /// A value equal to the minimum rotor index value.
-    /// </summary>
-    private const int MinIndexValue = 0;
-
-    /// <summary>
-    /// A value equal to the minimum number of rotors supported by the Enigma machine.
-    /// </summary>
-    private const int MinRotorCount = 3;
-
-    /// <summary>
-    /// A value that is one higher than the maximum number of rotors supported by the Enigma
-    /// machine.
-    /// </summary>
-    private const int RotorCountLimit = MaxRotorCount + 1;
-
-    /// <summary>
-    /// A value equal to the number of available rotor count options.
-    /// </summary>
-    private const int RotorOptionsLimit = RotorCountLimit - MinRotorCount;
 
     /// <summary>
     /// Holds a reference to the secure random number generator.
@@ -186,7 +145,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public ConfigurationDialogViewModel(ISecureNumberGenerator numberGenerator)
     {
-        AcceptCommand = new RelayCommand(_ => Accept(), _ => IsValidConfiguration);
+        AcceptCommand = new RelayCommand(_ => Accept(), _ => CanAccept);
         CancelCommand = new RelayCommand(_ => Cancel(), _ => true);
         _numberGenerator = numberGenerator;
     }
@@ -206,7 +165,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     public ReadOnlyCollection<int> AvailableIndexValues
     {
         get;
-    } = new List<int>([.. Enumerable.Range(0, IndexValueLimit)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(MinValue, MaxValue + 1)]).AsReadOnly();
 
     /// <summary>
     /// Gets a list of available rotor counts.
@@ -214,7 +173,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     public ReadOnlyCollection<int> AvailableRotorCounts
     {
         get;
-    } = new List<int>([.. Enumerable.Range(MinRotorCount, RotorOptionsLimit)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(MinRotorCount, MaxRotorCount - MinRotorCount + 1)]).AsReadOnly();
 
     /// <summary>
     /// Gets an ICommand used for discarding the user-specified configuration settings and closing
@@ -445,6 +404,22 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     }
 
     /// <summary>
+    /// Gets the maximum seed value length.
+    /// </summary>
+    public int MaxSeedValueLength
+    {
+        get;
+    } = MaxSeedLength;
+
+    /// <summary>
+    /// Gets the minimum seed value length.
+    /// </summary>
+    public int MinSeedValueLength
+    {
+        get;
+    } = MinStringLength;
+
+    /// <summary>
     /// Gets or sets the selected index value of the reflector.
     /// </summary>
     public int ReflectorIndex
@@ -639,9 +614,14 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     }
 
     /// <summary>
-    /// Gets a value indicating whether the current configuration is valid based on the seed value.
+    /// Gets a value indicating whether or not the Accept command can be executed.
     /// </summary>
-    private bool IsValidConfiguration => !string.IsNullOrWhiteSpace(_seedValue) && _seedValue.Length > 9;
+    /// <remarks>
+    /// The only requirement that is checked is that the seed value length is within the valid
+    /// range. Everything else is guaranteed to be valid due to the view model design.
+    /// </remarks>
+    private bool CanAccept => !string.IsNullOrWhiteSpace(_seedValue)
+        && (_seedValue.Length is >= MinStringLength and <= MaxSeedLength);
 
     /// <summary>
     /// Initializes the view model with the current Enigma machine configuration.
@@ -700,34 +680,35 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     private void GenerateRandomIndexValues()
     {
-        ReflectorIndex = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex1 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex2 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex3 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex4 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex5 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex6 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex7 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
-        RotorIndex8 = _numberGenerator.GetNext(MinIndexValue, IndexValueLimit);
+        int upperLimit = MaxValue + 1;
+        ReflectorIndex = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex1 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex2 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex3 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex4 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex5 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex6 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex7 = _numberGenerator.GetNext(MinValue, upperLimit);
+        RotorIndex8 = _numberGenerator.GetNext(MinValue, upperLimit);
     }
 
     /// <summary>
     /// Pick a random rotor count within the valid range.
     /// </summary>
     private void GenerateRandomRotorCount()
-        => SelectedRotorCount = _numberGenerator.GetNext(MinRotorCount, RotorCountLimit);
+        => SelectedRotorCount = _numberGenerator.GetNext(MinRotorCount, MaxRotorCount + 1);
 
     /// <summary>
     /// Generate a random seed string value having a random length between 32 and 64.
     /// </summary>
     private void GenerateRandomSeedValue()
     {
-        int seedLength = _numberGenerator.GetNext(AutoSeedMinLength, AutoSeedMaxLength);
+        int seedLength = _numberGenerator.GetNext(AutoSeedMinLength, MaxSeedLength);
         char[] seedChars = new char[seedLength];
 
         for (int i = 0; i < seedLength; i++)
         {
-            seedChars[i] = (char)(_numberGenerator.GetNext(MinIndexValue, MaxIndexValue) + ' ');
+            seedChars[i] = (char)(_numberGenerator.GetNext(MinValue, MaxValue) + MinChar);
         }
 
         SeedValue = new string(seedChars);

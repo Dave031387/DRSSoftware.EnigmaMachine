@@ -23,7 +23,7 @@ public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
     {
         get;
         set;
-    } = "Configured";
+    } = ConfiguredStatusText;
 
     /// <summary>
     /// Gets the command used for reconfiguring the Enigma machine.

@@ -142,7 +142,17 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel Style="{StaticResource configurationPanelStyle}">
-                <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Seed Value" />
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Seed Value" />
+                    <TextBlock
+                        Margin="10,0,0,0"
+                        Style="{StaticResource smallTextBlockStyle}"
+                        Text="The seed value must be at least " />
+                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MinSeedValueLength, Mode=OneTime}" />
+                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" and no more than " />
+                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MaxSeedValueLength, Mode=OneTime}" />
+                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" characters long." />
+                </StackPanel>
                 <StackPanel Margin="10" Orientation="Horizontal">
                     <StackPanel VerticalAlignment="Center">
                         <RadioButton

@@ -160,6 +160,22 @@ public interface IConfigurationDialogViewModel
     }
 
     /// <summary>
+    /// Gets the maximum seed value length.
+    /// </summary>
+    int MaxSeedValueLength
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets the minimum seed value length.
+    /// </summary>
+    int MinSeedValueLength
+    {
+        get;
+    }
+
+    /// <summary>
     /// Gets or sets the selected index value of the reflector.
     /// </summary>
     public int ReflectorIndex

@@ -18,7 +18,7 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
     /// </summary>
     public StringDialogViewModel()
     {
-        AcceptCommand = new RelayCommand(_ => Accept(), _ => !string.IsNullOrWhiteSpace(_inputText) && _inputText.Length > 9);
+        AcceptCommand = new RelayCommand(_ => Accept(), _ => CanAccept);
         CancelCommand = new RelayCommand(_ => Cancel(), _ => true);
     }
 
@@ -101,6 +101,14 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
             }
         }
     }
+
+    /// <summary>
+    /// Gets a value that indicates whether or not the Accept command can be executed.
+    /// </summary>
+    /// <returns>
+    /// A value indicating whether or not the Accept command can be executed.
+    /// </returns>
+    private bool CanAccept => !string.IsNullOrWhiteSpace(_inputText) && _inputText.Length >= MinStringLength;
 
     /// <summary>
     /// Accept the user input and close the associated view.

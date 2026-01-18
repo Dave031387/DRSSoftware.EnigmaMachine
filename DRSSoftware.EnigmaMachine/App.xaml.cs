@@ -26,6 +26,7 @@ public partial class App : Application
             .AddSingleton<ICloakingService, CloakingService>()
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
+            .AddSingleton<IEmbeddingService, EmbeddingService>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
             .AddSingleton<IInputOutputService, InputOutputService>()
             .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()

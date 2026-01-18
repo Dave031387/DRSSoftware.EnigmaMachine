@@ -22,7 +22,7 @@ internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigura
     public ReadOnlyCollection<int> AvailableIndexValues
     {
         get;
-    } = new List<int>([.. Enumerable.Range(0, 96)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(MinValue, MaxValue + 1)]).AsReadOnly();
 
     /// <summary>
     /// Gets a list of available rotor counts.
@@ -30,7 +30,7 @@ internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigura
     public ReadOnlyCollection<int> AvailableRotorCounts
     {
         get;
-    } = new List<int>([.. Enumerable.Range(3, 6)]).AsReadOnly();
+    } = new List<int>([.. Enumerable.Range(MinRotorCount, MaxRotorCount - MinRotorCount + 1)]).AsReadOnly();
 
     /// <summary>
     /// Gets an ICommand used for discarding the user-specified configuration settings and closing
@@ -155,6 +155,22 @@ internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigura
     } = true;
 
     /// <summary>
+    /// Gets the maximum seed value length.
+    /// </summary>
+    public int MaxSeedValueLength
+    {
+        get;
+    } = MaxSeedLength;
+
+    /// <summary>
+    /// Gets the minimum seed value length.
+    /// </summary>
+    public int MinSeedValueLength
+    {
+        get;
+    } = MinStringLength;
+
+    /// <summary>
     /// Gets or sets the selected index value of the reflector.
     /// </summary>
     public int ReflectorIndex
@@ -251,7 +267,7 @@ internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigura
     {
         get;
         set;
-    } = 8;
+    } = MaxRotorCount;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the Enigma machine configuration should be

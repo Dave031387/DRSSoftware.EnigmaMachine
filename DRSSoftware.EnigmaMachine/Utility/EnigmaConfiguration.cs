@@ -12,7 +12,7 @@ public sealed class EnigmaConfiguration
     {
         get;
         set;
-    } = 3;
+    } = MinRotorCount;
 
     /// <summary>
     /// Gets or sets the reflector index value.
