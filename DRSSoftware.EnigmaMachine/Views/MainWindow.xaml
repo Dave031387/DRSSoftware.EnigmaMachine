@@ -62,7 +62,7 @@
                     Grid.Column="1"
                     Margin="5,10,5,0"
                     Command="{Binding DecloakCommand}"
-                    Content="De-cloak"
+                    Content="Decloak"
                     Style="{StaticResource buttonStyle}" />
             </Grid>
 

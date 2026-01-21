@@ -1,11 +1,7 @@
 # Enigma Machine
-
-> [!IMPORTANT]
-> *This project is a work in progress. The EnigmaV2 class library is pretty much done, but the UI portion isn't completed yet. This README file will
-> be updated when the project nears completion.*
-
 The next couple of sections go into a lot of detail about the original Enigma machine and the software version named *Enigma V2*. If you aren't
-interested in all the details feel free to skip to the section describing the [Enigma V2 class library](#the-enigma-v2-class-library).
+interested in all the details feel free to skip to the section describing the [Enigma V2 class library](#the-enigma-v2-class-library). Or, skip right
+to the end where I describe the [Enigma machine application](#the-enigma-machine-application) included in this repo.
 
 ## Overview
 According to **Wikipedia**: *"The Enigma machine is a cipher device developed and used in the early- to mid-20th century to protect commercial
@@ -85,7 +81,7 @@ pins on the entry wheel would come into contact with different pins on the rotor
 
 ### The Rotor
 The rotor was a short cylinder that had 26 pins spaced evenly around the circumference of each end of the cylinder. Again, the pins corresponded to
-the 26 letters of the alphabet. Between the two ends of the cylinders wires were used connect the pins on one end to the pins on the other end. For
+the 26 letters of the alphabet. Between the two ends of the cylinders wires were used to connect the pins on one end to the pins on the other end. For
 example, the "A" pin on one side might be connected to the "T" pin on the other side, while the "B" pin on one side might be connected to the "J" pin
 on the other side, and so on. The connections between the two ends of the cylinder thus implemented a simple substitution cipher.
 
@@ -629,3 +625,178 @@ The default constructor takes away more of the flexibility that we had with the 
 will always create an Enigma machine with four rotors and a reflector with pre-defined cycle sizes (1, 11, 7, 17, and 13 respectively). Therefore this
 version fails to meet the characteristics listed at the start of this section even more so than the previous example. However, it does provide the
 easiest way to create an Enigma machine of all the examples shown in this section.
+
+## The Enigma Machine Application
+This repo also includes an implementation of a working Enigma machine based on the Enigma V2 class library and writen entirely in C# .NET 8 and WPF. A
+couple features have been added to this implementation that enhance the cryptographic capability of the Enigma machine. The remainder of this readme
+file explain the operation of the application.
+
+### Features
+The Enigma machine application implements the following features:
+- Text files can be loaded, encrypted/decrypted, and then saved
+- Ability to select 3 to 8 rotors to configure the Enigma machine
+- The cycle sizes are fixed for the reflector and each rotor
+- The index settings of the reflector and each rotor can be automatically generated or manually selected
+- The seed value used for initializing the Enigma machine can also be autmatically generated or manually entered
+- A "cloaking" transformation can optionally be applied to the text after it has been encrypted, thus making it less likely that someone intercepting
+  the text file will be able to successfully decrypt it
+- The Enigma machine configuration can optionally be embedded within the encrypted text file, making it easier for the recipient of the text file to
+  extract the decrypted text (it is hignly recommended that the cloaking transformation also be used if this option is used)
+- All of the options and features of the Enigma machine are accessible through a Windows UI built on WPF and C# .NET 8
+
+### The Enigma Machine Main Window
+The main window of the application is comprised of three sections as noted by the headings across the top of the window:
+- Input
+- Control
+- Output
+
+The left side of the UI is devoted to the input functions. In the bottom left hand corner of the window are two buttons - the Load button for loading
+text files, and the Decloak button for decloaking the loaded file if it had previously been cloaked. When text is loaded it gets stored in the large
+green text box on the left side of the window.
+
+The right side of the UI is devoted to the output functions. Encrypted or decrypted text will appear in the large green text box on the right side of
+the window. In the lower right hand corner of the window are two buttons - the Cloak button for cloaking the text, and the Save button for saving the
+text to a text file.
+
+The middle portion of the main window is devoted to the control functions of the Enigma mashine. The Enigma configuration (minus the seed value) is
+displayed in a column in the center of the window. At the top center of the window is the Apply Transform button used for encrypting or decrypting the
+text in the input text box on the left side of the screen. Below the configuration is the Move to Input button used for moving the contents of the
+output text box on the right side of the window to the input text box on the left side of the window. At the very bottom center of the window are two
+more buttons - the Configure button for specifying the configuration for the Enigma machine, and the Reset button used for resetting the state of the
+Enigma machine back to the point immediately after it was last configured.
+
+> [!NOTE]
+> Each button in the Enigma Machine application will be enabled for use only when the Enigma machine is in a state where that button's function is
+> valid. If the button you wish to click is disabled, that means you haven't completed a necessary step in the process of encrypting or decrypting the
+> text file.
+
+### The Enigma Machine Setup Window
+When the Configure button is clicked in the main window it causes the Enigma Machine Setup window to be shown. This is where you specify all the details of the Enigma machine. The window is arranged in four sections stacked vertically down the window:
+- Number of Rotors
+- Rotor Indexes
+- Seed Value
+- Options
+
+In the first section at the top of the window you can select the number of rotors to be used in the Enigma machine. You are limited to selecting between 3 and 8 rotors.
+
+In the next section down you can select the initial index value for each rotor and the reflector using the provided combo boxes. The last combo box on
+the right is labeled "R" and is for the reflector. The reset of the combo boxes are labeled 1 through 8, depending on the number of rotors that were
+selected. Each index value can be any integer from 0 through 95.
+
+The next section down is used for entering the seed value that is used for randomizing the "wiring" of the reflector and rotors. The seed value must
+be a text string consisting of at least 10 characters but no more than 94 characters.
+
+The last section of the setup window is for other options. Currently there is only a single option available in this section. This is the option that
+allows you to embed the Enigma machine configuration into the encrypted text file.
+
+The first three sections in the setup window allow you to choose between manual and automatic configuration. When Manual is selected you are able to
+manually change the settings in that section of the setup window. When Automatic is selected then the configuration in that section of the window will
+be randomly selected/generated and the user will no longer be able to manually change it until Manual is selected again. You can switch between
+Automatic and Manual as often as you like. Every time Automatic is selected the configuration will be randomly selected/generated again.
+
+> [!NOTE]
+> A cryptographically secure random number generator is used for generating the automatic configurations, including the random seed value as well as
+> the reflector index and rotor index values. The randomly generated seed value is at least 32 characters long.
+
+In the bottom right corner of the setup window are two buttons. The Accept button accepts the user-defined configuration and causes the Enigma machine
+to be configured accordingly. The Cancel button exits the window without making any changes. Note that the Accept button will be disabled until a
+valid seed value is entered.
+
+### Other Windows
+The Enigma Machine application makes use of the standard Windows Open File and Save File dialogs for loading and saving text files.
+
+There is also a third custom window used for entering the text used for decloaking/cloaking the input/output text. This window is shown when either
+the Cloak or the Decloak button is clicked in the main window. The window has a green text box for entering the cloaking text. In the lower right hand
+corner are two buttons - the Accept button which accepts the text entered by the user, and the Cancel button which discards the text. Both buttons
+close the window. The text entered by the user must be at least 10 characters in length before the Accept button will be enabled.
+
+### Basic Steps for Encrypting a Text File
+The basic operation of the Enigma Machine application is quite simple. The following steps can be used to encrypt a text file:
+1. Click the Load button to show the Open File dialog.
+1. Navigate to the text file that is to be encrypted and select it. (Notice that the preview pane is enabled by default so that you can see the
+   contents of the file prior to loading it.)
+1. Click Open in the Open File dialog.
+1. The contents of the text file will be loaded into the green text box on the left side of the main window (this is the input text box).
+1. Notice that the status in the middle of the main window shows a red indicator box with "Not Configured" displayed next to it. This is because the
+   Enigma machine hasn't yet been fully configured. You won't be able to encrypt the text file until this is taken care of.
+1. Click the Configure button in the bottom center of the main window. This will show the Enigma Machine Setup window.
+1. Select the number of rotors you want in the Enigma machine.
+1. Select an index value for each rotor and the reflector.
+1. Enter a seed value that is between 10 and 94 characters in length.
+1. At this point you may want to make a record of the settings if you don't think you can remember them. (It's much better, though, and more secure,
+   if you pick settings you can easily remember.)
+1. Click the Accept button to accept the configuration. You will be returned to the main window and the Enigma machine will be configured as you
+   specified. The configuration will be displayed in the middle of the window. (The seed value is never displayed, though.) The status should now show
+   a green box with "Configured" displayed next to it.
+1. At this point the Apply Transform button in the top center of the main window will become enabled. Click this button to encrypt the text in the
+   input text box.
+1. The encrypted text will appear in the green text box on the right side of the window. (This is the output text box.)
+1. The Save button in the lower right hand corner of the main window will become enabled when any text appears in the output text box. Click this
+   button to display the Save File dialog.
+1. Enter a name and choose a location to save the file and click Save to complete the operation.
+
+At this point, if you wanted to verify the functioning of the Enigma machine, you could do the following:
+1. Click the Move to Input button to move the contents of the output text box over to the input text box. When you do this the output text box will be
+   cleared and the state of the Enigma machine will automatically be reset back to the state it was in before the Apply Transform button was pressed.
+1. At this point the Apply Transform button will be enabled again. Click it.
+1. Now the original text you started with should appear in the output text box. This confirms that the Enigma machine is working as expected.
+
+### Basic Steps for Decrypting a Text File
+The steps for decrypting a text file are nearly identical to the steps used for encrypting the file.
+1. Click the Load button to show the Open File dialog.
+1. Navigate to the text file that is to be decrypted, select it, and click Open.
+1. The contents of the text file will be loaded into the input text box on the left side of the window.
+1. Click the Configure button in the bottom center of the main window. This will show the Enigma Machine Setup window.
+1. Enter the exact same configuration as was used when encrypting the text file. It is important that you get this right. Even a small difference in
+   the configuration will prohibit you from successfully decrypting the file.
+1. Click the Accept button to accept the configuration. You will be returned to the main window and the Enigma machine will be configured as you
+   specified.
+1. At this point the Apply Transform button in the top center of the main window will become enabled. Click this button to decrypt the text in the
+   input text box.
+1. The decrypted text will appear in the output text box on the right side of the window.
+
+### Using the Cloaking Feature
+One of the optional features implemented in the Enigma Machine application is the cloaking feature. Cloaking can be used to apply an extra level of
+encryption to an already-encrypted text file. It's use is quite simple. Follow the steps given previously for encrypting a file. Before clicking the
+Save button, though, click the Cloak button just to the left of the Save button. This will open the Cloak Text window where you can enter a text
+string that will be used to apply the cloaking transform to the text.
+
+The cloaking text must be at least 10 characters long. Again, it is important that you pick a word, phrase, or some other arrangement of characters
+that you can easily remember. The exact text used for cloaking the encrypted text file must be used for decloaking the text file before it can be
+decrypted.
+
+When an encrypted and cloaked text file is loaded into the Enigma machine the Apply Transform button will be disabled even when the Enigma machine is
+fully configured. However, the Decloak button will be enabled. You must click the Decloak button to display the Deloak Text window. You must then
+enter the exact same cloaking text into this window as was used to cloak the encrypted file.
+
+Click the Accept button once the correct cloaking text is entered. You will be returned to the main window and the cloaking text will be used to
+remove the cloak from the encrypted text. The Apply Transform button will now be enabled. Simply click this button to decrypt the text file. The
+decrypted text will appear in the output text box on the right side of the main window.
+
+If you wish to test the cloaking feature without actually saving anything you can follow these steps:
+1. Load a text file and encrypt it as explained in the [Basic Steps for Encrypting a File](#basic-steps-for-encrypting-a-file). Perform all steps but
+   stop at the step where it has you click the Save button.
+1. Click the Cloak button, enter your desired cloaking string, and click Accept.
+1. Click the Move to Input button to move the encrypted and cloaked text to the input text box.
+1. The Decloak button should now be enabled. Click it, enter the cloaking text, and click Accept.
+1. The Apply Transform button should now be enabled. Click it.
+1. The decrypted text should appear in the output text box. It should be identical to the text you started with.
+
+### Using the Embedded Configuration Feature
+The other optional feature implemented in the Enigma Machine application is the embedded configuration feature. With this feature enabled in the setup
+window, when the Apply Transform button is clicked to encrypt a text file, the Enigma machine configuration will be embedded into the text appearing
+in the output text box. You can tell that this feature is enabled when "== Embedded Config ==" appears under the status indicator in the center of the
+main window above the Move to Input button.
+
+When an encrypted text file containing embedded configuration is loaded into the Enigma Machine application, the application strips out the embedded
+configuration and uses it to automatically configure the Enigma machine before the user can do anything else. The text that appears in the input text
+box is the encrypted text minus the embedded configuration. At this point you only need to click the Apply Transform button to decrypt the text file.
+
+It should be obvious that, by itself, this feature is not very secure. Although it removes the burden of having to remember all the configuration
+settings, anyone who has a copy of the Enigma Machine application could easily decrypt any text file that has been encrypted using this feature. For
+this reason it is highly advisable that if you intend on using the embedded configuration option you should also use the cloaking feature. If
+possible, choose a lengthy cloaking string that is easy to remember. The longer, the better. Using a good cloaking string with the embedded
+configuration option should produce an encrypted file that will be very difficult, if not impossible, to decrypt unless you have the correct cloaking
+string.
+
+## End of README File
