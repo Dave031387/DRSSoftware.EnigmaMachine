@@ -30,6 +30,8 @@ public partial class App : Application
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
             .AddSingleton<IInputOutputService, InputOutputService>()
             .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()
+            .AddTransient<IOpenFileService, OpenFileService>()
+            .AddTransient<ISaveFileService, SaveFileService>()
             .AddSingleton<ISecureNumberGenerator, SecureNumberGenerator>()
             .AddSingleton<IStringDialogService, StringDialogService>()
             .AddTransient<IStringDialogViewModel, StringDialogViewModel>()

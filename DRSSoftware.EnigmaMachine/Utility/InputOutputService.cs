@@ -1,18 +1,24 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.IO;
-using System.Windows;
-using Microsoft.Win32;
+using DRSSoftware.DRSBasicDI.Interfaces;
 
 /// <summary>
 /// This class implements a service used for loading and saving text files.
 /// </summary>
-internal sealed class InputOutputService : IInputOutputService
+/// <param name="container">
+/// A reference to the dependency injection container.
+/// </param>
+internal sealed class InputOutputService(IContainer container) : IInputOutputService
 {
     /// <summary>
     /// A file filter string for text files.
     /// </summary>
     private const string FileFilter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+
+    /// <summary>
+    /// Holds a reference to the dependency injection container.
+    /// </summary>
+    private readonly IContainer _container = container;
 
     /// <summary>
     /// The default directory for file dialogs.
@@ -28,69 +34,35 @@ internal sealed class InputOutputService : IInputOutputService
     /// </returns>
     public string LoadTextFile()
     {
-        OpenFileDialog openFileDialog = new()
-        {
-            Filter = FileFilter,
-            ForcePreviewPane = true,
-            InitialDirectory = _defaultDirectory,
-            Multiselect = false,
-            Title = "Load Text File"
-        };
-
-        if (openFileDialog.ShowDialog() == true)
-        {
-#pragma warning disable CA1031 // Do not catch general exception types
-            try
-            {
-                return File.ReadAllText(openFileDialog.FileName);
-            }
-            catch (Exception ex)
-            {
-                string title = "File Load Error";
-                string message = $"Failed to load file: {openFileDialog.FileName}\nReason: {ex.Message}";
-                _ = MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-#pragma warning restore CA1031 // Do not catch general exception types
-        }
-
-        return string.Empty;
+        IOpenFileService fileService = _container.Resolve<IOpenFileService>();
+        fileService.Filter = FileFilter;
+        fileService.ForcePreviewPane = true;
+        fileService.InitialDirectory = _defaultDirectory;
+        fileService.Multiselect = false;
+        fileService.Title = "Load Text File";
+        return fileService.ShowDialog() is true ? fileService.ReadAllText() : string.Empty;
     }
 
     /// <summary>
     /// Saves the provided string content to a text file.
     /// </summary>
-    /// <param name="content">
-    /// The string content to be saved to the text file.
+    /// <param name="contents">
+    /// The string contents to be saved to the text file.
     /// </param>
-    public void SaveTextFile(string content)
+    public void SaveTextFile(string contents)
     {
-        SaveFileDialog saveFileDialog = new()
-        {
-            AddExtension = true,
-            DefaultExt = ".txt",
-            FileName = "Untitled.txt",
-            Filter = FileFilter,
-            InitialDirectory = _defaultDirectory,
-            OverwritePrompt = true,
-            Title = "Save Text File"
-        };
+        ISaveFileService saveFileService = _container.Resolve<ISaveFileService>();
+        saveFileService.AddExtension = true;
+        saveFileService.DefaultExt = ".txt";
+        saveFileService.FileName = "encrypted.txt";
+        saveFileService.Filter = FileFilter;
+        saveFileService.InitialDirectory = _defaultDirectory;
+        saveFileService.OverwritePrompt = true;
+        saveFileService.Title = "Save Text File";
 
-        bool? result = saveFileDialog.ShowDialog();
-
-        if (result is true)
+        if (saveFileService.ShowDialog() is true)
         {
-#pragma warning disable CA1031 // Do not catch general exception types
-            try
-            {
-                File.WriteAllText(saveFileDialog.FileName, content);
-            }
-            catch (Exception ex)
-            {
-                string title = "File Save Error";
-                string message = $"Failed to save file: {saveFileDialog.FileName}\nReason: {ex.Message}";
-                _ = MessageBox.Show(message, title, MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-#pragma warning restore CA1031 // Do not catch general exception types
+            saveFileService.WriteAllText(contents);
         }
     }
 }
