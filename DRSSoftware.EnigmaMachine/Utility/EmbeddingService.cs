@@ -47,83 +47,58 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         // Embed the number of rotors into the text.
         result.Add(IntToChar(configuration.NumberOfRotors));
 
-        // Embed the reflector index value into the text.
-        result.Add(IntToChar(configuration.ReflectorIndex));
+        int[] indexValues =
+            [
+            configuration.ReflectorIndex,
+            configuration.RotorIndex1,
+            configuration.RotorIndex2,
+            configuration.RotorIndex3,
+            configuration.RotorIndex4,
+            configuration.RotorIndex5,
+            configuration.RotorIndex6,
+            configuration.RotorIndex7,
+            configuration.RotorIndex8
+            ];
 
-        int rotorIndex = 0;
         int textIndex = 0;
 
-        // Embed the rotor index values into the text.
-        while (rotorIndex < configuration.NumberOfRotors)
+        // Embed the reflector and rotor index values into the text.
+        for (int i = 0; i <= configuration.NumberOfRotors; i++)
         {
-            if (!endOfInputText && textIndex < inputText.Length)
+            if (!endOfInputText)
             {
-                result.Add(inputText[textIndex++]);
-            }
-            else
-            {
-                if (textIndex == inputText.Length)
+                if (textIndex < inputText.Length)
+                {
+                    result.Add(inputText[textIndex++]);
+                }
+                else
                 {
                     result.Add(MaxChar);
                     endOfInputText = true;
                 }
             }
 
-            rotorIndex++;
-
-            switch (rotorIndex)
-            {
-                case 1:
-                    result.Add(IntToChar(configuration.RotorIndex1));
-                    break;
-
-                case 2:
-                    result.Add(IntToChar(configuration.RotorIndex2));
-                    break;
-
-                case 3:
-                    result.Add(IntToChar(configuration.RotorIndex3));
-                    break;
-
-                case 4:
-                    result.Add(IntToChar(configuration.RotorIndex4));
-                    break;
-
-                case 5:
-                    result.Add(IntToChar(configuration.RotorIndex5));
-                    break;
-
-                case 6:
-                    result.Add(IntToChar(configuration.RotorIndex6));
-                    break;
-
-                case 7:
-                    result.Add(IntToChar(configuration.RotorIndex7));
-                    break;
-
-                default:
-                    result.Add(IntToChar(configuration.RotorIndex8));
-                    break;
-            }
+            result.Add(IntToChar(indexValues[i]));
         }
 
         // Embed the seed value length into the text.
         result.Add(IntToChar(configuration.SeedValue.Length));
 
         int seedIndex = 0;
+        bool endOfSeedValue = false;
 
         // Embed the seed value into the text.
-        while (!endOfInputText || seedIndex < configuration.SeedValue.Length)
+        while (!(endOfInputText && endOfSeedValue))
         {
-            if (textIndex < inputText.Length)
+            if (!endOfInputText)
             {
-                result.Add(inputText[textIndex++]);
-            }
-            else
-            {
-                if (!endOfInputText)
+                if (textIndex < inputText.Length)
                 {
-                    if (seedIndex < configuration.SeedValue.Length)
+                    result.Add(inputText[textIndex++]);
+                }
+                else
+                {
+                    if (!endOfSeedValue)
                     {
                         result.Add(MaxChar);
                     }
@@ -132,9 +107,14 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
                 }
             }
 
-            if (seedIndex < configuration.SeedValue.Length)
+            if (!endOfSeedValue)
             {
                 result.Add(configuration.SeedValue[seedIndex++]);
+
+                if (seedIndex >= configuration.SeedValue.Length)
+                {
+                    endOfSeedValue = true;
+                }
             }
         }
 
@@ -176,9 +156,7 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         // Extract the number of rotors from the input text.
         int numberOfRotors = inputText[textIndex++] - MinChar;
 
-        // Extract the reflector index value from the text.
-        int reflectorIndex = inputText[textIndex++] - MinChar;
-
+        int reflectorIndex = 0;
         int rotorIndex1 = 0;
         int rotorIndex2 = 0;
         int rotorIndex3 = 0;
@@ -189,8 +167,8 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         int rotorIndex8 = 0;
         int rotorIndex = 0;
 
-        // Extract the rotor index values from the text.
-        while (rotorIndex < numberOfRotors)
+        // Extract the reflector and rotor index values from the text.
+        while (rotorIndex <= numberOfRotors)
         {
             if (!endOfInputText)
             {
@@ -206,43 +184,50 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
                 }
             }
 
-            int rotorIndexValue = inputText[textIndex++] - MinChar;
-            rotorIndex++;
+            int indexValue = inputText[textIndex++] - MinChar;
 
             switch (rotorIndex)
             {
+                case 0:
+                    reflectorIndex = indexValue;
+                    break;
                 case 1:
-                    rotorIndex1 = rotorIndexValue;
+                    rotorIndex1 = indexValue;
                     break;
 
                 case 2:
-                    rotorIndex2 = rotorIndexValue;
+                    rotorIndex2 = indexValue;
                     break;
 
                 case 3:
-                    rotorIndex3 = rotorIndexValue;
+                    rotorIndex3 = indexValue;
                     break;
 
                 case 4:
-                    rotorIndex4 = rotorIndexValue;
+                    rotorIndex4 = indexValue;
                     break;
 
                 case 5:
-                    rotorIndex5 = rotorIndexValue;
+                    rotorIndex5 = indexValue;
                     break;
 
                 case 6:
-                    rotorIndex6 = rotorIndexValue;
+                    rotorIndex6 = indexValue;
                     break;
 
                 case 7:
-                    rotorIndex7 = rotorIndexValue;
+                    rotorIndex7 = indexValue;
+                    break;
+
+                case 8:
+                    rotorIndex8 = indexValue;
                     break;
 
                 default:
-                    rotorIndex8 = rotorIndexValue;
                     break;
             }
+
+            rotorIndex++;
         }
 
         // Extract the seed value length from the text.

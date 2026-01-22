@@ -707,7 +707,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             return;
         }
 
-        InputText = _cloakingService.RemoveCloak(InputText, cloakText);
+        LoadInputText(_cloakingService.RemoveCloak(InputText, cloakText));
     }
 
     /// <summary>
@@ -743,23 +743,18 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             if (_embeddingService.HasIndicatorString(inputText))
             {
                 InputText = _embeddingService.Extract(inputText, out EnigmaConfiguration configuration);
-
-                if (!configuration.UseEmbeddedConfiguration)
-                {
-                    Reset();
-                    return;
-                }
-
                 _enigmaConfiguration.Update(configuration);
                 EnigmaMachine = _enigmaMachineBuilder.Build(_enigmaConfiguration);
                 UpdateProperties();
                 IsTransformExecuted = false;
+                return;
             }
             else
             {
                 InputText = inputText;
-                Reset();
             }
+
+            Reset();
         }
     }
 
