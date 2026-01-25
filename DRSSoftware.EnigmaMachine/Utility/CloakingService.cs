@@ -14,6 +14,9 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </summary>
     private readonly ISecureNumberGenerator _numberGenerator = numberGenerator;
 
+    private int _cloakIndex;
+    private string _cloakText = string.Empty;
+
     /// <summary>
     /// Cloak the given <paramref name="inputText" /> using the supplied
     /// <paramref name="cloakText" />.
@@ -33,24 +36,47 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     public string ApplyCloak(string inputText, string cloakText)
     {
-        int[] inValues = StringToIntArray(inputText);
-        int[] cloakValues = StringToIntArray(cloakText);
-        int[] outValues = new int[inValues.Length];
-        int cloakIndex = 0;
+        List<char> outputChars = [];
+        _cloakText = cloakText;
+        _cloakIndex = 0;
 
-        string indicatorString = GenerateIndicatorString();
+        outputChars.AddRange(GenerateIndicatorString());
 
-        for (int i = 0; i < inValues.Length; i++)
+        for (int i = 0; i < inputText.Length; i++)
         {
-            outValues[i] = inValues[i] - cloakValues[cloakIndex++];
+            char inputChar = inputText[i];
 
-            if (cloakIndex == cloakValues.Length)
+            // Ignore carriage return characters in the input string.
+            if (inputChar is CarriageReturn)
             {
-                cloakIndex = 0;
+                continue;
+            }
+
+            // Don't cloak or decloak delimiter characters.
+            if (inputChar is DelimiterChar)
+            {
+                outputChars.Add(DelimiterChar);
+                continue;
+            }
+
+            char cloakChar = GetNextCloakChar();
+
+            // Apply the cloaking transform to the input character using the given cloaking
+            // character.
+            char cloakedChar = ApplyCloak(inputChar, cloakChar);
+
+            // Replace MaxChar with new line characters (CR/LF on Windows systems).
+            if (cloakedChar is MaxChar)
+            {
+                outputChars.AddRange(Environment.NewLine);
+            }
+            else
+            {
+                outputChars.Add(cloakedChar);
             }
         }
 
-        return indicatorString + IntArrayToString(outValues);
+        return new([.. outputChars]);
     }
 
     /// <summary>
@@ -106,111 +132,129 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     public string RemoveCloak(string inputText, string cloakText)
     {
+        // Return the input text unchanged if it doesn't begin with the expected cloaking indicator
+        // characters.
         if (!HasIndicatorString(inputText))
         {
             return inputText;
         }
 
-        int[] inValues = StringToIntArray(inputText[(IndicatorSize * 2)..]);
-        int[] cloakValues = StringToIntArray(cloakText);
-        int[] outValues = new int[inValues.Length];
-        int cloakIndex = 0;
+        List<char> outputChars = [];
+        _cloakText = cloakText;
+        _cloakIndex = 0;
 
-        for (int i = 0; i < inValues.Length; i++)
+        for (int i = IndicatorSize * 2; i < inputText.Length; i++)
         {
-            outValues[i] = inValues[i] + cloakValues[cloakIndex++];
+            char inputChar = inputText[i];
 
-            if (cloakIndex == cloakValues.Length)
-            {
-                cloakIndex = 0;
-            }
-        }
-
-        return IntArrayToString(outValues);
-    }
-
-    /// <summary>
-    /// Converts an array of integers to the equivalent string representation.
-    /// </summary>
-    /// <param name="values">
-    /// An array of integers representing character values.
-    /// </param>
-    /// <returns>
-    /// The string value corresponding to the integers contained in the <paramref name="values" />
-    /// array.
-    /// </returns>
-    private static string IntArrayToString(int[] values)
-    {
-        List<char> outChars = [];
-
-        for (int i = 0; i < values.Length; i++)
-        {
-            int value = values[i];
-
-            while (value < MinValue)
-            {
-                value += MaxValue + 1;
-            }
-
-            while (value > MaxValue)
-            {
-                value -= MaxValue + 1;
-            }
-
-            if (value is MaxValue)
-            {
-                outChars.AddRange(Environment.NewLine);
-            }
-            else
-            {
-                outChars.Add((char)(value + MinChar));
-            }
-        }
-
-        return new([.. outChars]);
-    }
-
-    /// <summary>
-    /// Converts the specified string to an array of integers.
-    /// </summary>
-    /// <remarks>
-    /// Carriage return characters are skipped. Line feed characters are mapped to the maximum
-    /// value. All other characters are mapped based on their offset from the minimum character
-    /// value, with out-of-range characters replaced by the minimum character.
-    /// </remarks>
-    /// <param name="text">
-    /// The input string to convert.
-    /// </param>
-    /// <returns>
-    /// An array of integers representing the mapped values of the input string's characters.
-    /// </returns>
-    private static int[] StringToIntArray(string text)
-    {
-        List<int> result = [];
-        char[] chars = text.ToCharArray();
-
-        for (int i = 0; i < text.Length; i++)
-        {
-            if (chars[i] is CarriageReturn)
+            // Ignore carriage return characters in the input string.
+            if (inputChar is CarriageReturn)
             {
                 continue;
             }
 
-            if (chars[i] is LineFeed)
+            // Don't cloak or decloak delimiter characters.
+            if (inputChar is DelimiterChar)
             {
-                result.Add(MaxValue);
+                outputChars.Add(DelimiterChar);
+                continue;
             }
-            else if (chars[i] is < MinChar or >= MaxChar)
+
+            char cloakChar = GetNextCloakChar();
+
+            // Remove the cloaking transform from the input character using the given cloaking
+            // character.
+            char decloakedChar = RemoveCloak(inputChar, cloakChar);
+
+            // Replace MaxChar with new line characters (CR/LF on Windows systems).
+            if (decloakedChar is MaxChar)
             {
-                result.Add(MinValue);
+                outputChars.AddRange(Environment.NewLine);
             }
             else
             {
-                result.Add(chars[i] - MinChar);
+                outputChars.Add(decloakedChar);
             }
         }
 
-        return [.. result];
+        return new([.. outputChars]);
+    }
+
+    /// <summary>
+    /// Adjust the input character by replacing line feed characters with MaxChar.
+    /// </summary>
+    /// <remarks>
+    /// This method assumes that any input characters that aren't line feed characters will be in
+    /// the range between MinChar and MaxChar.
+    /// </remarks>
+    /// <param name="inputChar">
+    /// The input character to be adjusted.
+    /// </param>
+    /// <returns>
+    /// An input character within the valid range of characters between MinChar and MaxChar.
+    /// </returns>
+    private static int AdjustInputChar(char inputChar)
+    {
+        return inputChar is LineFeed
+            ? MaxValue
+            : inputChar - MinChar;
+    }
+
+    /// <summary>
+    /// Apply the cloaking transform to the given input character using the specified cloak
+    /// character.
+    /// </summary>
+    /// <param name="inputChar">
+    /// The input character that is to be cloaked.
+    /// </param>
+    /// <param name="cloakChar">
+    /// The cloaking character that is used by the cloaking transform to cloak the input character.
+    /// </param>
+    /// <returns>
+    /// The transformed input character after the cloak has been applied.
+    /// </returns>
+    private static char ApplyCloak(char inputChar, char cloakChar)
+    {
+        int inValue = AdjustInputChar(inputChar);
+        int cloakValue = cloakChar - MinChar;
+
+        int cloakedValue = inValue - cloakValue;
+
+        while (cloakedValue < 0)
+        {
+            cloakedValue += MaxValue + 1;
+        }
+
+        return (char)(cloakedValue + MinChar);
+    }
+
+    /// <summary>
+    /// Remove the cloaking transform from the given input character using the specified cloak
+    /// character.
+    /// </summary>
+    /// <param name="inputChar">
+    /// The input character that is to be decloaked.
+    /// </param>
+    /// <param name="cloakChar">
+    /// The cloaking character that is used by the cloaking transform to decloak the input
+    /// character.
+    /// </param>
+    /// <returns>
+    /// The transformed input character after the cloak has been removed.
+    /// </returns>
+    private static char RemoveCloak(char inputChar, char cloakChar)
+    {
+        int inValue = AdjustInputChar(inputChar);
+        int cloakValue = cloakChar - MinChar;
+
+        int cloakedValue = inValue + cloakValue;
+
+        while (cloakedValue > MaxValue)
+        {
+            cloakedValue -= MaxValue + 1;
+        }
+
+        return (char)(cloakedValue + MinChar);
     }
 
     /// <summary>
@@ -231,5 +275,51 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         }
 
         return new string(indicatorChars);
+    }
+
+    /// <summary>
+    /// Get the next cloaking character. Wrap around back to the beginning of the cloak string if we
+    /// reach the end.
+    /// </summary>
+    /// <remarks>
+    /// Carriage return characters are skipped if found in the cloaking string.
+    /// </remarks>
+    /// <returns>
+    /// The next character from the cloaking string.
+    /// </returns>
+    private char GetNextCloakChar()
+    {
+        int saveIndex = _cloakIndex;
+
+        if (_cloakIndex >= _cloakText.Length)
+        {
+            _cloakIndex = 0;
+        }
+
+        while (_cloakText[_cloakIndex] is CarriageReturn)
+        {
+            if (++_cloakIndex >= _cloakText.Length)
+            {
+                _cloakIndex = 0;
+            }
+
+            // Ensure that we can't enter into an endless loop.
+            if (saveIndex == _cloakIndex)
+            {
+                break;
+            }
+        }
+
+        char cloakChar = _cloakText[_cloakIndex++];
+
+        // Ensure the cloak character is within the valid range of values between MinChar and
+        // MaxChar before returning it to the caller of this method.
+        return cloakChar is LineFeed
+            ? MaxChar
+            : cloakChar is < MinChar
+                ? MinChar
+                : cloakChar is >= MaxChar
+                    ? (char)(MinChar + ((cloakChar - MinChar) % (MaxValue + 1)))
+                    : cloakChar;
     }
 }

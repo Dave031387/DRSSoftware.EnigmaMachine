@@ -27,6 +27,12 @@ public static class GlobalValues
     public const string ConfiguredStatusText = "Configured";
 
     /// <summary>
+    /// A character value used by the embedding algorithm to mark the end of one of the sequences
+    /// (input text, seed value text, or reflector and rotor index values).
+    /// </summary>
+    public const char DelimiterChar = '\u0096';
+
+    /// <summary>
     /// The value obtained when a pair of corresponding embedded indicator characters are added
     /// together.
     /// </summary>

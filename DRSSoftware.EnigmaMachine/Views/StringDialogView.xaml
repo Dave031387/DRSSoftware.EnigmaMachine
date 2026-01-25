@@ -9,12 +9,11 @@
     xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
     Title="{Binding Title}"
     Width="450"
-    Height="200"
+    Height="250"
     d:DataContext="{d:DesignInstance Type=vm:StringDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <Window.InputBindings>
-        <KeyBinding Key="Enter" Command="{Binding AcceptCommand}" />
         <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
     </Window.InputBindings>
     <i:Interaction.Behaviors>
@@ -51,6 +50,7 @@
                 VerticalScrollBarVisibility="Auto">
                 <TextBox
                     x:Name="inputTextBox"
+                    AcceptsReturn="True"
                     Style="{StaticResource editableTextBoxStyle}"
                     Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>

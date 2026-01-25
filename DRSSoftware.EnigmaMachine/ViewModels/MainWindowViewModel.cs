@@ -624,7 +624,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// <returns>
     /// A value indicating whether or not the Transform command can be executed.
     /// </returns>
-    private bool CanTransform => IsConfigured && InputTextIsAvailable && !IsTransformExecuted;
+    private bool CanTransform => IsConfigured && InputTextIsAvailable && !IsTransformExecuted && !CanDecloak;
 
     /// <summary>
     /// Gets a value indicating whether or not the input text is available for processing.
@@ -727,6 +727,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         string inputText = _inputOutputService.LoadTextFile();
 
         LoadInputText(inputText);
+        OutputText = string.Empty;
     }
 
     /// <summary>

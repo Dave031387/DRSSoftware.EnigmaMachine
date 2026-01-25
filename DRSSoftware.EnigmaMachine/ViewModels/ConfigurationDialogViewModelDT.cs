@@ -39,6 +39,11 @@ internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigura
     public ICommand CancelCommand => new RelayCommand(static _ => { }, static _ => true);
 
     /// <summary>
+    /// Gets an ICommand used for clearing the contents of the seed value text box.
+    /// </summary>
+    public ICommand ClearCommand => new RelayCommand(static _ => { }, static _ => true);
+
+    /// <summary>
     /// Gets or sets a value indicating whether the associated view should be closed.
     /// </summary>
     public bool CloseTrigger

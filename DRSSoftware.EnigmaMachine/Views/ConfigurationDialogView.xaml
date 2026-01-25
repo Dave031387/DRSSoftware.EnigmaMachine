@@ -9,14 +9,13 @@
     xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
     Title="Enigma Machine Setup"
     Width="830"
-    Height="640"
+    Height="680"
     MinWidth="830"
-    MinHeight="640"
+    MinHeight="680"
     d:DataContext="{d:DesignInstance Type=vm:ConfigurationDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
     mc:Ignorable="d">
     <Window.InputBindings>
-        <KeyBinding Key="Enter" Command="{Binding AcceptCommand}" />
         <KeyBinding Key="Escape" Command="{Binding CancelCommand}" />
     </Window.InputBindings>
     <i:Interaction.Behaviors>
@@ -142,17 +141,39 @@
                 </StackPanel>
             </StackPanel>
             <StackPanel Style="{StaticResource configurationPanelStyle}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Style="{StaticResource titleTextBlockStyle}" Text="Seed Value" />
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="Auto" />
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
                     <TextBlock
-                        Margin="10,0,0,0"
-                        Style="{StaticResource smallTextBlockStyle}"
-                        Text="The seed value must be at least " />
-                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MinSeedValueLength, Mode=OneTime}" />
-                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" and no more than " />
-                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MaxSeedValueLength, Mode=OneTime}" />
-                    <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" characters long." />
-                </StackPanel>
+                        Grid.Column="0"
+                        Style="{StaticResource titleTextBlockStyle}"
+                        Text="Seed Value" />
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <TextBlock
+                            Margin="15,0,0,0"
+                            Style="{StaticResource smallTextBlockStyle}"
+                            Text="The seed value must be at least " />
+                        <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MinSeedValueLength, Mode=OneTime}" />
+                        <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" and no more than " />
+                        <TextBlock Style="{StaticResource smallTextBlockStyle}" Text="{Binding MaxSeedValueLength, Mode=OneTime}" />
+                        <TextBlock Style="{StaticResource smallTextBlockStyle}" Text=" characters long." />
+                    </StackPanel>
+                    <Border
+                        Grid.Column="3"
+                        Margin="10,2,20,2"
+                        Padding="2"
+                        Background="{StaticResource darkBrush}">
+                        <Button
+                            Grid.Column="3"
+                            Command="{Binding ClearCommand}"
+                            Content="Clear"
+                            Style="{StaticResource buttonStyle}" />
+                    </Border>
+                </Grid>
                 <StackPanel Margin="10" Orientation="Horizontal">
                     <StackPanel VerticalAlignment="Center">
                         <RadioButton
@@ -167,11 +188,12 @@
                     <StackPanel Orientation="Horizontal">
                         <ScrollViewer
                             Width="640"
-                            Height="60"
+                            Height="100"
                             HorizontalScrollBarVisibility="Auto"
                             VerticalScrollBarVisibility="Auto">
                             <TextBox
                                 x:Name="seedTextBox"
+                                AcceptsReturn="True"
                                 IsReadOnly="{Binding IsAutoSeedSelected}"
                                 Style="{StaticResource editableTextBoxStyle}"
                                 Text="{Binding SeedValue, UpdateSourceTrigger=PropertyChanged}" />

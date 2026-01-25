@@ -38,15 +38,13 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         }
 
         List<char> result = [];
+        int inputTextLength = inputText.Length;
+        int inputTextIndex = 0;
         bool endOfInputText = false;
-
-        // Add the indicator string to the start of the resulting text.
-        string indicatorString = GenerateIndicatorString();
-        result.AddRange(indicatorString);
-
-        // Embed the number of rotors into the text.
-        result.Add(IntToChar(configuration.NumberOfRotors));
-
+        string seedValue = configuration.SeedValue;
+        int seedValueLength = configuration.SeedValue.Length;
+        int seedValueIndex = 0;
+        bool endOfSeedValue = false;
         int[] indexValues =
             [
             configuration.ReflectorIndex,
@@ -59,66 +57,95 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
             configuration.RotorIndex7,
             configuration.RotorIndex8
             ];
+        int indexValuesLength = configuration.NumberOfRotors + 1;
+        int indexValuesIndex = 0;
+        bool endOfIndexValues = false;
 
-        int textIndex = 0;
+        // Ad the embedded indicator string to the beginning of the output text string.
+        result.AddRange(GenerateIndicatorString());
 
-        // Embed the reflector and rotor index values into the text.
-        for (int i = 0; i <= configuration.NumberOfRotors; i++)
+        while (!(endOfIndexValues && endOfSeedValue && endOfInputText))
         {
+            // Embed the next input text character to the result. Carriage return/line feed
+            // characters are first replace with a single MaxChar before embedding.
             if (!endOfInputText)
             {
-                if (textIndex < inputText.Length)
+                if (inputTextIndex >= inputTextLength)
                 {
-                    result.Add(inputText[textIndex++]);
-                }
-                else
-                {
-                    result.Add(MaxChar);
                     endOfInputText = true;
-                }
-            }
 
-            result.Add(IntToChar(indexValues[i]));
-        }
-
-        // Embed the seed value length into the text.
-        result.Add(IntToChar(configuration.SeedValue.Length));
-
-        int seedIndex = 0;
-        bool endOfSeedValue = false;
-
-        // Embed the seed value into the text.
-        while (!(endOfInputText && endOfSeedValue))
-        {
-            if (!endOfInputText)
-            {
-                if (textIndex < inputText.Length)
-                {
-                    result.Add(inputText[textIndex++]);
+                    if (!(endOfIndexValues && endOfSeedValue))
+                    {
+                        // Add a DelimiterChar to the result to indicate that we have reached the
+                        // end of the input text.
+                        result.Add(DelimiterChar);
+                    }
                 }
                 else
                 {
-                    if (!endOfSeedValue)
+                    char nextInputChar = inputText[inputTextIndex++];
+
+                    if (IsCarriageReturnLineFeed(nextInputChar, inputText, inputTextIndex))
                     {
-                        result.Add(MaxChar);
+                        result.Add(nextInputChar);
+                        nextInputChar = inputText[inputTextIndex++];
                     }
 
-                    endOfInputText = true;
+                    result.Add(nextInputChar);
                 }
             }
 
+            // Embed the next seed value character to the result. Note that carriage return/line
+            // feed pairs are kept together. (This assumes that a carriage return will always be
+            // followed by a line feed.)
             if (!endOfSeedValue)
             {
-                result.Add(configuration.SeedValue[seedIndex++]);
-
-                if (seedIndex >= configuration.SeedValue.Length)
+                if (seedValueIndex >= seedValueLength)
                 {
                     endOfSeedValue = true;
+
+                    if (!(endOfIndexValues && endOfInputText))
+                    {
+                        // Add a DelimiterChar to the result to indicate that we have reached the
+                        // end of the seed value.
+                        result.Add(DelimiterChar);
+                    }
+                }
+                else
+                {
+                    char nextSeedChar = seedValue[seedValueIndex++];
+
+                    if (IsCarriageReturnLineFeed(nextSeedChar, seedValue, seedValueIndex))
+                    {
+                        result.Add(nextSeedChar);
+                        nextSeedChar = seedValue[seedValueIndex++];
+                    }
+
+                    result.Add(nextSeedChar);
+                }
+            }
+
+            // Embed the next reflector or rotor index value to the result.
+            if (!endOfIndexValues)
+            {
+                if (indexValuesIndex >= indexValuesLength)
+                {
+                    endOfIndexValues = true;
+
+                    if (!(endOfSeedValue && endOfInputText))
+                    {
+                        // Add a DelimiterChar value to the result to indicate that we have reached
+                        // the end of the reflector and rotor index values.
+                        result.Add(DelimiterChar);
+                    }
+                }
+                else
+                {
+                    result.Add((char)(indexValues[indexValuesIndex++] + MinChar));
                 }
             }
         }
 
-        // Return the text with the embedded configuration.
         return new([.. result]);
     }
 
@@ -143,138 +170,106 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
     public string Extract(string inputText, out EnigmaConfiguration configuration)
     {
         configuration = new();
+        int inputTextLength = inputText.Length;
 
-        if (string.IsNullOrWhiteSpace(inputText) || inputText.Length < IndicatorSize * 2 || !HasIndicatorString(inputText))
+        if (string.IsNullOrWhiteSpace(inputText) || inputTextLength < IndicatorSize * 2 || !HasIndicatorString(inputText))
         {
             return inputText;
         }
 
-        List<char> result = [];
-        int textIndex = IndicatorSize * 2;
-        bool endOfInputText = false;
+        List<char> outputChars = [];
+        List<char> seedChars = [];
+        List<int> indexValues = [];
+        int inputTextIndex = IndicatorSize * 2;
+        bool endOfOutputText = false;
+        bool endOfSeedValue = false;
+        bool endOfIndexValues = false;
 
-        // Extract the number of rotors from the input text.
-        int numberOfRotors = inputText[textIndex++] - MinChar;
-
-        int reflectorIndex = 0;
-        int rotorIndex1 = 0;
-        int rotorIndex2 = 0;
-        int rotorIndex3 = 0;
-        int rotorIndex4 = 0;
-        int rotorIndex5 = 0;
-        int rotorIndex6 = 0;
-        int rotorIndex7 = 0;
-        int rotorIndex8 = 0;
-        int rotorIndex = 0;
-
-        // Extract the reflector and rotor index values from the text.
-        while (rotorIndex <= numberOfRotors)
+        do
         {
-            if (!endOfInputText)
+            // Extract the next output text character from the input text. If the character is a
+            // carriage return, then also extract the following line feed character.
+            if (!endOfOutputText)
             {
-                char nextChar = inputText[textIndex++];
+                char nextOutputChar = inputText[inputTextIndex++];
 
-                if (nextChar is MaxChar)
+                if (nextOutputChar is DelimiterChar)
                 {
-                    endOfInputText = true;
+                    // If the next input text character is a DelimiterChar, then we have already
+                    // extracted the last output text character.
+                    endOfOutputText = true;
                 }
                 else
                 {
-                    result.Add(nextChar);
+                    if (IsCarriageReturnLineFeed(nextOutputChar, inputText, inputTextIndex))
+                    {
+                        outputChars.Add(nextOutputChar);
+                        nextOutputChar = inputText[inputTextIndex++];
+                    }
+
+                    outputChars.Add(nextOutputChar);
                 }
             }
 
-            int indexValue = inputText[textIndex++] - MinChar;
-
-            switch (rotorIndex)
+            // Extract the next seed value character from the input text. If the character is a
+            // carriage return, then also extract the following line feed character.
+            if (!endOfSeedValue)
             {
-                case 0:
-                    reflectorIndex = indexValue;
-                    break;
-                case 1:
-                    rotorIndex1 = indexValue;
-                    break;
+                char nextSeedChar = inputText[inputTextIndex++];
 
-                case 2:
-                    rotorIndex2 = indexValue;
-                    break;
-
-                case 3:
-                    rotorIndex3 = indexValue;
-                    break;
-
-                case 4:
-                    rotorIndex4 = indexValue;
-                    break;
-
-                case 5:
-                    rotorIndex5 = indexValue;
-                    break;
-
-                case 6:
-                    rotorIndex6 = indexValue;
-                    break;
-
-                case 7:
-                    rotorIndex7 = indexValue;
-                    break;
-
-                case 8:
-                    rotorIndex8 = indexValue;
-                    break;
-
-                default:
-                    break;
-            }
-
-            rotorIndex++;
-        }
-
-        // Extract the seed value length from the text.
-        int seedLength = inputText[textIndex++] - MinChar;
-
-        char[] seedChars = new char[seedLength];
-        int seedIndex = 0;
-
-        // Extract the seed value from the text.
-        while (textIndex < inputText.Length)
-        {
-            if (!endOfInputText)
-            {
-                char nextChar = inputText[textIndex++];
-
-                if (nextChar is MaxChar)
+                if (nextSeedChar is DelimiterChar)
                 {
-                    endOfInputText = true;
+                    // If the next input text character is a DelimiterChar, then we have already
+                    // extracted the last seed value character.
+                    endOfSeedValue = true;
                 }
                 else
                 {
-                    result.Add(nextChar);
+                    if (IsCarriageReturnLineFeed(nextSeedChar, inputText, inputTextIndex))
+                    {
+                        seedChars.Add(nextSeedChar);
+                        nextSeedChar = inputText[inputTextIndex++];
+                    }
+
+                    seedChars.Add(nextSeedChar);
                 }
             }
 
-            if (seedIndex < seedLength)
+            // Extract the next reflector or rotor index value from the input text.
+            if (!endOfIndexValues)
             {
-                seedChars[seedIndex++] = inputText[textIndex++];
+                char nextIndexChar = inputText[inputTextIndex++];
+
+                if (nextIndexChar is DelimiterChar)
+                {
+                    // If the next input text character is a DelimiterChar, then we have already
+                    // extracted the last of the reflector and rotor index values.
+                    endOfIndexValues = true;
+                }
+                else
+                {
+                    indexValues.Add(nextIndexChar - MinChar);
+                }
             }
-        }
+        } while (inputTextIndex < inputTextLength);
 
         // Save the Enigma configuration.
+        int numberOfRotors = indexValues.Count - 1;
         configuration.NumberOfRotors = numberOfRotors;
-        configuration.ReflectorIndex = reflectorIndex;
-        configuration.RotorIndex1 = rotorIndex1;
-        configuration.RotorIndex2 = rotorIndex2;
-        configuration.RotorIndex3 = rotorIndex3;
-        configuration.RotorIndex4 = rotorIndex4;
-        configuration.RotorIndex5 = rotorIndex5;
-        configuration.RotorIndex6 = rotorIndex6;
-        configuration.RotorIndex7 = rotorIndex7;
-        configuration.RotorIndex8 = rotorIndex8;
-        configuration.SeedValue = new(seedChars);
+        configuration.ReflectorIndex = indexValues[0];
+        configuration.RotorIndex1 = numberOfRotors > 0 ? indexValues[1] : 0;
+        configuration.RotorIndex2 = numberOfRotors > 1 ? indexValues[2] : 0;
+        configuration.RotorIndex3 = numberOfRotors > 2 ? indexValues[3] : 0;
+        configuration.RotorIndex4 = numberOfRotors > 3 ? indexValues[4] : 0;
+        configuration.RotorIndex5 = numberOfRotors > 4 ? indexValues[5] : 0;
+        configuration.RotorIndex6 = numberOfRotors > 5 ? indexValues[6] : 0;
+        configuration.RotorIndex7 = numberOfRotors > 6 ? indexValues[7] : 0;
+        configuration.RotorIndex8 = numberOfRotors > 7 ? indexValues[8] : 0;
+        configuration.SeedValue = new([.. seedChars]);
         configuration.UseEmbeddedConfiguration = false;
 
         // Return the input text with the embedded configuration data removed.
-        return new([.. result]);
+        return new([.. outputChars]);
     }
 
     /// <summary>
@@ -310,15 +305,24 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
     }
 
     /// <summary>
-    /// Convert an integer value to its corresponding character value.
+    /// Determine if the current position in the given text string is the start of a Carriage
+    /// Return/Line Feed pair.
     /// </summary>
-    /// <param name="value">
-    /// The integer value to be converted to a character value.
+    /// <param name="firstChar">
+    /// The first character in the potential CR/LF pair.
+    /// </param>
+    /// <param name="text">
+    /// The text string that is being checked.
+    /// </param>
+    /// <param name="textIndex">
+    /// The index of the next character position in the text string.
     /// </param>
     /// <returns>
-    /// The character value corresponding to the given integer value.
+    /// <see langword="true" /> if the current position in the given text string contains a Carriage
+    /// Return/Line Feed pair.
     /// </returns>
-    private static char IntToChar(int value) => (char)(value + MinChar);
+    private static bool IsCarriageReturnLineFeed(char firstChar, string text, int textIndex)
+        => firstChar is CarriageReturn && textIndex < text.Length && text[textIndex] is LineFeed;
 
     /// <summary>
     /// Generates a random indicator string used for embedding configuration data.

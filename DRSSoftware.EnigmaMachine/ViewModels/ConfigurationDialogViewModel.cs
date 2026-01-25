@@ -147,6 +147,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     {
         AcceptCommand = new RelayCommand(_ => Accept(), _ => CanAccept);
         CancelCommand = new RelayCommand(_ => Cancel(), _ => true);
+        ClearCommand = new RelayCommand(_ => Clear(), _ => CanClear);
         _numberGenerator = numberGenerator;
     }
 
@@ -180,6 +181,15 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// the associated dialog.
     /// </summary>
     public ICommand CancelCommand
+    {
+        get;
+    }
+
+    /// <summary>
+    /// Gets an ICommand used for discarding the user-specified configuration settings and closing
+    /// the associated dialog.
+    /// </summary>
+    public ICommand ClearCommand
     {
         get;
     }
@@ -624,6 +634,15 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
         && (_seedValue.Length is >= MinStringLength and <= MaxSeedLength);
 
     /// <summary>
+    /// Gets a value indicating whether or not the Clear command can be executed.
+    /// </summary>
+    /// <remarks>
+    /// The only requirement is that the seed value text is not null or empty and the seed isn't
+    /// auto-generated.
+    /// </remarks>
+    private bool CanClear => !string.IsNullOrWhiteSpace(_seedValue) && !IsAutoSeedSelected;
+
+    /// <summary>
     /// Initializes the view model with the current Enigma machine configuration.
     /// </summary>
     /// <param name="enigmaConfiguration">
@@ -674,6 +693,11 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// CloseTrigger to true.
     /// </summary>
     private void Cancel() => CloseTrigger = true;
+
+    /// <summary>
+    /// Clear the contents of the seed value text box.
+    /// </summary>
+    private void Clear() => SeedValue = string.Empty;
 
     /// <summary>
     /// Generate random index values for the reflector and rotors.
