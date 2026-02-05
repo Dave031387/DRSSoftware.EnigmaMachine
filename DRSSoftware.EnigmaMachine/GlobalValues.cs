@@ -1,4 +1,9 @@
-﻿namespace DRSSoftware.EnigmaMachine;
+﻿using System.Runtime.CompilerServices;
+
+[assembly: InternalsVisibleTo("DRSSoftware.EnigmaMachine.Tests")]
+[assembly: InternalsVisibleTo("DynamicProxyGenAssembly2")]
+
+namespace DRSSoftware.EnigmaMachine;
 
 /// <summary>
 /// This static class defines all of the common constant values used in the Enigma machine.
@@ -47,7 +52,13 @@ public static class GlobalValues
     /// The number of character pairs that make up the cloaking indicator string or the embedded
     /// configuration indicator string.
     /// </summary>
-    public const int IndicatorSize = 3;
+    public const int IndicatorPairs = 3;
+
+    /// <summary>
+    /// The total size of the cloaking indicator string or the embedded configuration indicator
+    /// string.
+    /// </summary>
+    public const int IndicatorSize = IndicatorPairs * 2;
 
     /// <summary>
     /// The line feed character ('\n', or U+000A).

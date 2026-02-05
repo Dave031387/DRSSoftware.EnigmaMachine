@@ -5,9 +5,7 @@
     <Nullable>enable</Nullable>
     <OutputType>Exe</OutputType>
     <RootNamespace>$(MSBuildProjectName.Replace(" ", "_").Replace(".Tests", ""))</RootNamespace>
-    <TargetFramework>net10.0</TargetFramework>
-    <EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
-    <AnalysisLevel>latest-all</AnalysisLevel>
+    <TargetFramework>net10.0-windows10.0.17763.0</TargetFramework>
     <!--
     To enable the Microsoft Testing Platform 'dotnet test' experience, add property:
       <TestingPlatformDotnetTestSupport>true</TestingPlatformDotnetTestSupport>
@@ -40,10 +38,6 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
-    <PackageReference Include="xunit.analyzers" Version="1.27.0">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
     <PackageReference Include="xunit.v3" Version="3.2.2" />
     <PackageReference Include="xunit.runner.visualstudio" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
@@ -52,7 +46,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\DRSSoftware.EnigmaV2\DRSSoftware.EnigmaV2.csproj" />
+    <ProjectReference Include="..\DRSSoftware.EnigmaMachine\DRSSoftware.EnigmaMachine.csproj" />
   </ItemGroup>
 
 </Project>

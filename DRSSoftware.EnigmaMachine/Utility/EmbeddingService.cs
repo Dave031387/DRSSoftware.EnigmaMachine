@@ -172,7 +172,7 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         configuration = new();
         int inputTextLength = inputText.Length;
 
-        if (string.IsNullOrWhiteSpace(inputText) || inputTextLength < IndicatorSize * 2 || !HasIndicatorString(inputText))
+        if (string.IsNullOrWhiteSpace(inputText) || inputTextLength < IndicatorSize || !HasIndicatorString(inputText))
         {
             return inputText;
         }
@@ -180,7 +180,7 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
         List<char> outputChars = [];
         List<char> seedChars = [];
         List<int> indexValues = [];
-        int inputTextIndex = IndicatorSize * 2;
+        int inputTextIndex = IndicatorSize;
         bool endOfOutputText = false;
         bool endOfSeedValue = false;
         bool endOfIndexValues = false;
@@ -285,15 +285,15 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
     /// </returns>
     public bool HasIndicatorString(string inputText)
     {
-        if (inputText.Length < IndicatorSize * 2)
+        if (inputText.Length < IndicatorSize)
         {
             return false;
         }
 
-        for (int i = 0; i < IndicatorSize; i++)
+        for (int i = 0; i < IndicatorPairs; i++)
         {
             int firstCharValue = inputText[i];
-            int secondCharValue = inputText[i + IndicatorSize];
+            int secondCharValue = inputText[i + IndicatorPairs];
 
             if (firstCharValue + secondCharValue != EmbeddedIndicatorValue)
             {
@@ -332,13 +332,13 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
     /// </returns>
     private string GenerateIndicatorString()
     {
-        char[] indicatorChars = new char[IndicatorSize * 2];
+        char[] indicatorChars = new char[IndicatorSize];
 
-        for (int i = 0; i < IndicatorSize; i++)
+        for (int i = 0; i < IndicatorPairs; i++)
         {
             int indicatorValue = _numberGenerator.GetNext(MinChar, EmbeddingIndicatorChar);
             indicatorChars[i] = (char)indicatorValue;
-            indicatorChars[i + IndicatorSize] = (char)(EmbeddedIndicatorValue - indicatorValue);
+            indicatorChars[i + IndicatorPairs] = (char)(EmbeddedIndicatorValue - indicatorValue);
         }
 
         return new string(indicatorChars);

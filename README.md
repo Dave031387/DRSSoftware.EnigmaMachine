@@ -12,7 +12,7 @@ This project implements a software version of the original Enigma machine called
 original:
 - The original Enigma machine was only able to work with capital letters A through Z. Special sequences of characters had to be used to represent
   punctuation. The Enigma V2 software version works with all ASCII characters between the space character (Unicode 0020) and the tilde (~) character
-  (Unicode 017E). It also handles carriage return/line feed (CRLF) sequences, or just single line feeds, converting them to Unicode 017F while being
+  (Unicode 017E). It also handles carriage return/line feed (CRLF) sequences, or just single line feeds, converting them to Unicode 017F (DEL) while being
   processed and then converting them back when done.
 - The original Enigma machine had several pre-wired rotors used in enciphering messages. The rotors could be swapped in and out and placed in
   different order within the machine, but the wiring of individual rotors was fixed. With the Enigma V2 software version each rotor can be dynamically
@@ -627,7 +627,7 @@ version fails to meet the characteristics listed at the start of this section ev
 easiest way to create an Enigma machine of all the examples shown in this section.
 
 ## The Enigma Machine Application
-This repo also includes an implementation of a working Enigma machine based on the Enigma V2 class library and writen entirely in C# .NET 8 and WPF. A
+This repo also includes an implementation of a working Enigma machine based on the Enigma V2 class library and writen entirely in C# .NET 10 and WPF. A
 couple features have been added to this implementation that enhance the cryptographic capability of the Enigma machine. The remainder of this readme
 file explain the operation of the application.
 
@@ -642,7 +642,7 @@ The Enigma machine application implements the following features:
   the text file will be able to successfully decrypt it
 - The Enigma machine configuration can optionally be embedded within the encrypted text file, making it easier for the recipient of the text file to
   extract the decrypted text (it is hignly recommended that the cloaking transformation also be used if this option is used)
-- All of the options and features of the Enigma machine are accessible through a Windows UI built on WPF and C# .NET 8
+- All of the options and features of the Enigma machine are accessible through a Windows UI built on WPF and C# .NET 10
 
 ### The Enigma Machine Main Window
 The main window of the application is comprised of three sections as noted by the headings across the top of the window:

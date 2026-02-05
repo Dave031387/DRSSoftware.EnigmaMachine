@@ -92,15 +92,15 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     public bool HasIndicatorString(string inputText)
     {
-        if (inputText.Length < IndicatorSize * 2)
+        if (inputText.Length < IndicatorSize)
         {
             return false;
         }
 
-        for (int i = 0; i < IndicatorSize; i++)
+        for (int i = 0; i < IndicatorPairs; i++)
         {
             int firstCharValue = inputText[i];
-            int secondCharValue = inputText[i + IndicatorSize];
+            int secondCharValue = inputText[i + IndicatorPairs];
 
             if (firstCharValue + secondCharValue != CloakedIndicatorValue)
             {
@@ -143,7 +143,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         _cloakText = cloakText;
         _cloakIndex = 0;
 
-        for (int i = IndicatorSize * 2; i < inputText.Length; i++)
+        for (int i = IndicatorSize; i < inputText.Length; i++)
         {
             char inputChar = inputText[i];
 
@@ -265,13 +265,13 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     private string GenerateIndicatorString()
     {
-        char[] indicatorChars = new char[IndicatorSize * 2];
+        char[] indicatorChars = new char[IndicatorSize];
 
-        for (int i = 0; i < IndicatorSize; i++)
+        for (int i = 0; i < IndicatorPairs; i++)
         {
             int indicatorValue = _numberGenerator.GetNext(MinChar, CloakingIndicatorChar);
             indicatorChars[i] = (char)indicatorValue;
-            indicatorChars[i + IndicatorSize] = (char)(CloakedIndicatorValue - indicatorValue);
+            indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorValue);
         }
 
         return new string(indicatorChars);
@@ -289,12 +289,12 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     private char GetNextCloakChar()
     {
-        int saveIndex = _cloakIndex;
-
         if (_cloakIndex >= _cloakText.Length)
         {
             _cloakIndex = 0;
         }
+
+        int saveIndex = _cloakIndex;
 
         while (_cloakText[_cloakIndex] is CarriageReturn)
         {
@@ -316,10 +316,8 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         // MaxChar before returning it to the caller of this method.
         return cloakChar is LineFeed
             ? MaxChar
-            : cloakChar is < MinChar
-                ? MinChar
-                : cloakChar is >= MaxChar
-                    ? (char)(MinChar + ((cloakChar - MinChar) % (MaxValue + 1)))
-                    : cloakChar;
+            : cloakChar is < MinChar or >= MaxChar
+                ? (char)(MinChar + (cloakChar % (MaxValue + 1)))
+                : cloakChar;
     }
 }
