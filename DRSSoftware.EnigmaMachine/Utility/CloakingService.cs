@@ -92,7 +92,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     /// </returns>
     public bool HasIndicatorString(string inputText)
     {
-        if (inputText.Length < IndicatorSize)
+        if (inputText.Length <= IndicatorSize)
         {
             return false;
         }
@@ -316,7 +316,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         // MaxChar before returning it to the caller of this method.
         return cloakChar is LineFeed
             ? MaxChar
-            : cloakChar is < MinChar or >= MaxChar
+            : cloakChar is < MinChar or > MaxChar
                 ? (char)(MinChar + (cloakChar % (MaxValue + 1)))
                 : cloakChar;
     }
