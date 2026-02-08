@@ -94,16 +94,16 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
 
         result.AddRange(GenerateIndicatorString());
 
-        _inputTextIndex = 0;
-        _endOfInputText = false;
-        _seedValueIndex = 0;
-        _endOfSeedValue = false;
-        _indexValuesLength = configuration.NumberOfRotors + 1;
-        _indexValuesIndex = 0;
-        _endOfIndexValues = false;
-
         lock (_lock)
         {
+            _inputTextIndex = 0;
+            _endOfInputText = false;
+            _seedValueIndex = 0;
+            _endOfSeedValue = false;
+            _indexValuesLength = configuration.NumberOfRotors + 1;
+            _indexValuesIndex = 0;
+            _endOfIndexValues = false;
+
             while (!(_endOfIndexValues && _endOfSeedValue && _endOfInputText))
             {
                 if (!_endOfInputText)
