@@ -1,7 +1,5 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.Threading;
-
 /// <summary>
 /// A service used for applying and removing cloaking transformations on text.
 /// </summary>

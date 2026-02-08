@@ -32,6 +32,11 @@ public static class GlobalValues
     public const string ConfiguredStatusText = "Configured";
 
     /// <summary>
+    /// A string containing a Carriage Return/Line Feed pair of characters.
+    /// </summary>
+    public const string CRLF = "\r\n";
+
+    /// <summary>
     /// A character value used by the embedding algorithm to mark the end of one of the sequences
     /// (input text, seed value text, or reflector and rotor index values).
     /// </summary>
