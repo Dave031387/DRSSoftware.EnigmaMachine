@@ -3,21 +3,20 @@
 /// <summary>
 /// A service used for applying and removing cloaking transformations on text.
 /// </summary>
-/// <param name="numberGenerator">
-/// A reference to an object used for generating cryptographically secure random integer values.
+/// <param name="indicatorStringGenerator">
+/// A reference to an object used for generating indicator strings.
 /// </param>
-internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : ICloakingService
+internal sealed class CloakingService(IIndicatorStringGenerator indicatorStringGenerator) : ICloakingService
 {
+    /// <summary>
+    /// Holds a reference to the indicator string generator.
+    /// </summary>
+    private readonly IIndicatorStringGenerator _indicatorStringGenerator = indicatorStringGenerator;
+
     /// <summary>
     /// Lock object used to ensure thread safety.
     /// </summary>
     private readonly Lock _lock = new();
-
-    /// <summary>
-    /// Holds a reference to an object used for generating cryptographically secure random integer
-    /// values.
-    /// </summary>
-    private readonly ISecureNumberGenerator _numberGenerator = numberGenerator;
 
     /// <summary>
     /// Index that points to the current character in the cloaking text string.
@@ -55,7 +54,7 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
             _cloakText = cloakText;
             _cloakIndex = 0;
 
-            outputChars.AddRange(GenerateIndicatorString());
+            outputChars.AddRange(_indicatorStringGenerator.GetIndicatorString(CloakingIndicatorChar));
 
             for (int i = 0; i < inputText.Length; i++)
             {
@@ -275,26 +274,6 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         }
 
         return (char)(cloakedValue + MinChar);
-    }
-
-    /// <summary>
-    /// Generates a random indicator string used for cloaking.
-    /// </summary>
-    /// <returns>
-    /// A new randomly generated indicator string.
-    /// </returns>
-    private string GenerateIndicatorString()
-    {
-        char[] indicatorChars = new char[IndicatorSize];
-
-        for (int i = 0; i < IndicatorPairs; i++)
-        {
-            int indicatorValue = _numberGenerator.GetNext(MinChar, CloakingIndicatorChar);
-            indicatorChars[i] = (char)indicatorValue;
-            indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorValue);
-        }
-
-        return new string(indicatorChars);
     }
 
     /// <summary>

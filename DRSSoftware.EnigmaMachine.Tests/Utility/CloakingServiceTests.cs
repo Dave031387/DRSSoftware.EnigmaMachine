@@ -64,17 +64,10 @@ public class CloakingServiceTests
     [Theory]
     [InlineData(MinChar)]
     [InlineData(CloakingIndicatorChar - IndicatorPairs)]
-    public void ApplyCloak_ShouldGenerateValidIndicatorString(int firstIndicatorChar)
+    public void ApplyCloak_ShouldGenerateValidIndicatorString(char firstIndicatorChar)
     {
         // Arrange
-        int[] generatedNumbers = new int[IndicatorPairs];
-
-        for (int i = 0; i < IndicatorPairs; i++)
-        {
-            generatedNumbers[i] = firstIndicatorChar + i;
-        }
-
-        CloakingService cloakingService = GetCloakingServiceForApply(generatedNumbers);
+        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar);
         string inputText = "This is a long sentence that is going to be cloaked by this unit test.";
         string cloakingText = "Cloaking text!";
         string expected = GetCloakingIndicatorString((char)firstIndicatorChar);
@@ -162,14 +155,8 @@ public class CloakingServiceTests
     public void ApplyCloak_ShouldSkipCarriageReturnsInCloakingText()
     {
         // Arrange
-        int[] generatedNumbers = new int[IndicatorPairs * 2];
-
-        for (int i = 0; i < IndicatorPairs * 2; i++)
-        {
-            generatedNumbers[i] = i + 1;
-        }
-
-        CloakingService cloakingService = GetCloakingServiceForApply(generatedNumbers);
+        char firstIndicatorChar = (char)(MinChar + 1);
+        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar, firstIndicatorChar);
         string inputText = "This is a long sentence that is going to be cloaked by this unit test.";
         string cloakingText1 = " !\"#$%&'()";
         string cloakingText2 = "\r\r !\r\"#$%\r\r&'()\r";
@@ -189,14 +176,8 @@ public class CloakingServiceTests
     public void ApplyCloak_ShouldSkipCarriageReturnsInInputText()
     {
         // Arrange
-        int[] generatedNumbers = new int[IndicatorPairs * 2];
-
-        for (int i = 0; i < IndicatorPairs * 2; i++)
-        {
-            generatedNumbers[i] = i + 1;
-        }
-
-        CloakingService cloakingService = GetCloakingServiceForApply(generatedNumbers);
+        char firstIndicatorChar = (char)(MinChar + 1);
+        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar, firstIndicatorChar);
         string inputText1 = "This is a long sentence that is going to be cloaked by this unit test.";
         string inputText2 = "\r\rThis is a long sen\rtence that is going\r\r to be cloaked by this unit test.\r";
         string cloakingText = " !\"#$%&'()";
@@ -329,28 +310,33 @@ public class CloakingServiceTests
         return new(indicatorChars);
     }
 
-    private static CloakingService GetCloakingServiceForApply(params int[] generatedIntegers)
+    private static CloakingService GetCloakingServiceForApply(params char[] firstChar)
     {
-        if (generatedIntegers.Length % IndicatorPairs != 0)
-        {
-            throw new ArgumentException($"The number of values passed into the {nameof(GetCloakingServiceForRemove)} method must be a multiple of {IndicatorPairs}.");
-        }
+        char[] indicatorChars = new char[IndicatorSize];
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        ISetupSequentialResult<string> sequence = mockGenerator.SetupSequence(static m => m.GetIndicatorString(CloakingIndicatorChar));
 
-        Mock<ISecureNumberGenerator> mockGenerator = new(MockBehavior.Strict);
-        ISetupSequentialResult<int> sequence = mockGenerator.SetupSequence(static m => m.GetNext(MinChar, CloakingIndicatorChar));
-
-        if (generatedIntegers.Length is 0)
+        if (firstChar.Length is 0)
         {
-            for (int i = 1; i < IndicatorPairs + 1; i++)
+            for (int i = 0; i < IndicatorPairs; i++)
             {
-                sequence = sequence.Returns(i);
+                indicatorChars[i] = (char)(MinChar + i);
+                indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorChars[i]);
             }
+
+            sequence = sequence.Returns(new string(indicatorChars));
         }
         else
         {
-            for (int i = 0; i < generatedIntegers.Length; i++)
+            for (int j = 0; j < firstChar.Length; j++)
             {
-                sequence = sequence.Returns(generatedIntegers[i]);
+                for (int i = 0; i < IndicatorPairs; i++)
+                {
+                    indicatorChars[i] = (char)(firstChar[j] + i);
+                    indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorChars[i]);
+                }
+
+                sequence = sequence.Returns(new string(indicatorChars));
             }
         }
 
@@ -360,8 +346,8 @@ public class CloakingServiceTests
 
     private static CloakingService GetCloakingServiceForRemove()
     {
-        Mock<ISecureNumberGenerator> mockGenerator = new(MockBehavior.Strict);
-        mockGenerator.Setup(static m => m.GetNext(It.IsAny<int>(), It.IsAny<int>()))
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        mockGenerator.Setup(static m => m.GetIndicatorString(It.IsAny<char>()))
             .Throws<InvalidOperationException>();
         return new(mockGenerator.Object);
     }

@@ -3,10 +3,10 @@
 /// <summary>
 /// A service used for embedding/extracting the Enigma configuration into/out of a text string.
 /// </summary>
-/// <param name="numberGenerator">
-/// A reference to an object used for generating cryptographically secure random integer values.
+/// <param name="indicatorStringGenerator">
+/// A reference to an object used for generating indicator strings.
 /// </param>
-internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) : IEmbeddingService
+internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorStringGenerator) : IEmbeddingService
 {
     /// <summary>
     /// Lock object used to ensure thread safety.
@@ -14,10 +14,9 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
     private readonly Lock _lock = new();
 
     /// <summary>
-    /// Holds a reference to an object used for generating cryptographically secure random integer
-    /// values.
+    /// Holds a reference to the indicator string generator.
     /// </summary>
-    private readonly ISecureNumberGenerator _numberGenerator = numberGenerator;
+    private readonly IIndicatorStringGenerator _indicatorStringGenerator = indicatorStringGenerator;
 
     /// <summary>
     /// Holds a value indicating whether or not we have reached the end of the index values.
@@ -92,7 +91,7 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
             configuration.RotorIndex8
             ];
 
-        result.AddRange(GenerateIndicatorString());
+        result.AddRange(_indicatorStringGenerator.GetIndicatorString(EmbeddingIndicatorChar));
 
         lock (_lock)
         {
@@ -451,25 +450,5 @@ internal sealed class EmbeddingService(ISecureNumberGenerator numberGenerator) :
 
             return new([nextSeedChar]);
         }
-    }
-
-    /// <summary>
-    /// Generates a random indicator string used for embedding configuration data.
-    /// </summary>
-    /// <returns>
-    /// A new randomly generated indicator string.
-    /// </returns>
-    private string GenerateIndicatorString()
-    {
-        char[] indicatorChars = new char[IndicatorSize];
-
-        for (int i = 0; i < IndicatorPairs; i++)
-        {
-            int indicatorValue = _numberGenerator.GetNext(MinChar, EmbeddingIndicatorChar);
-            indicatorChars[i] = (char)indicatorValue;
-            indicatorChars[i + IndicatorPairs] = (char)(EmbeddedIndicatorValue - indicatorValue);
-        }
-
-        return new string(indicatorChars);
     }
 }

@@ -28,6 +28,7 @@ public partial class App : Application
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
             .AddSingleton<IEmbeddingService, EmbeddingService>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
+            .AddSingleton<IIndicatorStringGenerator, IndicatorStringGenerator>()
             .AddSingleton<IInputOutputService, InputOutputService>()
             .AddSingleton<IMainWindowViewModel, MainWindowViewModel>()
             .AddTransient<IOpenFileService, OpenFileService>()
