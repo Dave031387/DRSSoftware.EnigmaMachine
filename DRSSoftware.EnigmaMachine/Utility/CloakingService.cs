@@ -1,5 +1,7 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using System.Threading;
+
 /// <summary>
 /// A service used for applying and removing cloaking transformations on text.
 /// </summary>
@@ -9,12 +11,24 @@
 internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : ICloakingService
 {
     /// <summary>
+    /// Lock object used to ensure thread safety.
+    /// </summary>
+    private readonly Lock _lock = new();
+
+    /// <summary>
     /// Holds a reference to an object used for generating cryptographically secure random integer
     /// values.
     /// </summary>
     private readonly ISecureNumberGenerator _numberGenerator = numberGenerator;
 
+    /// <summary>
+    /// Index that points to the current character in the cloaking text string.
+    /// </summary>
     private int _cloakIndex;
+
+    /// <summary>
+    /// The text string used for applying and removing the cloak.
+    /// </summary>
     private string _cloakText = string.Empty;
 
     /// <summary>
@@ -37,42 +51,46 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
     public string ApplyCloak(string inputText, string cloakText)
     {
         List<char> outputChars = [];
-        _cloakText = cloakText;
-        _cloakIndex = 0;
 
-        outputChars.AddRange(GenerateIndicatorString());
-
-        for (int i = 0; i < inputText.Length; i++)
+        lock (_lock)
         {
-            char inputChar = inputText[i];
+            _cloakText = cloakText;
+            _cloakIndex = 0;
 
-            // Ignore carriage return characters in the input string.
-            if (inputChar is CarriageReturn)
+            outputChars.AddRange(GenerateIndicatorString());
+
+            for (int i = 0; i < inputText.Length; i++)
             {
-                continue;
-            }
+                char inputChar = inputText[i];
 
-            // Don't cloak or decloak delimiter characters.
-            if (inputChar is DelimiterChar)
-            {
-                outputChars.Add(DelimiterChar);
-                continue;
-            }
+                // Ignore carriage return characters in the input string.
+                if (inputChar is CarriageReturn)
+                {
+                    continue;
+                }
 
-            char cloakChar = GetNextCloakChar();
+                // Don't cloak or decloak delimiter characters.
+                if (inputChar is DelimiterChar)
+                {
+                    outputChars.Add(DelimiterChar);
+                    continue;
+                }
 
-            // Apply the cloaking transform to the input character using the given cloaking
-            // character.
-            char cloakedChar = ApplyCloak(inputChar, cloakChar);
+                char cloakChar = GetNextCloakChar();
 
-            // Replace MaxChar with new line characters (CR/LF on Windows systems).
-            if (cloakedChar is MaxChar)
-            {
-                outputChars.AddRange(Environment.NewLine);
-            }
-            else
-            {
-                outputChars.Add(cloakedChar);
+                // Apply the cloaking transform to the input character using the given cloaking
+                // character.
+                char cloakedChar = ApplyCloak(inputChar, cloakChar);
+
+                // Replace MaxChar with new line characters (CR/LF on Windows systems).
+                if (cloakedChar is MaxChar)
+                {
+                    outputChars.AddRange(Environment.NewLine);
+                }
+                else
+                {
+                    outputChars.Add(cloakedChar);
+                }
             }
         }
 
@@ -140,40 +158,44 @@ internal sealed class CloakingService(ISecureNumberGenerator numberGenerator) : 
         }
 
         List<char> outputChars = [];
-        _cloakText = cloakText;
-        _cloakIndex = 0;
 
-        for (int i = IndicatorSize; i < inputText.Length; i++)
+        lock (_lock)
         {
-            char inputChar = inputText[i];
+            _cloakText = cloakText;
+            _cloakIndex = 0;
 
-            // Ignore carriage return characters in the input string.
-            if (inputChar is CarriageReturn)
+            for (int i = IndicatorSize; i < inputText.Length; i++)
             {
-                continue;
-            }
+                char inputChar = inputText[i];
 
-            // Don't cloak or decloak delimiter characters.
-            if (inputChar is DelimiterChar)
-            {
-                outputChars.Add(DelimiterChar);
-                continue;
-            }
+                // Ignore carriage return characters in the input string.
+                if (inputChar is CarriageReturn)
+                {
+                    continue;
+                }
 
-            char cloakChar = GetNextCloakChar();
+                // Don't cloak or decloak delimiter characters.
+                if (inputChar is DelimiterChar)
+                {
+                    outputChars.Add(DelimiterChar);
+                    continue;
+                }
 
-            // Remove the cloaking transform from the input character using the given cloaking
-            // character.
-            char decloakedChar = RemoveCloak(inputChar, cloakChar);
+                char cloakChar = GetNextCloakChar();
 
-            // Replace MaxChar with new line characters (CR/LF on Windows systems).
-            if (decloakedChar is MaxChar)
-            {
-                outputChars.AddRange(Environment.NewLine);
-            }
-            else
-            {
-                outputChars.Add(decloakedChar);
+                // Remove the cloaking transform from the input character using the given cloaking
+                // character.
+                char decloakedChar = RemoveCloak(inputChar, cloakChar);
+
+                // Replace MaxChar with new line characters (CR/LF on Windows systems).
+                if (decloakedChar is MaxChar)
+                {
+                    outputChars.AddRange(Environment.NewLine);
+                }
+                else
+                {
+                    outputChars.Add(decloakedChar);
+                }
             }
         }
 
