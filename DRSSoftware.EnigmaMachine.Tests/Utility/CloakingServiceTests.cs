@@ -340,7 +340,7 @@ public class CloakingServiceTests
             }
         }
 
-        sequence = sequence.Throws<InvalidOperationException>();
+        sequence = sequence.Throws(new InvalidOperationException("No more numbers should be generated."));
         return new(mockGenerator.Object);
     }
 
@@ -348,7 +348,7 @@ public class CloakingServiceTests
     {
         Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
         mockGenerator.Setup(static m => m.GetIndicatorString(It.IsAny<char>()))
-            .Throws<InvalidOperationException>();
+            .Throws(new InvalidOperationException("No numbers should be generated."));
         return new(mockGenerator.Object);
     }
 }
