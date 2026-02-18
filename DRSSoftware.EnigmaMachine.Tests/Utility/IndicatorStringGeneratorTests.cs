@@ -1,7 +1,4 @@
-﻿namespace DRSSoftware.EnigmaMachine;
-
-using DRSSoftware.EnigmaMachine.Utility;
-using Moq.Language;
+﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
 public class IndicatorStringGeneratorTests
 {

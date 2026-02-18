@@ -1,7 +1,5 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using Moq.Language;
-
 public class CloakingServiceTests
 {
     [Fact]

@@ -24,7 +24,7 @@ public static class GlobalValues
     /// <summary>
     /// A character value that is one higher than the maximum cloaking indicator value.
     /// </summary>
-    public const char CloakingIndicatorChar = (char)(MaxChar - 2);
+    public const char CloakingIndicatorChar = (char)(EmbeddingIndicatorChar - 1);
 
     /// <summary>
     /// Text displayed when the Enigma machine is properly configured.
