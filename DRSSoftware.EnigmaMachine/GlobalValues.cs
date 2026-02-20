@@ -98,6 +98,16 @@ public static class GlobalValues
     public const char MinChar = '\u0020';
 
     /// <summary>
+    /// The minimum valid size of an embedded text string.
+    /// </summary>
+    /// <remarks>
+    /// The size is based on the size of the indicator string, the minimum number of rotors, and the
+    /// minimum length of the seed value string plus 4 (one for the reflector index value, one for
+    /// the encrypted text string, and two for the two delimiter characters).
+    /// </remarks>
+    public const int MinEmbeddedStringSize = IndicatorSize + MinRotorCount + MinStringLength + 4;
+
+    /// <summary>
     /// The minimum number of rotors supported by the Enigma machine.
     /// </summary>
     public const int MinRotorCount = 3;

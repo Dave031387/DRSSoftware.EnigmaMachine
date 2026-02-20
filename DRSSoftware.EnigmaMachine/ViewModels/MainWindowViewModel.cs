@@ -743,11 +743,16 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         {
             if (_embeddingService.HasIndicatorString(inputText))
             {
-                InputText = _embeddingService.Extract(inputText, out EnigmaConfiguration configuration);
-                _enigmaConfiguration.Update(configuration);
-                EnigmaMachine = _enigmaMachineBuilder.Build(_enigmaConfiguration);
-                UpdateProperties();
-                IsTransformExecuted = false;
+                InputText = _embeddingService.Extract(inputText, out EnigmaConfiguration? configuration);
+
+                if (configuration is not null)
+                {
+                    _enigmaConfiguration.Update(configuration);
+                    EnigmaMachine = _enigmaMachineBuilder.Build(_enigmaConfiguration);
+                    UpdateProperties();
+                    IsTransformExecuted = false;
+                }
+
                 return;
             }
             else

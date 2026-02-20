@@ -9,14 +9,14 @@
 internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorStringGenerator) : IEmbeddingService
 {
     /// <summary>
-    /// Lock object used to ensure thread safety.
-    /// </summary>
-    private readonly Lock _lock = new();
-
-    /// <summary>
     /// Holds a reference to the indicator string generator.
     /// </summary>
     private readonly IIndicatorStringGenerator _indicatorStringGenerator = indicatorStringGenerator;
+
+    /// <summary>
+    /// Lock object used to ensure thread safety.
+    /// </summary>
+    private readonly Lock _lock = new();
 
     /// <summary>
     /// Holds a value indicating whether or not we have reached the end of the index values.
@@ -71,6 +71,11 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     public string Embed(string inputText, EnigmaConfiguration configuration)
     {
+        if (string.IsNullOrEmpty(inputText))
+        {
+            return string.Empty;
+        }
+
         if (HasIndicatorString(inputText))
         {
             return inputText;
@@ -129,8 +134,8 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// Extract the Enigma machine configuration from the given input text.
     /// </summary>
     /// <remarks>
-    /// The original input text will be returned along with the default Enigma machine configuration
-    /// if it is found that the input text doesn't begin with the required embedding indicator
+    /// The original input text will be returned along with a null Enigma machine configuration if
+    /// it is found that the input text doesn't begin with the required embedding indicator
     /// characters.
     /// </remarks>
     /// <param name="embeddedText">
@@ -143,13 +148,13 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// The remaining input text after the configuration has been extracted. The configuration
     /// itself is returned in the <paramref name="configuration" /> out parameter.
     /// </returns>
-    public string Extract(string embeddedText, out EnigmaConfiguration configuration)
+    public string Extract(string embeddedText, out EnigmaConfiguration? configuration)
     {
-        configuration = new();
+        configuration = null;
 
-        if (string.IsNullOrWhiteSpace(embeddedText) || embeddedText.Length < IndicatorSize || !HasIndicatorString(embeddedText))
+        if (string.IsNullOrEmpty(embeddedText) || embeddedText.Length < MinEmbeddedStringSize || !HasIndicatorString(embeddedText))
         {
-            return embeddedText;
+            return embeddedText ?? string.Empty;
         }
 
         List<char> result = [];
@@ -188,18 +193,21 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
         }
 
         int numberOfRotors = indexValues.Count - 1;
-        configuration.NumberOfRotors = numberOfRotors;
-        configuration.ReflectorIndex = indexValues[0];
-        configuration.RotorIndex1 = numberOfRotors > 0 ? indexValues[1] : 0;
-        configuration.RotorIndex2 = numberOfRotors > 1 ? indexValues[2] : 0;
-        configuration.RotorIndex3 = numberOfRotors > 2 ? indexValues[3] : 0;
-        configuration.RotorIndex4 = numberOfRotors > 3 ? indexValues[4] : 0;
-        configuration.RotorIndex5 = numberOfRotors > 4 ? indexValues[5] : 0;
-        configuration.RotorIndex6 = numberOfRotors > 5 ? indexValues[6] : 0;
-        configuration.RotorIndex7 = numberOfRotors > 6 ? indexValues[7] : 0;
-        configuration.RotorIndex8 = numberOfRotors > 7 ? indexValues[8] : 0;
-        configuration.SeedValue = new([.. seedChars]);
-        configuration.UseEmbeddedConfiguration = false;
+        configuration = new()
+        {
+            NumberOfRotors = numberOfRotors,
+            ReflectorIndex = indexValues[0],
+            RotorIndex1 = numberOfRotors > 0 ? indexValues[1] : 0,
+            RotorIndex2 = numberOfRotors > 1 ? indexValues[2] : 0,
+            RotorIndex3 = numberOfRotors > 2 ? indexValues[3] : 0,
+            RotorIndex4 = numberOfRotors > 3 ? indexValues[4] : 0,
+            RotorIndex5 = numberOfRotors > 4 ? indexValues[5] : 0,
+            RotorIndex6 = numberOfRotors > 5 ? indexValues[6] : 0,
+            RotorIndex7 = numberOfRotors > 6 ? indexValues[7] : 0,
+            RotorIndex8 = numberOfRotors > 7 ? indexValues[8] : 0,
+            SeedValue = new([.. seedChars]),
+            UseEmbeddedConfiguration = false
+        };
 
         return new([.. result]);
     }
@@ -217,7 +225,7 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     public bool HasIndicatorString(string inputText)
     {
-        if (inputText.Length < IndicatorSize)
+        if (inputText is null || inputText.Length < IndicatorSize)
         {
             return false;
         }

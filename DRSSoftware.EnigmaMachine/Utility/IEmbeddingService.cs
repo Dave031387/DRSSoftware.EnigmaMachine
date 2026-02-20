@@ -28,8 +28,8 @@ public interface IEmbeddingService
     /// Extract the Enigma machine configuration from the given input text.
     /// </summary>
     /// <remarks>
-    /// The original input text will be returned along with the default Enigma machine configuration
-    /// if it is found that the input text doesn't begin with the required embedding indicator
+    /// The original input text will be returned along with a null Enigma machine configuration if
+    /// it is found that the input text doesn't begin with the required embedding indicator
     /// characters.
     /// </remarks>
     /// <param name="inputText">
@@ -42,7 +42,7 @@ public interface IEmbeddingService
     /// The remaining input text after the configuration has been extracted. The configuration
     /// itself is returned in the <paramref name="configuration" /> out parameter.
     /// </returns>
-    string Extract(string inputText, out EnigmaConfiguration configuration);
+    string Extract(string inputText, out EnigmaConfiguration? configuration);
 
     /// <summary>
     /// Determine whether or not the supplied <paramref name="inputText" /> starts with a Embedding
