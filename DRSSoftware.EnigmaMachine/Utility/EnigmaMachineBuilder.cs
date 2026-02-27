@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaV2;
 
 /// <summary>
@@ -9,8 +10,16 @@ using DRSSoftware.EnigmaV2;
 /// This static class is intended to simplify the construction of Enigma machine objects by
 /// encapsulating common setup patterns. All members are static and thread-safe.
 /// </remarks>
-internal sealed class EnigmaMachineBuilder : IEnigmaMachineBuilder
+/// <param name="container">
+/// A reference to the dependency injection container.
+/// </param>
+internal sealed class EnigmaMachineBuilder(IContainer container) : IEnigmaMachineBuilder
 {
+    /// <summary>
+    /// Holds a reference to the dependency injection container.
+    /// </summary>
+    private readonly IContainer _container = container;
+
     /// <summary>
     /// Creates and configures a new Enigma machine instance based on the specified settings.
     /// </summary>
@@ -26,9 +35,9 @@ internal sealed class EnigmaMachineBuilder : IEnigmaMachineBuilder
     /// </returns>
     public IEnigmaMachine Build(EnigmaConfiguration configuration)
     {
-        EnigmaMachine enigmaMachine = new(configuration.NumberOfRotors);
+        IEnigmaMachine enigmaMachine = _container.Resolve<IEnigmaMachine>([configuration.NumberOfRotors]);
 
-        if (string.IsNullOrWhiteSpace(configuration.SeedValue))
+        if (string.IsNullOrEmpty(configuration.SeedValue))
         {
             return enigmaMachine;
         }

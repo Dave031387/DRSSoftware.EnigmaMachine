@@ -6,6 +6,7 @@ using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.Utility;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
+using DRSSoftware.EnigmaV2;
 
 /// <summary>
 /// Interaction logic for App.xaml
@@ -27,6 +28,7 @@ public partial class App : Application
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
             .AddSingleton<IEmbeddingService, EmbeddingService>()
+            .AddTransient<IEnigmaMachine, EnigmaMachine>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
             .AddSingleton<IIndicatorStringGenerator, IndicatorStringGenerator>()
             .AddSingleton<IInputOutputService, InputOutputService>()

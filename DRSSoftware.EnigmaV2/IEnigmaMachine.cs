@@ -145,7 +145,9 @@ public interface IEnigmaMachine
     /// <see cref="EnigmaMachine" /> to the specified values.
     /// </summary>
     /// <remarks>
-    /// The <see cref="EnigmaMachine" /> must be initialized before calling this method.
+    /// The <see cref="EnigmaMachine" /> must be initialized before calling this method. The last
+    /// value in <paramref name="indexes" /> is the index for the <see cref="Reflector" /> and the
+    /// rest are indexes for each <see cref="Rotor" />.
     /// </remarks>
     /// <param name="indexes">
     /// An array containing the desired index values. The array must contain one index for each
