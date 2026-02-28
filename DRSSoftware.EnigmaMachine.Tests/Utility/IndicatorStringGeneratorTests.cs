@@ -1,5 +1,7 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using System.Collections.Generic;
+
 public class IndicatorStringGeneratorTests
 {
     [Theory]
@@ -10,19 +12,27 @@ public class IndicatorStringGeneratorTests
     public void GetIndicatorString_ShouldReturnValidIndicatorString(char firstChar, char indicatorChar)
     {
         // Arrange
-        Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
-        ISetupSequentialResult<int> sequence = mockNumberGenerator.SetupSequence(gen => gen.GetNext(MinChar, indicatorChar));
+        List<int> sequence = [];
         char[] indicatorChars = new char[IndicatorSize];
 
         for (int i = 0; i < IndicatorPairs; i++)
         {
             int charValue = firstChar + i;
-            sequence = sequence.Returns(charValue);
+            sequence.Add(charValue);
             indicatorChars[i] = (char)charValue;
             indicatorChars[i + IndicatorPairs] = (char)(indicatorChar + MinChar - charValue);
         }
 
-        sequence = sequence.Throws(new InvalidOperationException("No more numbers should be generated."));
+        List<int>.Enumerator enumerator = sequence.GetEnumerator();
+
+        Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
+        mockNumberGenerator.Setup(m => m.GetNext(MinChar, indicatorChar))
+            .Returns(() =>
+            {
+                enumerator.MoveNext(); 
+                return enumerator.Current;
+            })
+            .Verifiable(Times.Exactly(sequence.Count));
         string expected = new(indicatorChars);
         IndicatorStringGenerator generator = new(mockNumberGenerator.Object);
 
@@ -33,6 +43,6 @@ public class IndicatorStringGeneratorTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockNumberGenerator.VerifyAll();
     }
 }

@@ -1,12 +1,14 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using System.Collections.Generic;
+
 public class CloakingServiceTests
 {
     [Fact]
     public void ApplyCloak_ShouldConvertMaxCharInOutputTextToNewLine()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a sample string that we are going to apply the cloak to";
         string cloakingText = " !\"#&";
         string expected = "Tggpzir~^zs`kmfe\r\nqqlime}nh`r}qe\r\n_o_ fmfhg\r\nrlzaonis sfbzckm^e sm";
@@ -18,14 +20,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void ApplyCloak_ShouldConvertNewLineInCloakTextToMaxChar()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a sample string that we are going to apply the cloak to";
         string cloakingText = "a\nbcd\neg";
         string expected = "si'0<j.9 !1~)q'~?t2/%o\"93i\r\n1<x 9 s#=#p$'&!2,<b+)+z>1$f;|+p\r\n(<u*";
@@ -37,14 +39,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void ApplyCloak_ShouldConvertNewLineInInputTextToMaxChar()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a sample string\nthat we are going to\napply the cloak to";
         string cloakingText = "abcdeg";
         string expected = "s&&/;\"2>~<.z,.)!;,30&*\"83&~0;0$>~. 9&-&*\"93-<}+)+7=0#~?!)+|$?2,";
@@ -56,7 +58,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Theory]
@@ -65,7 +67,7 @@ public class CloakingServiceTests
     public void ApplyCloak_ShouldGenerateValidIndicatorString(char firstIndicatorChar)
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar);
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator, firstIndicatorChar);
         string inputText = "This is a long sentence that is going to be cloaked by this unit test.";
         string cloakingText = "Cloaking text!";
         string expected = GetCloakingIndicatorString((char)firstIndicatorChar);
@@ -77,14 +79,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void ApplyCloak_ShouldHandleIllegalCharactersInCloakingText()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a sample string that we are going to apply the cloak to";
         char[] cloakingChars =
         [
@@ -108,14 +110,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void ApplyCloak_ShouldLeaveDelimitersInInputTextUnchanged()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is" + DelimiterChar + " a string " + DelimiterChar + "containing delim" + DelimiterChar + "iter characters";
         string cloakingText = " !\"#$%&'()";
         string expected = "Tggp|dm" + DelimiterChar + "yYwsspfjbz" + DelimiterChar + "\\get`gkeiay\\\\lhk" + DelimiterChar + "fp`ly[_aq_`p`ll";
@@ -127,14 +129,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact(Timeout = 1000)]
     public async Task ApplyCloak_ShouldNotLoopIfCloakingTextContainsCarriageReturnsOnly()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForApply();
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a long sentence that is going to be cloaked by this unit test.";
         string cloakingText = "\r\r\r\r";
         string expected = "G[\\fs\\fsTs_baZsfXagXaVXsg[Tgs\\fsZb\\aZsgbsUXsV_bT^XWsUlsg[\\fsha\\gsgXfg!";
@@ -146,7 +148,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -154,7 +156,7 @@ public class CloakingServiceTests
     {
         // Arrange
         char firstIndicatorChar = (char)(MinChar + 1);
-        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar, firstIndicatorChar);
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator, firstIndicatorChar, firstIndicatorChar);
         string inputText = "This is a long sentence that is going to be cloaked by this unit test.";
         string cloakingText1 = " !\"#$%&'()";
         string cloakingText2 = "\r\r !\r\"#$%\r\r&'()\r";
@@ -167,7 +169,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -175,7 +177,7 @@ public class CloakingServiceTests
     {
         // Arrange
         char firstIndicatorChar = (char)(MinChar + 1);
-        CloakingService cloakingService = GetCloakingServiceForApply(firstIndicatorChar, firstIndicatorChar);
+        CloakingService cloakingService = GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator, firstIndicatorChar, firstIndicatorChar);
         string inputText1 = "This is a long sentence that is going to be cloaked by this unit test.";
         string inputText2 = "\r\rThis is a long sen\rtence that is going\r\r to be cloaked by this unit test.\r";
         string cloakingText = " !\"#$%&'()";
@@ -188,14 +190,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void RemoveCloak_ShouldLeaveDelimitersInInputTextUnchanged()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForRemove();
+        CloakingService cloakingService = GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = GetCloakingIndicatorString('t') + "Tggp|dm" + DelimiterChar + "yYwsspfjbz" + DelimiterChar + "\\get`gkeiay\\\\lhk" + DelimiterChar + "fp`ly[_aq_`p`ll";
         string cloakingText = " !\"#$%&'()";
         string expected = "This is" + DelimiterChar + " a string " + DelimiterChar + "containing delim" + DelimiterChar + "iter characters";
@@ -207,7 +209,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Theory]
@@ -223,7 +225,7 @@ public class CloakingServiceTests
     public void RemoveCloak_ShouldRemoveCloakAndReturnExpectedText(string cloakedText, string cloakingText, string expected)
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForRemove();
+        CloakingService cloakingService = GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator);
 
         // Act
         string actual = cloakingService.RemoveCloak(GetCloakingIndicatorString('m') + cloakedText, cloakingText);
@@ -232,14 +234,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void RemoveCloak_ShouldReturnInputTextUnchangedIfItOnlyContainsAnIndicatorString()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForRemove();
+        CloakingService cloakingService = GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = GetCloakingIndicatorString('e');
         string cloakingText = "abcdefg";
 
@@ -250,7 +252,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(inputText);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Theory]
@@ -261,7 +263,7 @@ public class CloakingServiceTests
     public void RemoveCloak_ShouldReturnInputTextUnchangedIfLengthIsLessThanOrEqualToIndicatorSize(string inputText)
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForRemove();
+        CloakingService cloakingService = GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator);
         string cloakingText = "abcdefg";
 
         // Act
@@ -271,14 +273,14 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(inputText);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void RemoveCloak_ShouldReturnInputTextUnchangedIfMissingCloakingIndicatorString()
     {
         // Arrange
-        CloakingService cloakingService = GetCloakingServiceForRemove();
+        CloakingService cloakingService = GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = "This is a text string without a cloaking delimiter string.";
         string cloakingText = "abcdefg";
 
@@ -289,7 +291,7 @@ public class CloakingServiceTests
         actual
             .Should()
             .Be(inputText);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     private static async Task<string> ApplyCloakAsync(CloakingService cloakingService, string inputText, string cloakingText)
@@ -308,11 +310,10 @@ public class CloakingServiceTests
         return new(indicatorChars);
     }
 
-    private static CloakingService GetCloakingServiceForApply(params char[] firstChar)
+    private static CloakingService GetCloakingServiceForApply(out Mock<IIndicatorStringGenerator> mockGenerator, params char[] firstChar)
     {
         char[] indicatorChars = new char[IndicatorSize];
-        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
-        ISetupSequentialResult<string> sequence = mockGenerator.SetupSequence(static m => m.GetIndicatorString(CloakingIndicatorChar));
+        List<string> sequence = [];
 
         if (firstChar.Length is 0)
         {
@@ -322,7 +323,7 @@ public class CloakingServiceTests
                 indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorChars[i]);
             }
 
-            sequence = sequence.Returns(new string(indicatorChars));
+            sequence.Add(new string(indicatorChars));
         }
         else
         {
@@ -334,19 +335,30 @@ public class CloakingServiceTests
                     indicatorChars[i + IndicatorPairs] = (char)(CloakedIndicatorValue - indicatorChars[i]);
                 }
 
-                sequence = sequence.Returns(new string(indicatorChars));
+                sequence.Add(new string(indicatorChars));
             }
         }
 
-        sequence = sequence.Throws(new InvalidOperationException("No more numbers should be generated."));
+        List<string>.Enumerator enumerator = sequence.GetEnumerator();
+        mockGenerator = new(MockBehavior.Strict);
+        mockGenerator
+            .Setup(m => m.GetIndicatorString(CloakingIndicatorChar))
+            .Returns(() =>
+            {
+                enumerator.MoveNext(); 
+                return enumerator.Current;
+            })
+            .Verifiable(Times.Exactly(sequence.Count));
         return new(mockGenerator.Object);
     }
 
-    private static CloakingService GetCloakingServiceForRemove()
+    private static CloakingService GetCloakingServiceForRemove(out Mock<IIndicatorStringGenerator> mockGenerator)
     {
-        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
-        mockGenerator.Setup(static m => m.GetIndicatorString(It.IsAny<char>()))
-            .Throws(new InvalidOperationException("No numbers should be generated."));
+        mockGenerator = new(MockBehavior.Strict);
+        mockGenerator
+            .Setup(static m => m.GetIndicatorString(It.IsAny<char>()))
+            .Returns(string.Empty)
+            .Verifiable(Times.Never);
         return new(mockGenerator.Object);
     }
 }

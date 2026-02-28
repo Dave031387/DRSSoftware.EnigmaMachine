@@ -1,5 +1,7 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+using System.Collections.Generic;
+
 public class EmbeddingServiceTests
 {
     [Fact]
@@ -7,7 +9,7 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = MinChar;
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(firstChar);
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
         string inputText = "ABCDEFGH";
         string seedValue = "abcdef";
@@ -20,7 +22,7 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -28,7 +30,7 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 12);
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(firstChar);
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
         string inputText = "ABCD\r\nFGHIJKLMNOP";
         string seedValue = "abcdefg";
@@ -41,7 +43,7 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -49,7 +51,7 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 10);
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(firstChar);
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
         string inputText = "ABCDEFGHIJKLMNOP";
         string seedValue = "abcdefg";
@@ -62,7 +64,7 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -70,7 +72,7 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 7);
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(firstChar);
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
         string inputText = "ABCDEFGHIJKLM";
         string seedValue = "abcd\r\nfg";
@@ -83,7 +85,7 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
@@ -91,7 +93,7 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 5);
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(firstChar);
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
         string inputText = "ABCDEFGH";
         string seedValue = "abcdefghijkl";
@@ -104,7 +106,7 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Theory]
@@ -113,7 +115,7 @@ public class EmbeddingServiceTests
     public void Embed_ShouldReturnEmptyStringIfInputTextIsNullOrEmpty(string? inputText)
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed();
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, false);
 
         // Act
         string actual = embeddingService.Embed(inputText!, GetEnigmaConfiguration(5, "Seed Value"));
@@ -122,14 +124,14 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .BeEmpty();
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Embed_ShouldReturnInputTextUnchangedIfItStartsWithAnEmbeddingIndicatorString()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed();
+        EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, false);
         char[] indicatorChars = new char[IndicatorSize];
 
         for (int i = 0; i < IndicatorPairs; i++)
@@ -147,14 +149,14 @@ public class EmbeddingServiceTests
         actual
             .Should()
             .Be(expected);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldExtractConfigurationWhenIndexValuesIsLongestComponent()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString(MinChar);
         string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff5G" + DelimiterChar + "6H7" + DelimiterChar + "8";
         string expectedInputText = "ABCDEFGH";
@@ -169,14 +171,14 @@ public class EmbeddingServiceTests
             .Should()
             .Be(expectedInputText);
         AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldExtractConfigurationWhenInputTextContainsCRLF()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 12));
         string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3\r\ne" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
         string expectedInputText = "ABCD\r\nFGHIJKLMNOP";
@@ -191,14 +193,14 @@ public class EmbeddingServiceTests
             .Should()
             .Be(expectedInputText);
         AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldExtractConfigurationWhenInputTextIsLongestComponent()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 10));
         string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
         string expectedInputText = "ABCDEFGHIJKLMNOP";
@@ -213,14 +215,14 @@ public class EmbeddingServiceTests
             .Should()
             .Be(expectedInputText);
         AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldExtractConfigurationWhenSeedValueContainsCRLF()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 7));
         string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3E\r\n4Ff" + DelimiterChar + "GgH" + DelimiterChar + "IJKLM";
         string expectedInputText = "ABCDEFGHIJKLM";
@@ -235,14 +237,14 @@ public class EmbeddingServiceTests
             .Should()
             .Be(expectedInputText);
         AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldExtractConfigurationWhenSeedValueIsLongestComponent()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 5));
         string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff" + DelimiterChar + "GgHh" + DelimiterChar + "ijkl";
         string expectedInputText = "ABCDEFGH";
@@ -257,14 +259,14 @@ public class EmbeddingServiceTests
             .Should()
             .Be(expectedInputText);
         AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldReturnEmbeddedTextUnchangedIfLengthIsTooSmall()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = GetIndicatorString(MinChar) + new string('X', MinEmbeddedStringSize - IndicatorSize - 1);
 
         // Act
@@ -277,7 +279,7 @@ public class EmbeddingServiceTests
         configuration
             .Should()
             .BeNull();
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Theory]
@@ -286,7 +288,7 @@ public class EmbeddingServiceTests
     public void Extract_ShouldReturnEmptyStringIfEmbeddedTextIsNullOrEmpty(string? inputText)
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
 
         // Act
         string actual = embeddingService.Extract(inputText!, out EnigmaConfiguration? configuration);
@@ -298,14 +300,14 @@ public class EmbeddingServiceTests
         configuration
             .Should()
             .BeNull();
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     [Fact]
     public void Extract_ShouldReturnInputTextUnchangedWhenNoIndicatorStringIsFound()
     {
         // Arrange
-        EmbeddingService embeddingService = GetEmbeddingServiceForExtract();
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string inputText = new('X', MinEmbeddedStringSize);
 
         // Act
@@ -318,7 +320,7 @@ public class EmbeddingServiceTests
         configuration
             .Should()
             .BeNull();
-        Mock.VerifyAll();
+        mockGenerator.VerifyAll();
     }
 
     private static void AssertEnigmaConfiguration(EnigmaConfiguration? configuration, string expectedSeedValue, int expectedNumberOfRotors)
@@ -397,32 +399,53 @@ public class EmbeddingServiceTests
             .BeFalse();
     }
 
-    private static EmbeddingService GetEmbeddingServiceForEmbed(params char[] firstChar)
+    private static EmbeddingService GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, bool shouldGenerateIndicatorString, params char[] firstChar)
     {
-        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
-        ISetupSequentialResult<string> sequence = mockGenerator.SetupSequence(static m => m.GetIndicatorString(EmbeddingIndicatorChar));
+        mockGenerator = new(MockBehavior.Strict);
 
-        if (firstChar.Length is 0)
+        if (shouldGenerateIndicatorString)
         {
-            sequence = sequence.Returns(GetIndicatorString(MinChar));
+            List<string> sequence = [];
+
+            if (firstChar.Length is 0)
+            {
+                sequence.Add(GetIndicatorString(MinChar));
+            }
+            else
+            {
+                for (int j = 0; j < firstChar.Length; j++)
+                {
+                    sequence.Add(GetIndicatorString(firstChar[j]));
+                }
+            }
+
+            List<string>.Enumerator enumerator = sequence.GetEnumerator();
+            mockGenerator
+                .Setup(m => m.GetIndicatorString(EmbeddingIndicatorChar))
+                .Returns(() =>
+                {
+                    enumerator.MoveNext();
+                    return enumerator.Current;
+                })
+                .Verifiable(Times.Exactly(sequence.Count));
         }
         else
         {
-            for (int j = 0; j < firstChar.Length; j++)
-            {
-                sequence = sequence.Returns(GetIndicatorString(firstChar[j]));
-            }
+            mockGenerator
+                .Setup(m => m.GetIndicatorString(It.IsAny<char>()))
+                .Returns(string.Empty)
+                .Verifiable(Times.Never);
         }
 
-        sequence = sequence.Throws(new InvalidOperationException("No more numbers should be generated."));
         return new(mockGenerator.Object);
     }
 
-    private static EmbeddingService GetEmbeddingServiceForExtract()
+    private static EmbeddingService GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator)
     {
-        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        mockGenerator = new(MockBehavior.Strict);
         mockGenerator.Setup(static m => m.GetIndicatorString(It.IsAny<char>()))
-            .Throws(new InvalidOperationException("No numbers should be generated."));
+            .Returns(string.Empty)
+            .Verifiable(Times.Never);
         return new(mockGenerator.Object);
     }
 

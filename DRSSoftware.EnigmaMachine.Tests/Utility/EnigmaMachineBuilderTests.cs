@@ -44,7 +44,8 @@ public class EnigmaMachineBuilderTests
             .NotBeNull()
             .And
             .BeSameAs(mockEnigmaMachine.Object);
-        Mock.VerifyAll();
+        mockContainer.VerifyAll();
+        mockEnigmaMachine.VerifyAll();
     }
 
     [Theory]
@@ -87,7 +88,8 @@ public class EnigmaMachineBuilderTests
             .NotBeNull()
             .And
             .BeSameAs(mockEnigmaMachine.Object);
-        Mock.VerifyAll();
+        mockContainer.VerifyAll();
+        mockEnigmaMachine.VerifyAll();
     }
 
     [Fact]
@@ -140,6 +142,7 @@ public class EnigmaMachineBuilderTests
             .NotBeNull()
             .And
             .BeSameAs(mockEnigmaMachine.Object);
-        Mock.VerifyAll();
+        mockContainer.VerifyAll();
+        mockEnigmaMachine.VerifyAll();
     }
 }

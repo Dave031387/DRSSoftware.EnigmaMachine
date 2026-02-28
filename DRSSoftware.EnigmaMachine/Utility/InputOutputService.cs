@@ -34,13 +34,13 @@ internal sealed class InputOutputService(IContainer container) : IInputOutputSer
     /// </returns>
     public string LoadTextFile()
     {
-        IOpenFileService fileService = _container.Resolve<IOpenFileService>();
-        fileService.Filter = FileFilter;
-        fileService.ForcePreviewPane = true;
-        fileService.InitialDirectory = _defaultDirectory;
-        fileService.Multiselect = false;
-        fileService.Title = "Load Text File";
-        return fileService.ShowDialog() is true ? fileService.ReadAllText() : string.Empty;
+        IOpenFileService openFileService = _container.Resolve<IOpenFileService>();
+        openFileService.Filter = FileFilter;
+        openFileService.ForcePreviewPane = true;
+        openFileService.InitialDirectory = _defaultDirectory;
+        openFileService.Multiselect = false;
+        openFileService.Title = "Load Text File";
+        return openFileService.ShowDialog() is true ? openFileService.ReadAllText() : string.Empty;
     }
 
     /// <summary>
