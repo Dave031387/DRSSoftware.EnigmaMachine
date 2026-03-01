@@ -5,7 +5,7 @@ using System.Windows;
 /// <summary>
 /// Interaction logic for ConfigurationDialog.xaml
 /// </summary>
-public partial class ConfigurationDialogView : Window
+public partial class ConfigurationDialogView : Window, IConfigurationDialogView
 {
     /// <summary>
     /// Creates a new instance of the <see cref="ConfigurationDialogView" /> class.

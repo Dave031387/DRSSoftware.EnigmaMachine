@@ -24,7 +24,7 @@ internal sealed class ConfigurationDialogService(IContainer container) : IConfig
     /// </returns>
     public EnigmaConfiguration GetConfiguration(EnigmaConfiguration currentConfiguration)
     {
-        ConfigurationDialogView view = _container.Resolve<ConfigurationDialogView>();
+        IConfigurationDialogView view = _container.Resolve<IConfigurationDialogView>();
         view.Owner = Application.Current.MainWindow;
         view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IConfigurationDialogViewModel viewModel = _container.Resolve<IConfigurationDialogViewModel>();

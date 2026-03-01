@@ -26,6 +26,7 @@ public partial class App : Application
         IContainer container = ContainerBuilder.GetInstance()
             .AddSingleton<ICloakingService, CloakingService>()
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
+            .AddTransient<IConfigurationDialogView, ConfigurationDialogView>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
             .AddSingleton<IEmbeddingService, EmbeddingService>()
             .AddTransient<IEnigmaMachine, EnigmaMachine>()
@@ -37,10 +38,9 @@ public partial class App : Application
             .AddTransient<ISaveFileService, SaveFileService>()
             .AddSingleton<ISecureNumberGenerator, SecureNumberGenerator>()
             .AddSingleton<IStringDialogService, StringDialogService>()
+            .AddTransient<IStringDialogView, StringDialogView>()
             .AddTransient<IStringDialogViewModel, StringDialogViewModel>()
-            .AddTransient<ConfigurationDialogView>()
             .AddSingleton<MainWindow>()
-            .AddTransient<StringDialogView>()
             .Build();
         MainWindow mainWindow = container.Resolve<MainWindow>();
         mainWindow.DataContext = container.Resolve<IMainWindowViewModel>();
