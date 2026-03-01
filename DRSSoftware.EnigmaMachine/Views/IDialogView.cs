@@ -3,9 +3,9 @@
 using System.Windows;
 
 /// <summary>
-/// Defines the public properties and methods of the <see cref="StringDialogView" /> class.
+/// Defines the public properties and methods required for a dialog view.
 /// </summary>
-public interface IStringDialogView
+public interface IDialogView
 {
     /// <summary>
     /// Gets or sets the data context for an element when it participates in a data binding.

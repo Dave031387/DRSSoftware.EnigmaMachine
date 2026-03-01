@@ -1,0 +1,5 @@
+﻿namespace DRSSoftware.EnigmaMachine.Utility;
+
+public class ConfigurationDialogServiceTests
+{
+}

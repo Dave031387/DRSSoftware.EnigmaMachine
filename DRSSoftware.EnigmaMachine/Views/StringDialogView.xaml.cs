@@ -5,7 +5,7 @@ using System.Windows;
 /// <summary>
 /// Interaction logic for GetStringView.xaml
 /// </summary>
-public partial class StringDialogView : Window, IStringDialogView
+public partial class StringDialogView : Window, IDialogView
 {
     /// <summary>
     /// Creates a new instance of the <see cref="StringDialogView" /> class.

@@ -28,7 +28,7 @@ internal sealed class StringDialogService(IContainer container) : IStringDialogS
     /// </returns>
     public string GetString(string title, string header)
     {
-        IStringDialogView view = _container.Resolve<IStringDialogView>();
+        IDialogView view = _container.Resolve<IDialogView>(StringDialogKey);
         view.Owner = Application.Current.MainWindow;
         view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IStringDialogViewModel viewModel = _container.Resolve<IStringDialogViewModel>();

@@ -27,6 +27,11 @@ public static class GlobalValues
     public const char CloakingIndicatorChar = (char)(EmbeddingIndicatorChar - 1);
 
     /// <summary>
+    /// Resource key used for resolving the ConfigurationDialogView dependency object.
+    /// </summary>
+    public const string ConfigurationDialogKey = nameof(ConfigurationDialogKey);
+
+    /// <summary>
     /// Text displayed when the Enigma machine is properly configured.
     /// </summary>
     public const string ConfiguredStatusText = "Configured";
@@ -127,4 +132,9 @@ public static class GlobalValues
     /// Text displayed when the Enigma machine is not fully configured.
     /// </summary>
     public const string NotConfiguredStatusText = "Not Configured";
+
+    /// <summary>
+    /// Resource key used for resolving the StringDialogView dependency object.
+    /// </summary>
+    public const string StringDialogKey = nameof(StringDialogKey);
 }

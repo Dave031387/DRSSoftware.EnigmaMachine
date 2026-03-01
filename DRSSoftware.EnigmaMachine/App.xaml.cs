@@ -26,8 +26,9 @@ public partial class App : Application
         IContainer container = ContainerBuilder.GetInstance()
             .AddSingleton<ICloakingService, CloakingService>()
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
-            .AddTransient<IConfigurationDialogView, ConfigurationDialogView>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
+            .AddTransient<IDialogView, ConfigurationDialogView>(static builder => builder.WithResolvingKey(ConfigurationDialogKey))
+            .AddTransient<IDialogView, StringDialogView>(static builder => builder.WithResolvingKey(StringDialogKey))
             .AddSingleton<IEmbeddingService, EmbeddingService>()
             .AddTransient<IEnigmaMachine, EnigmaMachine>()
             .AddSingleton<IEnigmaMachineBuilder, EnigmaMachineBuilder>()
@@ -38,7 +39,6 @@ public partial class App : Application
             .AddTransient<ISaveFileService, SaveFileService>()
             .AddSingleton<ISecureNumberGenerator, SecureNumberGenerator>()
             .AddSingleton<IStringDialogService, StringDialogService>()
-            .AddTransient<IStringDialogView, StringDialogView>()
             .AddTransient<IStringDialogViewModel, StringDialogViewModel>()
             .AddSingleton<MainWindow>()
             .Build();
