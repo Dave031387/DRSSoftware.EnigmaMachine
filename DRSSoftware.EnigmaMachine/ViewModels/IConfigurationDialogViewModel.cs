@@ -46,7 +46,7 @@ public interface IConfigurationDialogViewModel
     /// <summary>
     /// Gets an ICommand used for clearing the contents of the seed value text box.
     /// </summary>
-    ICommand ClearCommand
+    public ICommand ClearCommand
     {
         get;
     }

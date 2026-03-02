@@ -25,7 +25,13 @@ internal sealed class ConfigurationDialogService(IContainer container) : IConfig
     public EnigmaConfiguration GetConfiguration(EnigmaConfiguration currentConfiguration)
     {
         IDialogView view = _container.Resolve<IDialogView>(ConfigurationDialogKey);
-        view.Owner = Application.Current.MainWindow;
+
+        // The following if statement is required to allow unit testing.
+        if (Application.Current?.MainWindow is not null)
+        {
+            view.Owner = Application.Current.MainWindow;
+        }
+
         view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IConfigurationDialogViewModel viewModel = _container.Resolve<IConfigurationDialogViewModel>();
         viewModel.Initialize(currentConfiguration);
