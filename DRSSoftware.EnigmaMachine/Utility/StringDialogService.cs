@@ -1,6 +1,5 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.Windows;
 using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
@@ -8,11 +7,11 @@ using DRSSoftware.EnigmaMachine.Views;
 /// <summary>
 /// Provides a service for displaying a dialog to prompt the user for a string input.
 /// </summary>
-/// <param name="container">The dependency injection container used to resolve required view and view model instances.</param>
-internal sealed class StringDialogService(IContainer container) : IStringDialogService
+/// <param name="container">
+/// The dependency injection container used to resolve required view and view model instances.
+/// </param>
+internal sealed class StringDialogService(IContainer container) : DialogServiceBase(container), IStringDialogService
 {
-    private readonly IContainer _container = container;
-
     /// <summary>
     /// Get string input from the user via the GetStringView.
     /// </summary>
@@ -28,19 +27,10 @@ internal sealed class StringDialogService(IContainer container) : IStringDialogS
     /// </returns>
     public string GetString(string title, string header)
     {
-        IDialogView view = _container.Resolve<IDialogView>(StringDialogKey);
-
-        // The following if statement is required to allow unit testing.
-        if (Application.Current?.MainWindow is not null)
-        {
-            view.Owner = Application.Current.MainWindow;
-        }
-
-        view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IStringDialogViewModel viewModel = _container.Resolve<IStringDialogViewModel>();
         viewModel.Title = title;
         viewModel.HeaderText = header;
-        view.DataContext = viewModel;
+        IDialogView view = GetDialogView(StringDialogKey, viewModel);
         _ = view.ShowDialog();
         return viewModel.InputText;
     }

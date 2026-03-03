@@ -21,126 +21,6 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     private readonly ISecureNumberGenerator _numberGenerator;
 
     /// <summary>
-    /// The backing field for the CloseTrigger property.
-    /// </summary>
-    private bool _closeTrigger;
-
-    /// <summary>
-    /// The backing field for the IsAutoIndexesSelected property.
-    /// </summary>
-    private bool _isAutoIndexesSelected;
-
-    /// <summary>
-    /// The backing field for the IsAutoRotorsSelected property.
-    /// </summary>
-    private bool _isAutoRotorsSelected;
-
-    /// <summary>
-    /// The backing field for the IsAutoSeedSelected property.
-    /// </summary>
-    private bool _isAutoSeedSelected;
-
-    /// <summary>
-    /// The backing field for the IsManualIndexesSelected property.
-    /// </summary>
-    private bool _isManualIndexesSelected = true;
-
-    /// <summary>
-    /// The backing field for the IsManualRotorsSelected property.
-    /// </summary>
-    private bool _isManualRotorsSelected = true;
-
-    /// <summary>
-    /// The backing field for the IsManualSeedSelected property.
-    /// </summary>
-    private bool _isManualSeedSelected = true;
-
-    /// <summary>
-    /// The backing field for the IsRotor4Visible property.
-    /// </summary>
-    private bool _isRotor4Visible;
-
-    /// <summary>
-    /// The backing field for the IsRotor5Visible property.
-    /// </summary>
-    private bool _isRotor5Visible;
-
-    /// <summary>
-    /// The backing field for the IsRotor6Visible property.
-    /// </summary>
-    private bool _isRotor6Visible;
-
-    /// <summary>
-    /// The backing field for the IsRotor7Visible property.
-    /// </summary>
-    private bool _isRotor7Visible;
-
-    /// <summary>
-    /// The backing field for the IsRotor8Visible property.
-    /// </summary>
-    private bool _isRotor8Visible;
-
-    /// <summary>
-    /// The backing field for the ReflectorIndex property.
-    /// </summary>
-    private int _reflectorIndex;
-
-    /// <summary>
-    /// The backing field for the RotorIndex1 property.
-    /// </summary>
-    private int _rotorIndex1;
-
-    /// <summary>
-    /// The backing field for the RotorIndex2 property.
-    /// </summary>
-    private int _rotorIndex2;
-
-    /// <summary>
-    /// The backing field for the RotorIndex3 property.
-    /// </summary>
-    private int _rotorIndex3;
-
-    /// <summary>
-    /// The backing field for the RotorIndex4 property.
-    /// </summary>
-    private int _rotorIndex4;
-
-    /// <summary>
-    /// The backing field for the RotorIndex5 property.
-    /// </summary>
-    private int _rotorIndex5;
-
-    /// <summary>
-    /// The backing field for the RotorIndex6 property.
-    /// </summary>
-    private int _rotorIndex6;
-
-    /// <summary>
-    /// The backing field for the RotorIndex7 property.
-    /// </summary>
-    private int _rotorIndex7;
-
-    /// <summary>
-    /// The backing field for the RotorIndex8 property.
-    /// </summary>
-    private int _rotorIndex8;
-
-    /// <summary>
-    /// The backing field for the SeedValue property.
-    /// </summary>
-    private string _seedValue = string.Empty;
-
-    /// <summary>
-    /// The backing field for the SelectedRotorCount property.
-    /// </summary>
-    private int _selectedRotorCount = 3;
-
-    /// <summary>
-    /// The backing field for the UseEmbeddedConfiguration property.
-    /// </summary>
-    private bool _useEmbeddedConfiguration;
-
-    /// <summary>
     /// Creates a new instance of the <see cref="ConfigurationDialogViewModel" /> class.
     /// </summary>
     public ConfigurationDialogViewModel(ISecureNumberGenerator numberGenerator)
@@ -199,12 +79,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool CloseTrigger
     {
-        get => _closeTrigger;
+        get;
         set
         {
-            if (_closeTrigger != value)
+            if (field != value)
             {
-                _closeTrigger = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -224,14 +104,14 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsAutoIndexesSelected
     {
-        get => _isAutoIndexesSelected;
+        get;
         set
         {
-            if (_isAutoIndexesSelected != value)
+            if (field != value)
             {
-                _isAutoIndexesSelected = value;
+                field = value;
 
-                if (_isAutoIndexesSelected)
+                if (field)
                 {
                     GenerateRandomIndexValues();
                 }
@@ -246,14 +126,14 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsAutoRotorsSelected
     {
-        get => _isAutoRotorsSelected;
+        get;
         set
         {
-            if (_isAutoRotorsSelected != value)
+            if (field != value)
             {
-                _isAutoRotorsSelected = value;
+                field = value;
 
-                if (_isAutoRotorsSelected)
+                if (field)
                 {
                     GenerateRandomRotorCount();
                 }
@@ -268,14 +148,14 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsAutoSeedSelected
     {
-        get => _isAutoSeedSelected;
+        get;
         set
         {
-            if (_isAutoSeedSelected != value)
+            if (field != value)
             {
-                _isAutoSeedSelected = value;
+                field = value;
 
-                if (_isAutoSeedSelected)
+                if (field)
                 {
                     GenerateRandomSeedValue();
                 }
@@ -290,60 +170,60 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsManualIndexesSelected
     {
-        get => _isManualIndexesSelected;
+        get;
         set
         {
-            if (_isManualIndexesSelected != value)
+            if (field != value)
             {
-                _isManualIndexesSelected = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether the rotor count will be manually set.
     /// </summary>
     public bool IsManualRotorsSelected
     {
-        get => _isManualRotorsSelected;
+        get;
         set
         {
-            if (_isManualRotorsSelected != value)
+            if (field != value)
             {
-                _isManualRotorsSelected = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the seed value will be manually entered.
     /// </summary>
     public bool IsManualSeedSelected
     {
-        get => _isManualSeedSelected;
+        get;
         set
         {
-            if (_isManualSeedSelected != value)
+            if (field != value)
             {
-                _isManualSeedSelected = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = true;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not rotor #4 is visible.
     /// </summary>
     public bool IsRotor4Visible
     {
-        get => _isRotor4Visible;
+        get;
         set
         {
-            if (_isRotor4Visible != value)
+            if (field != value)
             {
-                _isRotor4Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -354,12 +234,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsRotor5Visible
     {
-        get => _isRotor5Visible;
+        get;
         set
         {
-            if (_isRotor5Visible != value)
+            if (field != value)
             {
-                _isRotor5Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -370,12 +250,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsRotor6Visible
     {
-        get => _isRotor6Visible;
+        get;
         set
         {
-            if (_isRotor6Visible != value)
+            if (field != value)
             {
-                _isRotor6Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -386,12 +266,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsRotor7Visible
     {
-        get => _isRotor7Visible;
+        get;
         set
         {
-            if (_isRotor7Visible != value)
+            if (field != value)
             {
-                _isRotor7Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -402,12 +282,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool IsRotor8Visible
     {
-        get => _isRotor8Visible;
+        get;
         set
         {
-            if (_isRotor8Visible != value)
+            if (field != value)
             {
-                _isRotor8Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -434,12 +314,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int ReflectorIndex
     {
-        get => _reflectorIndex;
+        get;
         set
         {
-            if (_reflectorIndex != value)
+            if (field != value)
             {
-                _reflectorIndex = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -450,12 +330,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex1
     {
-        get => _rotorIndex1;
+        get;
         set
         {
-            if (_rotorIndex1 != value)
+            if (field != value)
             {
-                _rotorIndex1 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -466,12 +346,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex2
     {
-        get => _rotorIndex2;
+        get;
         set
         {
-            if (_rotorIndex2 != value)
+            if (field != value)
             {
-                _rotorIndex2 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -482,12 +362,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex3
     {
-        get => _rotorIndex3;
+        get;
         set
         {
-            if (_rotorIndex3 != value)
+            if (field != value)
             {
-                _rotorIndex3 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -498,12 +378,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex4
     {
-        get => _rotorIndex4;
+        get;
         set
         {
-            if (_rotorIndex4 != value)
+            if (field != value)
             {
-                _rotorIndex4 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -514,12 +394,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex5
     {
-        get => _rotorIndex5;
+        get;
         set
         {
-            if (_rotorIndex5 != value)
+            if (field != value)
             {
-                _rotorIndex5 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -530,12 +410,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex6
     {
-        get => _rotorIndex6;
+        get;
         set
         {
-            if (_rotorIndex6 != value)
+            if (field != value)
             {
-                _rotorIndex6 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -546,12 +426,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex7
     {
-        get => _rotorIndex7;
+        get;
         set
         {
-            if (_rotorIndex7 != value)
+            if (field != value)
             {
-                _rotorIndex7 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -562,12 +442,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public int RotorIndex8
     {
-        get => _rotorIndex8;
+        get;
         set
         {
-            if (_rotorIndex8 != value)
+            if (field != value)
             {
-                _rotorIndex8 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -578,33 +458,33 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public string SeedValue
     {
-        get => _seedValue;
+        get;
         set
         {
-            if (_seedValue != value)
+            if (field != value)
             {
-                _seedValue = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets or sets the currently selected rotor count.
     /// </summary>
     public int SelectedRotorCount
     {
-        get => _selectedRotorCount;
+        get;
         set
         {
-            if (_selectedRotorCount != value)
+            if (field != value)
             {
-                _selectedRotorCount = value;
+                field = value;
                 ShowVisibleRotors();
                 OnPropertyChanged();
             }
         }
-    }
+    } = 3;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the Enigma machine configuration should be
@@ -612,12 +492,12 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     public bool UseEmbeddedConfiguration
     {
-        get => _useEmbeddedConfiguration;
+        get;
         set
         {
-            if (_useEmbeddedConfiguration != value)
+            if (field != value)
             {
-                _useEmbeddedConfiguration = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -630,8 +510,8 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// The only requirement that is checked is that the seed value length is within the valid
     /// range. Everything else is guaranteed to be valid due to the view model design.
     /// </remarks>
-    private bool CanAccept => !string.IsNullOrWhiteSpace(_seedValue)
-        && (_seedValue.Length is >= MinStringLength and <= MaxSeedLength);
+    private bool CanAccept => !string.IsNullOrWhiteSpace(SeedValue)
+        && (SeedValue.Length is >= MinStringLength and <= MaxSeedLength);
 
     /// <summary>
     /// Gets a value indicating whether or not the Clear command can be executed.
@@ -640,7 +520,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// The only requirement is that the seed value text is not null or empty and the seed isn't
     /// auto-generated.
     /// </remarks>
-    private bool CanClear => !string.IsNullOrWhiteSpace(_seedValue) && !IsAutoSeedSelected;
+    private bool CanClear => !string.IsNullOrWhiteSpace(SeedValue) && !IsAutoSeedSelected;
 
     /// <summary>
     /// Initializes the view model with the current Enigma machine configuration.
@@ -743,10 +623,10 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// </summary>
     private void ShowVisibleRotors()
     {
-        IsRotor4Visible = _selectedRotorCount > 3;
-        IsRotor5Visible = _selectedRotorCount > 4;
-        IsRotor6Visible = _selectedRotorCount > 5;
-        IsRotor7Visible = _selectedRotorCount > 6;
-        IsRotor8Visible = _selectedRotorCount > 7;
+        IsRotor4Visible = SelectedRotorCount > 3;
+        IsRotor5Visible = SelectedRotorCount > 4;
+        IsRotor6Visible = SelectedRotorCount > 5;
+        IsRotor7Visible = SelectedRotorCount > 6;
+        IsRotor8Visible = SelectedRotorCount > 7;
     }
 }

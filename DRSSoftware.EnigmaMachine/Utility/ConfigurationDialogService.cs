@@ -1,17 +1,18 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.Windows;
 using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
 
-internal sealed class ConfigurationDialogService(IContainer container) : IConfigurationDialogService
+/// <summary>
+/// Provides a service for displaying a dialog used for setting and retrieving the configuration for
+/// the Enigma machine.
+/// </summary>
+/// <param name="container">
+/// The dependency injection container used to resolve required view and view model instances.
+/// </param>
+internal sealed class ConfigurationDialogService(IContainer container) : DialogServiceBase(container), IConfigurationDialogService
 {
-    /// <summary>
-    /// Holds a reference to the dependency injection container.
-    /// </summary>
-    private readonly IContainer _container = container;
-
     /// <summary>
     /// Obtains a new Enigma machine configuration from the user.
     /// </summary>
@@ -24,18 +25,9 @@ internal sealed class ConfigurationDialogService(IContainer container) : IConfig
     /// </returns>
     public EnigmaConfiguration GetConfiguration(EnigmaConfiguration currentConfiguration)
     {
-        IDialogView view = _container.Resolve<IDialogView>(ConfigurationDialogKey);
-
-        // The following if statement is required to allow unit testing.
-        if (Application.Current?.MainWindow is not null)
-        {
-            view.Owner = Application.Current.MainWindow;
-        }
-
-        view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
         IConfigurationDialogViewModel viewModel = _container.Resolve<IConfigurationDialogViewModel>();
         viewModel.Initialize(currentConfiguration);
-        view.DataContext = viewModel;
+        IDialogView view = GetDialogView(ConfigurationDialogKey, viewModel);
         _ = view.ShowDialog();
         return viewModel.EnigmaConfiguration;
     }

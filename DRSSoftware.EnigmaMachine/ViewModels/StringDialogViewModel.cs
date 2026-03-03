@@ -8,11 +8,6 @@ using DRSSoftware.EnigmaMachine.Commands;
 /// </summary>
 internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewModel
 {
-    private bool _closeTrigger;
-    private string _headerText = string.Empty;
-    private string _inputText = string.Empty;
-    private string _title = string.Empty;
-
     /// <summary>
     /// Creates a new instance of the <see cref="StringDialogViewModel" /> class.
     /// </summary>
@@ -43,12 +38,12 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
     /// </summary>
     public bool CloseTrigger
     {
-        get => _closeTrigger;
+        get;
         set
         {
-            if (_closeTrigger != value)
+            if (field != value)
             {
-                _closeTrigger = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -59,48 +54,48 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
     /// </summary>
     public string HeaderText
     {
-        get => _headerText;
+        get;
         set
         {
-            if (!_headerText.Equals(value, StringComparison.Ordinal))
+            if (!field.Equals(value, StringComparison.Ordinal))
             {
-                _headerText = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets or sets the input text entered by the user.
     /// </summary>
     public string InputText
     {
-        get => _inputText;
+        get;
         set
         {
-            if (!_inputText.Equals(value, StringComparison.Ordinal))
+            if (!field.Equals(value, StringComparison.Ordinal))
             {
-                _inputText = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets or sets the window title.
     /// </summary>
     public string Title
     {
-        get => _title;
+        get;
         set
         {
-            if (!_title.Equals(value, StringComparison.Ordinal))
+            if (!field.Equals(value, StringComparison.Ordinal))
             {
-                _title = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets a value that indicates whether or not the Accept command can be executed.
@@ -108,7 +103,7 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
     /// <returns>
     /// A value indicating whether or not the Accept command can be executed.
     /// </returns>
-    private bool CanAccept => !string.IsNullOrWhiteSpace(_inputText) && _inputText.Length >= MinStringLength;
+    private bool CanAccept => !string.IsNullOrWhiteSpace(InputText) && InputText.Length >= MinStringLength;
 
     /// <summary>
     /// Accept the user input and close the associated view.

@@ -48,106 +48,6 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     private readonly IStringDialogService _stringDialogService;
 
     /// <summary>
-    /// Backing field for the ConfigurationStatus property.
-    /// </summary>
-    private string _configurationStatus = NotConfiguredStatusText;
-
-    /// <summary>
-    /// Backing field for the InputText property.
-    /// </summary>
-    private string _inputText = string.Empty;
-
-    /// <summary>
-    /// Backing field for the IsConfigured property.
-    /// </summary>
-    private bool _isConfigured;
-
-    /// <summary>
-    /// Backing field for the IsRotor4Visible property.
-    /// </summary>
-    private bool _isRotor4Visible;
-
-    /// <summary>
-    /// Backing field for the IsRotor5Visible property.
-    /// </summary>
-    private bool _isRotor5Visible;
-
-    /// <summary>
-    /// Backing field for the IsRotor6Visible property.
-    /// </summary>
-    private bool _isRotor6Visible;
-
-    /// <summary>
-    /// Backing field for the IsRotor7Visible property.
-    /// </summary>
-    private bool _isRotor7Visible;
-
-    /// <summary>
-    /// Backing field for the IsRotor8Visible property.
-    /// </summary>
-    private bool _isRotor8Visible;
-
-    /// <summary>
-    /// Backing field for the NumberOfRotors property.
-    /// </summary>
-    private int _numberOfRotors;
-
-    /// <summary>
-    /// Backing field for the OutputText property.
-    /// </summary>
-    private string _outputText = string.Empty;
-
-    /// <summary>
-    /// Backing field for the ReflectorIndex property.
-    /// </summary>
-    private int _reflectorIndex;
-
-    /// <summary>
-    /// Backing field for the RotorIndex1 property.
-    /// </summary>
-    private int _rotorIndex1;
-
-    /// <summary>
-    /// Backing field for the RotorIndex2 property.
-    /// </summary>
-    private int _rotorIndex2;
-
-    /// <summary>
-    /// Backing field for the RotorIndex3 property.
-    /// </summary>
-    private int _rotorIndex3;
-
-    /// <summary>
-    /// Backing field for the RotorIndex4 property.
-    /// </summary>
-    private int _rotorIndex4;
-
-    /// <summary>
-    /// Backing field for the RotorIndex5 property.
-    /// </summary>
-    private int _rotorIndex5;
-
-    /// <summary>
-    /// Backing field for the RotorIndex6 property.
-    /// </summary>
-    private int _rotorIndex6;
-
-    /// <summary>
-    /// Backing field for the RotorIndex7 property.
-    /// </summary>
-    private int _rotorIndex7;
-
-    /// <summary>
-    /// Backing field for the RotorIndex8 property.
-    /// </summary>
-    private int _rotorIndex8;
-
-    /// <summary>
-    /// Backing field for the UseEmbeddedConfiguration property.
-    /// </summary>
-    private bool _useEmbeddedConfiguration;
-
-    /// <summary>
     /// Initializes a new instance of the MainWindowViewModel class with the specified Enigma
     /// machine builder and input/output service.
     /// </summary>
@@ -218,16 +118,16 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public string ConfigurationStatus
     {
-        get => _configurationStatus;
+        get;
         set
         {
-            if (_configurationStatus.Equals(value, StringComparison.Ordinal) is false)
+            if (field.Equals(value, StringComparison.Ordinal) is false)
             {
-                _configurationStatus = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
-    }
+    } = NotConfiguredStatusText;
 
     /// <summary>
     /// Gets the command used for reconfiguring the Enigma machine.
@@ -259,29 +159,29 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public string InputText
     {
-        get => _inputText;
+        get;
         set
         {
-            if (_inputText.Equals(value, StringComparison.Ordinal) is false)
+            if (field.Equals(value, StringComparison.Ordinal) is false)
             {
-                _inputText = value;
-                InputTextIsCloaked = _cloakingService.HasIndicatorString(_inputText);
+                field = value;
+                InputTextIsCloaked = _cloakingService.HasIndicatorString(field);
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the Enigma machine is fully configured.
     /// </summary>
     public bool IsConfigured
     {
-        get => _isConfigured;
+        get;
         set
         {
-            if (_isConfigured != value)
+            if (field != value)
             {
-                _isConfigured = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -292,12 +192,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool IsRotor4Visible
     {
-        get => _isRotor4Visible;
+        get;
         set
         {
-            if (_isRotor4Visible != value)
+            if (field != value)
             {
-                _isRotor4Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -308,12 +208,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool IsRotor5Visible
     {
-        get => _isRotor5Visible;
+        get;
         set
         {
-            if (_isRotor5Visible != value)
+            if (field != value)
             {
-                _isRotor5Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -324,12 +224,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool IsRotor6Visible
     {
-        get => _isRotor6Visible;
+        get;
         set
         {
-            if (_isRotor6Visible != value)
+            if (field != value)
             {
-                _isRotor6Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -340,12 +240,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool IsRotor7Visible
     {
-        get => _isRotor7Visible;
+        get;
         set
         {
-            if (_isRotor7Visible != value)
+            if (field != value)
             {
-                _isRotor7Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -356,12 +256,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool IsRotor8Visible
     {
-        get => _isRotor8Visible;
+        get;
         set
         {
-            if (_isRotor8Visible != value)
+            if (field != value)
             {
-                _isRotor8Visible = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -388,12 +288,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int NumberOfRotors
     {
-        get => _numberOfRotors;
+        get;
         set
         {
-            if (_numberOfRotors != value)
+            if (field != value)
             {
-                _numberOfRotors = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -404,29 +304,29 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public string OutputText
     {
-        get => _outputText;
+        get;
         set
         {
-            if (_outputText.Equals(value, StringComparison.Ordinal) is false)
+            if (field.Equals(value, StringComparison.Ordinal) is false)
             {
-                _outputText = value;
-                OutputTextIsCloaked = _cloakingService.HasIndicatorString(_outputText);
+                field = value;
+                OutputTextIsCloaked = _cloakingService.HasIndicatorString(field);
                 OnPropertyChanged();
             }
         }
-    }
+    } = string.Empty;
 
     /// <summary>
     /// Gets or sets the reflector index value.
     /// </summary>
     public int ReflectorIndex
     {
-        get => _reflectorIndex;
+        get;
         set
         {
-            if (_reflectorIndex != value)
+            if (field != value)
             {
-                _reflectorIndex = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -445,12 +345,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex1
     {
-        get => _rotorIndex1;
+        get;
         set
         {
-            if (_rotorIndex1 != value)
+            if (field != value)
             {
-                _rotorIndex1 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -461,12 +361,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex2
     {
-        get => _rotorIndex2;
+        get;
         set
         {
-            if (_rotorIndex2 != value)
+            if (field != value)
             {
-                _rotorIndex2 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -477,12 +377,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex3
     {
-        get => _rotorIndex3;
+        get;
         set
         {
-            if (_rotorIndex3 != value)
+            if (field != value)
             {
-                _rotorIndex3 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -493,12 +393,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex4
     {
-        get => _rotorIndex4;
+        get;
         set
         {
-            if (_rotorIndex4 != value)
+            if (field != value)
             {
-                _rotorIndex4 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -509,12 +409,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex5
     {
-        get => _rotorIndex5;
+        get;
         set
         {
-            if (_rotorIndex5 != value)
+            if (field != value)
             {
-                _rotorIndex5 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -525,12 +425,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex6
     {
-        get => _rotorIndex6;
+        get;
         set
         {
-            if (_rotorIndex6 != value)
+            if (field != value)
             {
-                _rotorIndex6 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -541,12 +441,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex7
     {
-        get => _rotorIndex7;
+        get;
         set
         {
-            if (_rotorIndex7 != value)
+            if (field != value)
             {
-                _rotorIndex7 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -557,12 +457,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public int RotorIndex8
     {
-        get => _rotorIndex8;
+        get;
         set
         {
-            if (_rotorIndex8 != value)
+            if (field != value)
             {
-                _rotorIndex8 = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
@@ -591,12 +491,12 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     public bool UseEmbeddedConfiguration
     {
-        get => _useEmbeddedConfiguration;
+        get;
         set
         {
-            if (_useEmbeddedConfiguration != value)
+            if (field != value)
             {
-                _useEmbeddedConfiguration = value;
+                field = value;
                 OnPropertyChanged();
             }
         }
