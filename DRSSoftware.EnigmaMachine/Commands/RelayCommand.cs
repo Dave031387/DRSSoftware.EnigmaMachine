@@ -3,7 +3,8 @@
 using System.Windows.Input;
 
 /// <summary>
-/// Used in an MVVM application to relay command logic to view models.
+/// Used in an MVVM application to relay command logic from views to their corresponding view
+/// models.
 /// </summary>
 /// <param name="execute">
 /// The action to be executed when the command is invoked.

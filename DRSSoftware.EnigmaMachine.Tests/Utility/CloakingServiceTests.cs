@@ -1,7 +1,5 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.Collections.Generic;
-
 public class CloakingServiceTests
 {
     [Fact]

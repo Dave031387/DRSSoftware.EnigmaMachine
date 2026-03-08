@@ -484,7 +484,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
                 OnPropertyChanged();
             }
         }
-    } = 3;
+    } = MinRotorCount;
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the Enigma machine configuration should be
@@ -520,7 +520,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
     /// The only requirement is that the seed value text is not null or empty and the seed isn't
     /// auto-generated.
     /// </remarks>
-    private bool CanClear => !string.IsNullOrWhiteSpace(SeedValue) && !IsAutoSeedSelected;
+    private bool CanClear => !string.IsNullOrEmpty(SeedValue) && !IsAutoSeedSelected;
 
     /// <summary>
     /// Initializes the view model with the current Enigma machine configuration.
@@ -612,7 +612,7 @@ internal sealed class ConfigurationDialogViewModel : ViewModelBase, IConfigurati
 
         for (int i = 0; i < seedLength; i++)
         {
-            seedChars[i] = (char)(_numberGenerator.GetNext(MinValue, MaxValue) + MinChar);
+            seedChars[i] = (char)_numberGenerator.GetNext(MinChar, MaxChar);
         }
 
         SeedValue = new string(seedChars);

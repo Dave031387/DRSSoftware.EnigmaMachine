@@ -1,7 +1,5 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
-using System.Collections.Generic;
-
 public class IndicatorStringGeneratorTests
 {
     [Theory]
@@ -26,7 +24,8 @@ public class IndicatorStringGeneratorTests
         List<int>.Enumerator enumerator = sequence.GetEnumerator();
 
         Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
-        mockNumberGenerator.Setup(m => m.GetNext(MinChar, indicatorChar))
+        mockNumberGenerator
+            .Setup(m => m.GetNext(MinChar, indicatorChar))
             .Returns(() =>
             {
                 enumerator.MoveNext(); 
