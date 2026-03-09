@@ -19,7 +19,7 @@ public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
     /// <summary>
     /// Gets or sets the configuration status text.
     /// </summary>
-    public string ConfigurationStatus
+    public string ConfigurationStatusText
     {
         get;
         set;

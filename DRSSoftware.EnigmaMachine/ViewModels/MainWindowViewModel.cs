@@ -100,8 +100,6 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         // Initialization
         _enigmaConfiguration = new();
         EnigmaMachine = _enigmaMachineBuilder.Build(_enigmaConfiguration);
-        InputText = string.Empty;
-        OutputText = string.Empty;
         UpdateProperties();
     }
 
@@ -116,7 +114,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// <summary>
     /// Gets or sets the configuration status text.
     /// </summary>
-    public string ConfigurationStatus
+    public string ConfigurationStatusText
     {
         get;
         set
@@ -804,8 +802,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             RotorIndex8 = _enigmaConfiguration.RotorIndex8;
         }
 
-        IsConfigured = !string.IsNullOrWhiteSpace(_enigmaConfiguration.SeedValue);
-        ConfigurationStatus = IsConfigured ? ConfiguredStatusText : NotConfiguredStatusText;
+        IsConfigured = !string.IsNullOrEmpty(_enigmaConfiguration.SeedValue);
+        ConfigurationStatusText = IsConfigured ? ConfiguredStatusText : NotConfiguredStatusText;
         UseEmbeddedConfiguration = _enigmaConfiguration.UseEmbeddedConfiguration;
     }
 }

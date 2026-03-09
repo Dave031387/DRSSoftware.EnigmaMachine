@@ -6,12 +6,19 @@ public class StringDialogViewModelTests
     public void AcceptCommand_ShouldSetCloseTriggerPropertyToTrue()
     {
         // Arrange
-        StringDialogViewModel viewModel = new();
+        string expected = "1234567890";
+        StringDialogViewModel viewModel = new()
+        {
+            InputText = expected
+        };
 
         // Act
         viewModel.AcceptCommand.Execute(null);
 
         // Assert
+        viewModel.InputText
+            .Should()
+            .Be(expected);
         viewModel.CloseTrigger
             .Should()
             .BeTrue();

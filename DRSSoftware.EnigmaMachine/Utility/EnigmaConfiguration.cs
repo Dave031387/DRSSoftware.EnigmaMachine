@@ -3,7 +3,7 @@
 /// <summary>
 /// This class holds the configuration settings for the Enigma machine.
 /// </summary>
-public sealed class EnigmaConfiguration
+public sealed class EnigmaConfiguration : IEquatable<EnigmaConfiguration>
 {
     /// <summary>
     /// Gets or sets the number of rotors to be used in the Enigma machine.
@@ -113,6 +113,68 @@ public sealed class EnigmaConfiguration
         get;
         set;
     }
+
+    /// <summary>
+    /// Determines whether the current <see cref="EnigmaConfiguration" /> instance is equal to
+    /// another object of the same type.
+    /// </summary>
+    /// <param name="other">
+    /// The object to compare with the current <see cref="EnigmaConfiguration" /> instance. This
+    /// parameter can be <see langword="null" />.
+    /// </param>
+    /// <returns>
+    /// <see langword="true" /> if the specified object is equal to the current instance; otherwise,
+    /// <see langword="false" />.
+    /// </returns>
+    public bool Equals(EnigmaConfiguration? other) => other is not null
+        && NumberOfRotors == other.NumberOfRotors
+        && ReflectorIndex == other.ReflectorIndex
+        && RotorIndex1 == other.RotorIndex1
+        && RotorIndex2 == other.RotorIndex2
+        && RotorIndex3 == other.RotorIndex3
+        && RotorIndex4 == other.RotorIndex4
+        && RotorIndex5 == other.RotorIndex5
+        && RotorIndex6 == other.RotorIndex6
+        && RotorIndex7 == other.RotorIndex7
+        && RotorIndex8 == other.RotorIndex8
+        && SeedValue == other.SeedValue
+        && UseEmbeddedConfiguration == other.UseEmbeddedConfiguration;
+
+    /// <summary>
+    /// Determines whether the specified <paramref name="obj" /> object is equal to the current
+    /// <see cref="EnigmaConfiguration" /> instance.
+    /// </summary>
+    /// <param name="obj">
+    /// The object to compare with the current <see cref="EnigmaConfiguration" /> instance. This
+    /// parameter can be <see langword="null" />.
+    /// </param>
+    /// <returns>
+    /// <see langword="true" /> if the specified <paramref name="obj" /> object is an
+    /// <see cref="EnigmaConfiguration" /> object and is equal to the current instance; otherwise,
+    /// <see langword="false" />.
+    /// </returns>
+    public override bool Equals(object? obj) => Equals(obj as EnigmaConfiguration);
+
+    /// <summary>
+    /// Calculates a hash code for the current instance based on the values of its configuration
+    /// properties.
+    /// </summary>
+    /// <returns>
+    /// A 32-bit signed integer hash code that represents the current configuration instance.
+    /// </returns>
+    public override int GetHashCode()
+        => HashCode.Combine(HashCode.Combine(RotorIndex1,
+                                             RotorIndex2,
+                                             RotorIndex3,
+                                             RotorIndex4,
+                                             RotorIndex5,
+                                             RotorIndex6,
+                                             RotorIndex7,
+                                             RotorIndex8),
+                            NumberOfRotors,
+                            ReflectorIndex,
+                            SeedValue,
+                            UseEmbeddedConfiguration);
 
     /// <summary>
     /// Updates the current configuration with values from another configuration.
