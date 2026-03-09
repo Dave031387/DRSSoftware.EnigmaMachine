@@ -103,7 +103,7 @@ internal sealed class StringDialogViewModel : ViewModelBase, IStringDialogViewMo
     /// <returns>
     /// A value indicating whether or not the Accept command can be executed.
     /// </returns>
-    private bool CanAccept => !string.IsNullOrWhiteSpace(InputText) && InputText.Length >= MinStringLength;
+    private bool CanAccept => !string.IsNullOrEmpty(InputText) && InputText.Length >= MinStringLength;
 
     /// <summary>
     /// Accept the user input and close the associated view.
