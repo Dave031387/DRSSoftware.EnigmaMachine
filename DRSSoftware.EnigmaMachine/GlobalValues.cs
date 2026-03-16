@@ -27,6 +27,16 @@ public static class GlobalValues
     public const char CloakingIndicatorChar = (char)(EmbeddingIndicatorChar - 1);
 
     /// <summary>
+    /// The header text for the cloaking string dialog window.
+    /// </summary>
+    public const string CloakingStringDialogHeader = "Enter the text string to be used for cloaking the output text:";
+
+    /// <summary>
+    /// The title of the cloaking string dialog window.
+    /// </summary>
+    public const string CloakingStringDialogTitle = "Enter Cloaking Text";
+
+    /// <summary>
     /// Resource key used for resolving the ConfigurationDialogView dependency object.
     /// </summary>
     public const string ConfigurationDialogKey = nameof(ConfigurationDialogKey);
@@ -40,6 +50,16 @@ public static class GlobalValues
     /// A string containing a Carriage Return/Line Feed pair of characters.
     /// </summary>
     public const string CRLF = "\r\n";
+
+    /// <summary>
+    /// The header text for the decloaking string dialog window.
+    /// </summary>
+    public const string DecloakingStringDialogHeader = "Enter the text string to be used for decloaking the input text:";
+
+    /// <summary>
+    /// The title of the decloaking string dialog window.
+    /// </summary>
+    public const string DecloakingStringDialogTitle = "Enter Decloaking Text";
 
     /// <summary>
     /// A character value used by the embedding algorithm to mark the end of one of the sequences

@@ -15,7 +15,7 @@ public class EnigmaMachineTests
 
         // Assert
         VerifyAll();
-        enigmaMachine.MyReflector
+        enigmaMachine.Reflector
             .Should()
             .NotBeNull()
             .And

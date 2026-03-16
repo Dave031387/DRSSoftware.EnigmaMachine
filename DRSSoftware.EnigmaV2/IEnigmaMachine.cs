@@ -26,18 +26,18 @@ public interface IEnigmaMachine
     }
 
     /// <summary>
-    /// Gets a reference to the <see cref="Reflector" /> object associated with this
-    /// <see cref="EnigmaMachine" />.
+    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
     /// </summary>
-    public IReflector MyReflector
+    int NumberOfRotors
     {
         get;
     }
 
     /// <summary>
-    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
+    /// Gets a reference to the <see cref="EnigmaV2.Reflector" /> object associated with this
+    /// <see cref="EnigmaMachine" />.
     /// </summary>
-    int NumberOfRotors
+    public IReflector Reflector
     {
         get;
     }
@@ -119,21 +119,21 @@ public interface IEnigmaMachine
     /// <paramref name="seed" /> value.
     /// </summary>
     /// <remarks>
-    /// This method configures the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
-    /// <see cref="EnigmaMachine" /> based on the provided seed. <br /> The <paramref name="seed" />
-    /// is used to initialize the <see cref="Reflector" />, and modified versions of the
-    /// <paramref name="seed" /> are used to initialize each <see cref="Rotor" />. <br /> After
-    /// initialization, the system is marked as ready for use.
+    /// This method configures the <see cref="EnigmaV2.Reflector" /> and each <see cref="Rotor" />
+    /// of the <see cref="EnigmaMachine" /> based on the provided seed. <br /> The
+    /// <paramref name="seed" /> is used to initialize the <see cref="EnigmaV2.Reflector" />, and
+    /// modified versions of the <paramref name="seed" /> are used to initialize each
+    /// <see cref="Rotor" />. <br /> After initialization, the system is marked as ready for use.
     /// </remarks>
     /// <param name="seed">
-    /// A non-null string used to initialize the <see cref="Reflector" /> and each
+    /// A non-null string used to initialize the <see cref="EnigmaV2.Reflector" /> and each
     /// <see cref="Rotor" />. The seed determines the initial state of the components.
     /// </param>
     public void Initialize(string seed);
 
     /// <summary>
-    /// Resets the index of the <see cref="Reflector" /> and each <see cref="Rotor" /> to their
-    /// initial values (or 0, if the <c> "SetIndexes(int[])" </c> method was never called).
+    /// Resets the index of the <see cref="EnigmaV2.Reflector" /> and each <see cref="Rotor" /> to
+    /// their initial values (or 0, if the <c> "SetIndexes(int[])" </c> method was never called).
     /// </summary>
     /// <remarks>
     /// This method has no effect if the system was never initialized.
@@ -141,19 +141,19 @@ public interface IEnigmaMachine
     public void ResetCipherIndexes();
 
     /// <summary>
-    /// Sets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
-    /// <see cref="EnigmaMachine" /> to the specified values.
+    /// Sets the cipher index of the <see cref="EnigmaV2.Reflector" /> and each <see cref="Rotor" />
+    /// of the <see cref="EnigmaMachine" /> to the specified values.
     /// </summary>
     /// <remarks>
     /// The <see cref="EnigmaMachine" /> must be initialized before calling this method. The last
-    /// value in <paramref name="indexes" /> is the index for the <see cref="Reflector" /> and the
-    /// rest are indexes for each <see cref="Rotor" />.
+    /// value in <paramref name="indexes" /> is the index for the <see cref="EnigmaV2.Reflector" />
+    /// and the rest are indexes for each <see cref="Rotor" />.
     /// </remarks>
     /// <param name="indexes">
     /// An array containing the desired index values. The array must contain one index for each
-    /// <see cref="Rotor" /> and an index for the <see cref="Reflector" />. <br /> The last element
-    /// in the array is used for the <see cref="Reflector" /> and the rest are used for each
-    /// <see cref="Rotor" />.
+    /// <see cref="Rotor" /> and an index for the <see cref="EnigmaV2.Reflector" />. <br /> The last
+    /// element in the array is used for the <see cref="EnigmaV2.Reflector" /> and the rest are used
+    /// for each <see cref="Rotor" />.
     /// </param>
     public void SetCipherIndexes(params int[] indexes);
 
@@ -163,11 +163,11 @@ public interface IEnigmaMachine
     /// </summary>
     /// <remarks>
     /// This method processes the input text character by character, applying the configured
-    /// <see cref="Rotor" /> and <see cref="Reflector" /> transformations. <br /> Characters outside
-    /// the valid range are replaced by the space character before being transformed. Carriage
-    /// return characters are ignored. <br /> New line characters coming in are converted to
-    /// <see langword="DEL" /> characters (U+007F), and <see langword="DEL" /> characters going out
-    /// are converted back to new line characters.
+    /// <see cref="Rotor" /> and <see cref="EnigmaV2.Reflector" /> transformations. <br />
+    /// Characters outside the valid range are replaced by the space character before being
+    /// transformed. Carriage return characters are ignored. <br /> New line characters coming in
+    /// are converted to <see langword="DEL" /> characters (U+007F), and <see langword="DEL" />
+    /// characters going out are converted back to new line characters.
     /// </remarks>
     /// <param name="text">
     /// The input text to be transformed. Must not be <see langword="null" />.

@@ -19,8 +19,8 @@ public sealed class EnigmaMachine : IEnigmaMachine
 {
     /// <summary>
     /// An array of integer values that will be used as the cycle size values that will be passed
-    /// into the constructors of the <see cref="Reflector" /> and <see cref="Rotor" /> classes when
-    /// the default <see cref="EnigmaMachine" /> constructor is used.
+    /// into the constructors of the <see cref="EnigmaV2.Reflector" /> and <see cref="Rotor" />
+    /// classes when the default <see cref="EnigmaMachine" /> constructor is used.
     /// </summary>
     private readonly int[] _cycleSizes = [1, 11, 7, 17, 13, 23, 29, 37, 41];
 
@@ -36,13 +36,14 @@ public sealed class EnigmaMachine : IEnigmaMachine
     private readonly IRotor[] _rotors;
 
     /// <summary>
-    /// An array which is used to store the initial index settings of the <see cref="Reflector" />
-    /// and <see cref="Rotor" /> objects of this <see cref="EnigmaMachine" />.
+    /// An array which is used to store the initial index settings of the
+    /// <see cref="EnigmaV2.Reflector" /> and <see cref="Rotor" /> objects of this
+    /// <see cref="EnigmaMachine" />.
     /// </summary>
     /// <remarks>
     /// This array is filled by the <c> "SetIndexes(int[])" </c> method and used by the <c>
     /// "ResetIndexes()" </c> method. <br /> The last entry in this array is the
-    /// <see cref="Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
+    /// <see cref="EnigmaV2.Reflector" /> index. The rest are the <see cref="Rotor" /> indexes.
     /// </remarks>
     private int[] _cipherWheelIndexes = [];
 
@@ -51,8 +52,8 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// of rotors.
     /// </summary>
     /// <remarks>
-    /// The constructor automatically instantiates the <see cref="Reflector" /> object and the
-    /// required number of <see cref="Rotor" /> objects as determined by the <c>
+    /// The constructor automatically instantiates the <see cref="EnigmaV2.Reflector" /> object and
+    /// the required number of <see cref="Rotor" /> objects as determined by the <c>
     /// DefaultNumberOfRotors </c> constant.
     /// </remarks>
     public EnigmaMachine() : this(DefaultNumberOfRotors)
@@ -64,8 +65,8 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// number of rotors.
     /// </summary>
     /// <remarks>
-    /// The constructor automatically instantiates the <see cref="Reflector" /> object and the
-    /// required number of <see cref="Rotor" /> objects as determined by the
+    /// The constructor automatically instantiates the <see cref="EnigmaV2.Reflector" /> object and
+    /// the required number of <see cref="Rotor" /> objects as determined by the
     /// <paramref name="numberOfRotors" /> parameter.
     /// </remarks>
     /// <param name="numberOfRotors">
@@ -93,7 +94,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
             }
         }
 
-        MyReflector = new Reflector(_cycleSizes[cycleSizeIndex]);
+        Reflector = new Reflector(_cycleSizes[cycleSizeIndex]);
 
         BuildEnigmaMachine();
     }
@@ -102,8 +103,8 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// Initializes a new instance of the <see cref="EnigmaMachine" /> class.
     /// </summary>
     /// <param name="reflector">
-    /// The <c> IReflector </c> object representing the <see cref="Reflector" /> component of this
-    /// <see cref="EnigmaMachine" />.
+    /// The <c> IReflector </c> object representing the <see cref="EnigmaV2.Reflector" /> component
+    /// of this <see cref="EnigmaMachine" />.
     /// </param>
     /// <param name="rotors">
     /// One or more <c> IRotor </c> objects representing the <see cref="Rotor" /> components of this
@@ -122,7 +123,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
             throw new ArgumentException($"The {nameof(Rotor)}s collection passed into the {nameof(EnigmaMachine)} constructor must contain at least {MinRotors} {word}.", nameof(rotors));
         }
 
-        MyReflector = reflector;
+        Reflector = reflector;
         _rotors = new IRotor[NumberOfRotors];
 
         for (int i = 0; i < NumberOfRotors; i++)
@@ -153,18 +154,18 @@ public sealed class EnigmaMachine : IEnigmaMachine
     }
 
     /// <summary>
-    /// Gets a reference to the reflector object associated with this <see cref="EnigmaMachine" />.
+    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
     /// </summary>
-    public IReflector MyReflector
+    public int NumberOfRotors
     {
         get;
         private set;
     }
 
     /// <summary>
-    /// Gets the number of rotors that have been configured for this <see cref="EnigmaMachine" />.
+    /// Gets a reference to the reflector object associated with this <see cref="EnigmaMachine" />.
     /// </summary>
-    public int NumberOfRotors
+    public IReflector Reflector
     {
         get;
         private set;
@@ -220,7 +221,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
 
     /// <summary>
     /// Gets a copy of the <see cref="_cipherWheelIndexes" /> array containing the initial indexes
-    /// of the <see cref="Reflector" /> and <see cref="Rotor" /> objects.
+    /// of the <see cref="EnigmaV2.Reflector" /> and <see cref="Rotor" /> objects.
     /// </summary>
     /// <remarks>
     /// This property is intended for unit testing purposes only.
@@ -240,11 +241,11 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// <see cref="EnigmaMachine" /> using the specified <paramref name="seed" /> value.
     /// </summary>
     /// <remarks>
-    /// This method configures the <see cref="Reflector" /> and each <see cref="Rotor" /> based on
-    /// the provided <paramref name="seed" /> value. <br /> The seed is used to initialize the
-    /// <see cref="Reflector" />, and modified versions of the seed are used to initialize each
-    /// <see cref="Rotor" />. <br /> After initialization, the <see cref="EnigmaMachine" /> is
-    /// marked as ready for use.
+    /// This method configures the <see cref="EnigmaV2.Reflector" /> and each <see cref="Rotor" />
+    /// based on the provided <paramref name="seed" /> value. <br /> The seed is used to initialize
+    /// the <see cref="EnigmaV2.Reflector" />, and modified versions of the seed are used to
+    /// initialize each <see cref="Rotor" />. <br /> After initialization, the
+    /// <see cref="EnigmaMachine" /> is marked as ready for use.
     /// </remarks>
     /// <param name="seed">
     /// A non-null string used to initialize the reflector and rotors. The seed determines the
@@ -255,7 +256,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
         ArgumentNullException.ThrowIfNull(seed, nameof(seed));
 
         char[] chars = seed.ToCharArray();
-        MyReflector.Initialize(seed);
+        Reflector.Initialize(seed);
 
         for (int i = 0; i < NumberOfRotors; i++)
         {
@@ -269,8 +270,9 @@ public sealed class EnigmaMachine : IEnigmaMachine
     }
 
     /// <summary>
-    /// Resets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> to
-    /// their initial values (or 0, if <c> "SetIndexes(int[])" </c> was never called).
+    /// Resets the cipher index of the <see cref="EnigmaV2.Reflector" /> and each
+    /// <see cref="Rotor" /> to their initial values (or 0, if <c> "SetIndexes(int[])" </c> was
+    /// never called).
     /// </summary>
     /// <remarks>
     /// This method has no effect if the <see cref="EnigmaMachine" /> was never initialized.
@@ -284,24 +286,24 @@ public sealed class EnigmaMachine : IEnigmaMachine
                 _rotors[i].SetCipherIndex(_cipherWheelIndexes[i]);
             }
 
-            MyReflector.SetCipherIndex(_cipherWheelIndexes[^1]);
+            Reflector.SetCipherIndex(_cipherWheelIndexes[^1]);
         }
     }
 
     /// <summary>
-    /// Sets the cipher index of the <see cref="Reflector" /> and each <see cref="Rotor" /> of the
-    /// <see cref="EnigmaMachine" /> to the specified values.
+    /// Sets the cipher index of the <see cref="EnigmaV2.Reflector" /> and each <see cref="Rotor" />
+    /// of the <see cref="EnigmaMachine" /> to the specified values.
     /// </summary>
     /// <remarks>
     /// The <see cref="EnigmaMachine" /> must be initialized before calling this method. The last
-    /// value in <paramref name="indexes" /> is the index for the <see cref="Reflector" /> and the
-    /// rest are indexes for each <see cref="Rotor" />.
+    /// value in <paramref name="indexes" /> is the index for the <see cref="EnigmaV2.Reflector" />
+    /// and the rest are indexes for each <see cref="Rotor" />.
     /// </remarks>
     /// <param name="indexes">
     /// An array containing the desired index values. The array must contain exactly one value for
-    /// each <see cref="Rotor" /> and one value for the <see cref="Reflector" />. <br /> The last
-    /// element in the array is used for the <see cref="Reflector" /> and the rest are used for each
-    /// <see cref="Rotor" />.
+    /// each <see cref="Rotor" /> and one value for the <see cref="EnigmaV2.Reflector" />. <br />
+    /// The last element in the array is used for the <see cref="EnigmaV2.Reflector" /> and the rest
+    /// are used for each <see cref="Rotor" />.
     /// </param>
     /// <exception cref="ArgumentException">
     /// Thrown if the length of <paramref name="indexes" /> is not equal to exactly on more than the
@@ -344,11 +346,11 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// </summary>
     /// <remarks>
     /// This method processes the input text character by character, applying the configured
-    /// <see cref="Rotor" /> and <see cref="Reflector" /> transformations. <br /> Characters outside
-    /// the valid range are replaced by the space character before being transformed. Carriage
-    /// return characters are ignored. <br /> New line characters coming in are converted to
-    /// <see langword="DEL" /> characters (U+007F), and <see langword="DEL" /> characters going out
-    /// are converted back to new line characters.
+    /// <see cref="Rotor" /> and <see cref="EnigmaV2.Reflector" /> transformations. <br />
+    /// Characters outside the valid range are replaced by the space character before being
+    /// transformed. Carriage return characters are ignored. <br /> New line characters coming in
+    /// are converted to <see langword="DEL" /> characters (U+007F), and <see langword="DEL" />
+    /// characters going out are converted back to new line characters.
     /// </remarks>
     /// <param name="text">
     /// The input text to be transformed. Must not be <see langword="null" />.
@@ -408,7 +410,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// </param>
     /// <param name="cipherWheelIndexes">
     /// An array of integer values representing the initial indexes of the cipher wheels (i.e.,
-    /// <see cref="Reflector" /> and <see cref="Rotor" /> components).
+    /// <see cref="EnigmaV2.Reflector" /> and <see cref="Rotor" /> components).
     /// </param>
     internal void SetState(bool? isInitialized, int[]? cipherWheelIndexes)
     {
@@ -460,7 +462,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
 
     /// <summary>
     /// Builds the <see cref="EnigmaMachine" /> by establishing the connections between the
-    /// <see cref="Reflector" /> and various <see cref="Rotor" /> objects.
+    /// <see cref="EnigmaV2.Reflector" /> and various <see cref="Rotor" /> objects.
     /// </summary>
     /// <remarks>
     /// <list type="bullet">
@@ -471,7 +473,7 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// <item>
     /// The right side of the last <see cref="Rotor" /> is connected to the previous
     /// <see cref="Rotor" /> in sequence and the left side is connected to the
-    /// <see cref="Reflector" />.
+    /// <see cref="EnigmaV2.Reflector" />.
     /// </item>
     /// <item>
     /// For every <see cref="Rotor" /> but the first and last, their right side is connected to the
@@ -479,8 +481,8 @@ public sealed class EnigmaMachine : IEnigmaMachine
     /// <see cref="Rotor" /> in sequence.
     /// </item>
     /// <item>
-    /// The right side of the <see cref="Reflector" /> is connected to the left side of the last
-    /// <see cref="Rotor" />. (The <see cref="Reflector" /> only has one side.)
+    /// The right side of the <see cref="EnigmaV2.Reflector" /> is connected to the left side of the
+    /// last <see cref="Rotor" />. (The <see cref="EnigmaV2.Reflector" /> only has one side.)
     /// </item>
     /// </list>
     /// </remarks>
@@ -499,11 +501,11 @@ public sealed class EnigmaMachine : IEnigmaMachine
             }
             else
             {
-                _rotors[i].ConnectLeftComponent(MyReflector);
+                _rotors[i].ConnectLeftComponent(Reflector);
             }
         }
 
-        MyReflector.ConnectRightComponent(_rotors[^1]);
+        Reflector.ConnectRightComponent(_rotors[^1]);
         _cipherWheelIndexes = new int[NumberOfRotors + 1];
         IsInitialized = false;
     }

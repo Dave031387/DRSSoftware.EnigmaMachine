@@ -84,18 +84,18 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         _configurationDialogService = configurationDialogService;
         _embeddingService = embeddingService;
         _enigmaMachineBuilder = enigmaMachineBuilder;
-        _stringDialogService = stringDialogService;
         _inputOutputService = inputOutputService;
+        _stringDialogService = stringDialogService;
 
         // Commands
         CloakCommand = new RelayCommand(_ => Cloak(), _ => CanCloak);
         ConfigureCommand = new RelayCommand(_ => Configure(), _ => true);
         DecloakCommand = new RelayCommand(_ => Decloak(), _ => CanDecloak);
-        TransformCommand = new RelayCommand(_ => Transform(), _ => CanTransform);
         LoadCommand = new RelayCommand(_ => LoadFile(), _ => true);
         MoveCommand = new RelayCommand(_ => Move(), _ => OutputTextIsAvailable);
         ResetCommand = new RelayCommand(_ => Reset(), _ => IsTransformExecuted);
         SaveCommand = new RelayCommand(_ => SaveFile(), _ => OutputTextIsAvailable);
+        TransformCommand = new RelayCommand(_ => Transform(), _ => CanTransform);
 
         // Initialization
         _enigmaConfiguration = new();
@@ -542,7 +542,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// Gets or sets a value indicating whether the Transform command has been executed since the
     /// last execution of either the Configure or Reset commands.
     /// </summary>
-    bool IsTransformExecuted
+    private bool IsTransformExecuted
     {
         get;
         set;
@@ -567,8 +567,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     private void Cloak()
     {
-        string title = "Cloak Text";
-        string header = "Enter the text string for cloaking the output text:";
+        string title = CloakingStringDialogTitle;
+        string header = CloakingStringDialogHeader;
         string cloakText = _stringDialogService.GetString(title, header);
 
         if (string.IsNullOrWhiteSpace(cloakText))
@@ -596,8 +596,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// </summary>
     private void Decloak()
     {
-        string title = "Decloak Text";
-        string header = "Enter the text string for decloaking the input text:";
+        string title = DecloakingStringDialogTitle;
+        string header = DecloakingStringDialogHeader;
         string cloakText = _stringDialogService.GetString(title, header);
 
         if (string.IsNullOrWhiteSpace(cloakText))
@@ -620,13 +620,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// Enigma machine configured accordingly.
     /// </para>
     /// </remarks>
-    private void LoadFile()
-    {
-        string inputText = _inputOutputService.LoadTextFile();
-
-        LoadInputText(inputText);
-        OutputText = string.Empty;
-    }
+    private void LoadFile() => LoadInputText(_inputOutputService.LoadTextFile());
 
     /// <summary>
     /// Load the given text string into the InputText property. Embedded configuration, if present,
@@ -650,15 +644,18 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
                     UpdateProperties();
                     IsTransformExecuted = false;
                 }
-
-                return;
+                else
+                {
+                    Reset();
+                }
             }
             else
             {
                 InputText = inputText;
+                Reset();
             }
 
-            Reset();
+            OutputText = string.Empty;
         }
     }
 
@@ -669,11 +666,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// This method also calls the Reset method to reset the state of the Enigma machine after
     /// moving the text.
     /// </remarks>
-    private void Move()
-    {
-        LoadInputText(OutputText);
-        OutputText = string.Empty;
-    }
+    private void Move() => LoadInputText(OutputText);
 
     /// <summary>
     /// Resets the state of the Enigma machine back to its initial state before any text was
@@ -711,7 +704,6 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         RotorIndex1 = EnigmaMachine.Rotor1!.CipherIndex;
         RotorIndex2 = EnigmaMachine.Rotor2!.CipherIndex;
         RotorIndex3 = EnigmaMachine.Rotor3!.CipherIndex;
-        ReflectorIndex = EnigmaMachine.MyReflector.CipherIndex;
 
         if (NumberOfRotors > 3)
         {
@@ -738,6 +730,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             RotorIndex8 = EnigmaMachine.Rotor8!.CipherIndex;
         }
 
+        ReflectorIndex = EnigmaMachine.Reflector.CipherIndex;
         IsTransformExecuted = true;
     }
 
@@ -755,6 +748,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         if (NumberOfRotors < 4)
         {
             IsRotor4Visible = false;
+            RotorIndex4 = 0;
+            _enigmaConfiguration.RotorIndex4 = 0;
         }
         else
         {
@@ -765,6 +760,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         if (NumberOfRotors < 5)
         {
             IsRotor5Visible = false;
+            RotorIndex5 = 0;
+            _enigmaConfiguration.RotorIndex5 = 0;
         }
         else
         {
@@ -775,6 +772,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         if (NumberOfRotors < 6)
         {
             IsRotor6Visible = false;
+            RotorIndex6 = 0;
+            _enigmaConfiguration.RotorIndex6 = 0;
         }
         else
         {
@@ -785,6 +784,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         if (NumberOfRotors < 7)
         {
             IsRotor7Visible = false;
+            RotorIndex7 = 0;
+            _enigmaConfiguration.RotorIndex7 = 0;
         }
         else
         {
@@ -795,6 +796,8 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
         if (NumberOfRotors < 8)
         {
             IsRotor8Visible = false;
+            RotorIndex8 = 0;
+            _enigmaConfiguration.RotorIndex8 = 0;
         }
         else
         {

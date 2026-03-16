@@ -347,7 +347,7 @@ The **EnigmaMachine** class represents the entire Enigma machine. It implements 
 The **IEnigmaMachine** interface defines the following read-only public properties:
 - `bool IsInitialized` - This property indicates whether the Enigma machine has been properly initialized. (Refer to the *Initialize* method
   description below for more details.)
-- `IReflector MyReflector` - This property gets the reflector component of the Enigma machine. (See the **Reflector** class description
+- `IReflector Reflector` - This property gets the reflector component of the Enigma machine. (See the **Reflector** class description
   [above](#the-reflector-class-and-ireflector-interface) for more details.)
 - `int NumberOfRotors` - This property gets the number of rotors currently configured in the Enigma machine.
 - `IRotor Rotor1` - This property gets the first rotor component of the Enigma machine (the right-most rotor). (See the **Rotor** class description

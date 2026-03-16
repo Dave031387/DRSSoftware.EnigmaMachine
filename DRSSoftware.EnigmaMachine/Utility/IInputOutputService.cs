@@ -3,7 +3,7 @@
 /// <summary>
 /// Defines methods for handling input and output of text files.
 /// </summary>
-internal interface IInputOutputService
+public interface IInputOutputService
 {
     /// <summary>
     /// Loads a text file and returns its content as a string.
