@@ -38,6 +38,20 @@
                 Grid.Column="0"
                 Style="{StaticResource headerTextBlockStyle}"
                 Text="Input" />
+
+            <!--  Control  -->
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="1"
+                Style="{StaticResource headerTextBlockStyle}"
+                Text="Control" />
+
+            <!--  Output  -->
+            <TextBlock
+                Grid.Row="0"
+                Grid.Column="2"
+                Style="{StaticResource headerTextBlockStyle}"
+                Text="Output" />
             <ScrollViewer
                 Grid.Row="1"
                 Grid.Column="0"
@@ -46,32 +60,6 @@
                 VerticalScrollBarVisibility="Auto">
                 <TextBox Style="{StaticResource readonlyTextBoxStyle}" Text="{Binding InputText, UpdateSourceTrigger=PropertyChanged}" />
             </ScrollViewer>
-            <Grid Grid.Row="2" Grid.Column="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                    <ColumnDefinition Width="*" />
-                </Grid.ColumnDefinitions>
-                <Button
-                    Grid.Column="0"
-                    Margin="5,10,5,0"
-                    Command="{Binding LoadCommand}"
-                    Content="Load"
-                    Style="{StaticResource buttonStyle}" />
-                <Button
-                    Grid.Column="1"
-                    Margin="5,10,5,0"
-                    Command="{Binding DecloakCommand}"
-                    Content="Decloak"
-                    Style="{StaticResource buttonStyle}" />
-            </Grid>
-
-            <!--  Control  -->
-            <TextBlock
-                Grid.Row="0"
-                Grid.Column="1"
-                Style="{StaticResource headerTextBlockStyle}"
-                Text="Control" />
             <DockPanel
                 Grid.Row="1"
                 Grid.Column="1"
@@ -161,7 +149,7 @@
                             <TextBlock
                                 VerticalAlignment="Center"
                                 Style="{StaticResource propertyTextBlockStyle}"
-                                Text="{Binding ConfigurationStatus}" />
+                                Text="{Binding ConfigurationStatusText}" />
                         </StackPanel>
                         <StackPanel Margin="5,0,5,10" Style="{StaticResource propertiesPanelStyle}">
                             <TextBlock
@@ -174,6 +162,33 @@
                     </StackPanel>
                 </Grid>
             </DockPanel>
+            <ScrollViewer
+                Grid.Row="1"
+                Grid.Column="2"
+                Margin="0,0,10,0"
+                HorizontalScrollBarVisibility="Auto"
+                VerticalScrollBarVisibility="Auto">
+                <TextBox Style="{StaticResource readonlyTextBoxStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
+            </ScrollViewer>
+            <Grid Grid.Row="2" Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Button
+                    Grid.Column="0"
+                    Margin="5,10,5,0"
+                    Command="{Binding LoadCommand}"
+                    Content="Load"
+                    Style="{StaticResource buttonStyle}" />
+                <Button
+                    Grid.Column="1"
+                    Margin="5,10,5,0"
+                    Command="{Binding DecloakCommand}"
+                    Content="Decloak"
+                    Style="{StaticResource buttonStyle}" />
+            </Grid>
             <Grid Grid.Row="2" Grid.Column="1">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto" />
@@ -193,21 +208,6 @@
                     Content="Reset"
                     Style="{StaticResource buttonStyle}" />
             </Grid>
-
-            <!--  Output  -->
-            <TextBlock
-                Grid.Row="0"
-                Grid.Column="2"
-                Style="{StaticResource headerTextBlockStyle}"
-                Text="Output" />
-            <ScrollViewer
-                Grid.Row="1"
-                Grid.Column="2"
-                Margin="0,0,10,0"
-                HorizontalScrollBarVisibility="Auto"
-                VerticalScrollBarVisibility="Auto">
-                <TextBox Style="{StaticResource readonlyTextBoxStyle}" Text="{Binding OutputText, UpdateSourceTrigger=PropertyChanged}" />
-            </ScrollViewer>
             <Grid Grid.Row="2" Grid.Column="2">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />

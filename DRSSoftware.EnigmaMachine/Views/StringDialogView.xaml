@@ -8,7 +8,7 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:vm="clr-namespace:DRSSoftware.EnigmaMachine.ViewModels"
     Title="{Binding Title}"
-    Width="450"
+    Width="600"
     Height="250"
     d:DataContext="{d:DesignInstance Type=vm:StringDialogViewModelDT,
                                      IsDesignTimeCreatable=True}"
