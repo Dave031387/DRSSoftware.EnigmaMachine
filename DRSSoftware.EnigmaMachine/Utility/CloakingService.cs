@@ -29,8 +29,23 @@ internal sealed class CloakingService(IIndicatorStringGenerator indicatorStringG
     private string _cloakText = string.Empty;
 
     /// <summary>
+    /// Represents a method that transforms a given <paramref name="inputChar" /> using the
+    /// specified <paramref name="cloakingChar" />.
+    /// </summary>
+    /// <param name="inputChar">
+    /// The input character that is to be transformed.
+    /// </param>
+    /// <param name="cloakingChar">
+    /// The cloaking character used for transforming the input character.
+    /// </param>
+    /// <returns>
+    /// The transformed input character.
+    /// </returns>
+    private delegate char Transform(char inputChar, char cloakingChar);
+
+    /// <summary>
     /// Cloak the given <paramref name="inputText" /> using the supplied
-    /// <paramref name="cloakText" />.
+    /// <paramref name="cloakingText" />.
     /// </summary>
     /// <remarks>
     /// A special cloaking indicator string will be prepended to the cloaked text to indicate that
@@ -39,60 +54,14 @@ internal sealed class CloakingService(IIndicatorStringGenerator indicatorStringG
     /// <param name="inputText">
     /// The text to be transformed by applying the cloak.
     /// </param>
-    /// <param name="cloakText">
+    /// <param name="cloakingText">
     /// The string used for performing the cloaking transformation.
     /// </param>
     /// <returns>
     /// The string obtained by applying the cloaking transformation to the input string.
     /// </returns>
-    public string ApplyCloak(string inputText, string cloakText)
-    {
-        List<char> outputChars = [];
-
-        lock (_lock)
-        {
-            _cloakText = cloakText;
-            _cloakIndex = 0;
-
-            outputChars.AddRange(_indicatorStringGenerator.GetIndicatorString(CloakingIndicatorChar));
-
-            for (int i = 0; i < inputText.Length; i++)
-            {
-                char inputChar = inputText[i];
-
-                // Ignore carriage return characters in the input string.
-                if (inputChar is CarriageReturn)
-                {
-                    continue;
-                }
-
-                // Don't cloak or decloak delimiter characters.
-                if (inputChar is DelimiterChar)
-                {
-                    outputChars.Add(DelimiterChar);
-                    continue;
-                }
-
-                char cloakChar = GetNextCloakChar();
-
-                // Apply the cloaking transform to the input character using the given cloaking
-                // character.
-                char cloakedChar = ApplyCloak(inputChar, cloakChar);
-
-                // Replace MaxChar with new line characters (CR/LF on Windows systems).
-                if (cloakedChar is MaxChar)
-                {
-                    outputChars.AddRange(Environment.NewLine);
-                }
-                else
-                {
-                    outputChars.Add(cloakedChar);
-                }
-            }
-        }
-
-        return new([.. outputChars]);
-    }
+    public string ApplyCloak(string inputText, string cloakingText)
+        => _indicatorStringGenerator.GetIndicatorString(CloakingIndicatorChar) + CloakingTransform(inputText, cloakingText, ApplyCloak);
 
     /// <summary>
     /// Determine whether or not the supplied <paramref name="inputText" /> starts with a cloaking
@@ -128,75 +97,31 @@ internal sealed class CloakingService(IIndicatorStringGenerator indicatorStringG
 
     /// <summary>
     /// Remove the cloak from the given <paramref name="inputText" /> using the supplied
-    /// <paramref name="cloakText" />.
+    /// <paramref name="cloakingText" />.
     /// </summary>
     /// <remarks>
     /// The method assumes that the input text has been previously cloaked using the same
-    /// <paramref name="cloakText" />. The cloaking indicator string is removed from the
+    /// <paramref name="cloakingText" />. The cloaking indicator string is removed from the
     /// <paramref name="inputText" /> before removing the cloak.
     /// </remarks>
     /// <param name="inputText">
     /// The text to be transformed by removing the cloak.
     /// </param>
-    /// <param name="cloakText">
+    /// <param name="cloakingText">
     /// The string used for undoing the cloaking transformation.
     /// </param>
     /// <returns>
     /// The string obtained by removing the cloaking transformation from the input string. The input
     /// string will be returned unchanged if it does not start with a cloaking indicator string.
     /// </returns>
-    public string RemoveCloak(string inputText, string cloakText)
+    public string RemoveCloak(string inputText, string cloakingText)
     {
-        // Return the input text unchanged if it doesn't begin with the expected cloaking indicator
-        // characters.
-        if (!HasIndicatorString(inputText))
+        if (HasIndicatorString(inputText))
         {
-            return inputText;
+            return CloakingTransform(inputText[IndicatorSize..], cloakingText, RemoveCloak);
         }
 
-        List<char> outputChars = [];
-
-        lock (_lock)
-        {
-            _cloakText = cloakText;
-            _cloakIndex = 0;
-
-            for (int i = IndicatorSize; i < inputText.Length; i++)
-            {
-                char inputChar = inputText[i];
-
-                // Ignore carriage return characters in the input string.
-                if (inputChar is CarriageReturn)
-                {
-                    continue;
-                }
-
-                // Don't cloak or decloak delimiter characters.
-                if (inputChar is DelimiterChar)
-                {
-                    outputChars.Add(DelimiterChar);
-                    continue;
-                }
-
-                char cloakChar = GetNextCloakChar();
-
-                // Remove the cloaking transform from the input character using the given cloaking
-                // character.
-                char decloakedChar = RemoveCloak(inputChar, cloakChar);
-
-                // Replace MaxChar with new line characters (CR/LF on Windows systems).
-                if (decloakedChar is MaxChar)
-                {
-                    outputChars.AddRange(Environment.NewLine);
-                }
-                else
-                {
-                    outputChars.Add(decloakedChar);
-                }
-            }
-        }
-
-        return new([.. outputChars]);
+        return inputText;
     }
 
     /// <summary>
@@ -274,6 +199,76 @@ internal sealed class CloakingService(IIndicatorStringGenerator indicatorStringG
         }
 
         return (char)(cloakedValue + MinChar);
+    }
+
+    /// <summary>
+    /// Applies a cloaking transformation to the specified input text using the provided cloaking
+    /// text and transformation delegate.
+    /// </summary>
+    /// <remarks>
+    /// Delimiter characters in the input are preserved without transformation. Carriage return
+    /// characters are ignored. <br /> Linefeed characters are replaced with the maximum supported
+    /// character value before being transformed. <br /> If a transformed character matches the
+    /// maximum supported character value, it is replaced with the system's newline sequence.
+    /// </remarks>
+    /// <param name="inputText">
+    /// The input text to be transformed.
+    /// </param>
+    /// <param name="cloakingText">
+    /// The text used to generate cloaking characters for the transformation.
+    /// </param>
+    /// <param name="transform">
+    /// A delegate that defines the transformation to apply to each character in the input text
+    /// using the corresponding cloaking character.
+    /// </param>
+    /// <returns>
+    /// A new string containing the transformed text.
+    /// </returns>
+    private string CloakingTransform(string inputText, string cloakingText, Transform transform)
+    {
+        List<char> outputChars = [];
+
+        lock (_lock)
+        {
+            _cloakText = cloakingText;
+            _cloakIndex = 0;
+
+            for (int i = 0; i < inputText.Length; i++)
+            {
+                char inputChar = inputText[i];
+
+                // Ignore carriage return characters in the input string.
+                if (inputChar is CarriageReturn)
+                {
+                    continue;
+                }
+
+                // Don't cloak or decloak delimiter characters.
+                if (inputChar is DelimiterChar)
+                {
+                    outputChars.Add(DelimiterChar);
+                    continue;
+                }
+
+                char cloakChar = GetNextCloakChar();
+
+                // Remove the cloaking transform from the input character using the given cloaking
+                // character.
+                char transformedChar = transform(inputChar, cloakChar);
+
+                // Replace MaxChar with new line characters (CR/LF on Windows systems).
+                if (transformedChar is MaxChar)
+                {
+                    outputChars.AddRange(Environment.NewLine);
+                }
+                else
+                {
+                    outputChars.Add(transformedChar);
+                }
+            }
+        }
+
+        return new([.. outputChars]);
     }
 
     /// <summary>
