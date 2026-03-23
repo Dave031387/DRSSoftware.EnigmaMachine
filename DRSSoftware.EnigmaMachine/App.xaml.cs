@@ -23,7 +23,7 @@ public partial class App : Application
     {
         base.OnStartup(e);
 
-        IContainer container = ContainerBuilder.GetInstance()
+        IContainer container = ContainerBuilder.GetInstance("Enigma Machine")
             .AddSingleton<ICloakingService, CloakingService>()
             .AddSingleton<IConfigurationDialogService, ConfigurationDialogService>()
             .AddTransient<IConfigurationDialogViewModel, ConfigurationDialogViewModel>()
