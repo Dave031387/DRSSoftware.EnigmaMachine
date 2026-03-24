@@ -7,14 +7,17 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = MinChar;
+        int inputTextLength = 8;
+        int seedValueLength = 6;
+        int numberOfRotors = 8;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
-        string inputText = "ABCDEFGH";
-        string seedValue = "abcdef";
-        string expected = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff5G" + DelimiterChar + "6H7" + DelimiterChar + "8";
+        string expected = indicatorString + embeddedText.Value;
 
         // Act
-        string actual = embeddingService.Embed(inputText, GetEnigmaConfiguration(8, seedValue));
+        string actual = embeddingService.Embed(embeddedText.InputText, GetEnigmaConfiguration(numberOfRotors, embeddedText.SeedValue));
 
         // Assert
         actual
@@ -28,14 +31,17 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 12);
+        int inputTextLength = 16;
+        int seedValueLength = 7;
+        int numberOfRotors = 3;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues, 5);
         EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
-        string inputText = "ABCD\r\nFGHIJKLMNOP";
-        string seedValue = "abcdefg";
-        string expected = indicatorString + "Aa0Bb1Cc2Dd3\r\ne" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
+        string expected = indicatorString + embeddedText.Value;
 
         // Act
-        string actual = embeddingService.Embed(inputText, GetEnigmaConfiguration(3, seedValue));
+        string actual = embeddingService.Embed(embeddedText.InputText, GetEnigmaConfiguration(numberOfRotors, embeddedText.SeedValue));
 
         // Assert
         actual
@@ -49,14 +55,17 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 10);
+        int inputTextLength = 16;
+        int seedValueLength = 7;
+        int numberOfRotors = 3;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
-        string inputText = "ABCDEFGHIJKLMNOP";
-        string seedValue = "abcdefg";
-        string expected = indicatorString + "Aa0Bb1Cc2Dd3Ee" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
+        string expected = indicatorString + embeddedText.Value;
 
         // Act
-        string actual = embeddingService.Embed(inputText, GetEnigmaConfiguration(3, seedValue));
+        string actual = embeddingService.Embed(embeddedText.InputText, GetEnigmaConfiguration(numberOfRotors, embeddedText.SeedValue));
 
         // Assert
         actual
@@ -70,14 +79,17 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 7);
+        int inputTextLength = 13;
+        int seedValueLength = 7;
+        int numberOfRotors = 4;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues, 0, 5);
         EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
-        string inputText = "ABCDEFGHIJKLM";
-        string seedValue = "abcd\r\nfg";
-        string expected = indicatorString + "Aa0Bb1Cc2Dd3E\r\n4Ff" + DelimiterChar + "GgH" + DelimiterChar + "IJKLM";
+        string expected = indicatorString + embeddedText.Value;
 
         // Act
-        string actual = embeddingService.Embed(inputText, GetEnigmaConfiguration(4, seedValue));
+        string actual = embeddingService.Embed(embeddedText.InputText, GetEnigmaConfiguration(numberOfRotors, embeddedText.SeedValue));
 
         // Assert
         actual
@@ -91,14 +103,17 @@ public class EmbeddingServiceTests
     {
         // Arrange
         char firstChar = (char)(MinChar + 5);
+        int inputTextLength = 8;
+        int seedValueLength = 12;
+        int numberOfRotors = 4;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForEmbed(out Mock<IIndicatorStringGenerator> mockGenerator, true, firstChar);
         string indicatorString = GetIndicatorString(firstChar);
-        string inputText = "ABCDEFGH";
-        string seedValue = "abcdefghijkl";
-        string expected = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff" + DelimiterChar + "GgHh" + DelimiterChar + "ijkl";
+        string expected = indicatorString + embeddedText.Value;
 
         // Act
-        string actual = embeddingService.Embed(inputText, GetEnigmaConfiguration(4, seedValue));
+        string actual = embeddingService.Embed(embeddedText.InputText, GetEnigmaConfiguration(numberOfRotors, embeddedText.SeedValue));
 
         // Assert
         actual
@@ -151,15 +166,16 @@ public class EmbeddingServiceTests
     }
 
     [Fact]
-    public void Extract_ShouldExtractConfigurationWhenIndexValuesIsLongestComponent()
+    public void Extract_ShouldDisplayErrorMessageWhenNumberOfRotorsIsTooLarge()
     {
         // Arrange
+        int inputTextLength = 8;
+        int seedValueLength = 10;
+        int numberOfIndexValues = 10;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString(MinChar);
-        string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff5G" + DelimiterChar + "6H7" + DelimiterChar + "8";
-        string expectedInputText = "ABCDEFGH";
-        string expectedSeedValue = "abcdef";
-        int expectedNumberOfRotors = 8;
+        string embeddedTextString = indicatorString + embeddedText.Value;
 
         // Act
         string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
@@ -167,8 +183,60 @@ public class EmbeddingServiceTests
         // Assert
         actualInputText
             .Should()
-            .Be(expectedInputText);
-        AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
+            .Be(EmbeddingExtractErrorMessage);
+        configuration
+            .Should()
+            .BeNull();
+        mockGenerator.VerifyAll();
+    }
+
+    [Fact]
+    public void Extract_ShouldDisplayErrorMessageWhenNumberOfRotorsIsTooSmall()
+    {
+        // Arrange
+        int inputTextLength = 8;
+        int seedValueLength = 10;
+        int numberOfIndexValues = 3;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
+        string indicatorString = GetIndicatorString(MinChar);
+        string embeddedTextString = indicatorString + embeddedText.Value;
+
+        // Act
+        string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
+
+        // Assert
+        actualInputText
+            .Should()
+            .Be(EmbeddingExtractErrorMessage);
+        configuration
+            .Should()
+            .BeNull();
+        mockGenerator.VerifyAll();
+    }
+
+    [Fact]
+    public void Extract_ShouldDisplayErrorMessageWhenSeedValueIsTooShort()
+    {
+        // Arrange
+        int inputTextLength = 8;
+        int seedValueLength = 9;
+        int numberOfIndexValues = 9;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
+        EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
+        string indicatorString = GetIndicatorString(MinChar);
+        string embeddedTextString = indicatorString + embeddedText.Value;
+
+        // Act
+        string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
+
+        // Assert
+        actualInputText
+            .Should()
+            .Be(EmbeddingExtractErrorMessage);
+        configuration
+            .Should()
+            .BeNull();
         mockGenerator.VerifyAll();
     }
 
@@ -176,12 +244,14 @@ public class EmbeddingServiceTests
     public void Extract_ShouldExtractConfigurationWhenInputTextContainsCRLF()
     {
         // Arrange
+        int inputTextLength = 16;
+        int seedValueLength = 10;
+        int numberOfRotors = 3;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues, 6);
         EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 12));
-        string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3\r\ne" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
-        string expectedInputText = "ABCD\r\nFGHIJKLMNOP";
-        string expectedSeedValue = "abcdefg";
-        int expectedNumberOfRotors = 3;
+        string embeddedTextString = indicatorString + embeddedText.Value;
 
         // Act
         string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
@@ -189,8 +259,8 @@ public class EmbeddingServiceTests
         // Assert
         actualInputText
             .Should()
-            .Be(expectedInputText);
-        AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
+            .Be(embeddedText.InputText);
+        AssertEnigmaConfiguration(configuration, embeddedText.SeedValue, numberOfRotors);
         mockGenerator.VerifyAll();
     }
 
@@ -198,12 +268,14 @@ public class EmbeddingServiceTests
     public void Extract_ShouldExtractConfigurationWhenInputTextIsLongestComponent()
     {
         // Arrange
+        int inputTextLength = 16;
+        int seedValueLength = 10;
+        int numberOfRotors = 3;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 10));
-        string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee" + DelimiterChar + "FfGgH" + DelimiterChar + "IJKLMNOP";
-        string expectedInputText = "ABCDEFGHIJKLMNOP";
-        string expectedSeedValue = "abcdefg";
-        int expectedNumberOfRotors = 3;
+        string embeddedTextString = indicatorString + embeddedText.Value;
 
         // Act
         string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
@@ -211,8 +283,8 @@ public class EmbeddingServiceTests
         // Assert
         actualInputText
             .Should()
-            .Be(expectedInputText);
-        AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
+            .Be(embeddedText.InputText);
+        AssertEnigmaConfiguration(configuration, embeddedText.SeedValue, numberOfRotors);
         mockGenerator.VerifyAll();
     }
 
@@ -220,12 +292,14 @@ public class EmbeddingServiceTests
     public void Extract_ShouldExtractConfigurationWhenSeedValueContainsCRLF()
     {
         // Arrange
+        int inputTextLength = 13;
+        int seedValueLength = 10;
+        int numberOfRotors = 4;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues, 0, 8);
         EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 7));
-        string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3E\r\n4Ff" + DelimiterChar + "GgH" + DelimiterChar + "IJKLM";
-        string expectedInputText = "ABCDEFGHIJKLM";
-        string expectedSeedValue = "abcd\r\nfg";
-        int expectedNumberOfRotors = 4;
+        string embeddedTextString = indicatorString + embeddedText.Value;
 
         // Act
         string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
@@ -233,8 +307,8 @@ public class EmbeddingServiceTests
         // Assert
         actualInputText
             .Should()
-            .Be(expectedInputText);
-        AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
+            .Be(embeddedText.InputText);
+        AssertEnigmaConfiguration(configuration, embeddedText.SeedValue, numberOfRotors);
         mockGenerator.VerifyAll();
     }
 
@@ -242,12 +316,14 @@ public class EmbeddingServiceTests
     public void Extract_ShouldExtractConfigurationWhenSeedValueIsLongestComponent()
     {
         // Arrange
+        int inputTextLength = 8;
+        int seedValueLength = 12;
+        int numberOfRotors = 7;
+        int numberOfIndexValues = numberOfRotors + 1;
+        EmbeddedText embeddedText = new(inputTextLength, seedValueLength, numberOfIndexValues);
         EmbeddingService embeddingService = GetEmbeddingServiceForExtract(out Mock<IIndicatorStringGenerator> mockGenerator);
         string indicatorString = GetIndicatorString((char)(MinChar + 5));
-        string embeddedTextString = indicatorString + "Aa0Bb1Cc2Dd3Ee4Ff" + DelimiterChar + "GgHh" + DelimiterChar + "ijkl";
-        string expectedInputText = "ABCDEFGH";
-        string expectedSeedValue = "abcdefghijkl";
-        int expectedNumberOfRotors = 4;
+        string embeddedTextString = indicatorString + embeddedText.Value;
 
         // Act
         string actualInputText = embeddingService.Extract(embeddedTextString, out EnigmaConfiguration? configuration);
@@ -255,8 +331,8 @@ public class EmbeddingServiceTests
         // Assert
         actualInputText
             .Should()
-            .Be(expectedInputText);
-        AssertEnigmaConfiguration(configuration, expectedSeedValue, expectedNumberOfRotors);
+            .Be(embeddedText.InputText);
+        AssertEnigmaConfiguration(configuration, embeddedText.SeedValue, numberOfRotors);
         mockGenerator.VerifyAll();
     }
 
@@ -474,5 +550,93 @@ public class EmbeddingServiceTests
             indicatorChars[i + IndicatorPairs] = (char)(EmbeddedIndicatorValue - indicatorChars[i]);
         }
         return new string(indicatorChars);
+    }
+}
+
+public class EmbeddedText
+{
+    private readonly char[] _indexValueChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];
+    private readonly char[] _inputTextChars = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z'];
+    private readonly char[] _seedValueChars = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z'];
+
+    public EmbeddedText(int inputTextLength, int seedValueLength, int numberOfIndexValues, int inputCRLF = 0, int seedCRLF = 0)
+    {
+        int maxIndex = inputTextLength > seedValueLength
+            ? inputTextLength > numberOfIndexValues
+                ? inputTextLength
+                : numberOfIndexValues
+            : seedValueLength > numberOfIndexValues
+                ? seedValueLength
+                : numberOfIndexValues;
+        List<char> embeddedChars = [];
+        List<char> inputChars = [];
+        List<char> seedChars = [];
+
+        for (int i = 0; i < maxIndex; i++)
+        {
+            if (i < inputTextLength)
+            {
+                if (inputCRLF > 0 && i == inputCRLF)
+                {
+                    inputChars.AddRange(CRLF);
+                    embeddedChars.AddRange(CRLF);
+                }
+                else
+                {
+                    inputChars.Add(_inputTextChars[i]);
+                    embeddedChars.Add(_inputTextChars[i]);
+                }
+            }
+            else if (i == inputTextLength && i < maxIndex)
+            {
+                embeddedChars.Add(DelimiterChar);
+            }
+
+            if (i < seedValueLength)
+            {
+                if (seedCRLF > 0 && i == seedCRLF)
+                {
+                    seedChars.AddRange(CRLF);
+                    embeddedChars.AddRange(CRLF);
+                }
+                else
+                {
+                    seedChars.Add(_seedValueChars[i]);
+                    embeddedChars.Add(_seedValueChars[i]);
+                }
+            }
+            else if (i == seedValueLength && i < maxIndex)
+            {
+                embeddedChars.Add(DelimiterChar);
+            }
+
+            if (i < numberOfIndexValues)
+            {
+                embeddedChars.Add(_indexValueChars[i]);
+            }
+            else if (i == numberOfIndexValues && i < maxIndex)
+            {
+                embeddedChars.Add(DelimiterChar);
+            }
+        }
+
+        InputText = new([.. inputChars]);
+        SeedValue = new([.. seedChars]);
+        Value = new([.. embeddedChars]);
+    }
+
+    public string InputText
+    {
+        get;
+    }
+
+    public string SeedValue
+    {
+        get;
+    }
+
+    public string Value
+    {
+        get;
     }
 }

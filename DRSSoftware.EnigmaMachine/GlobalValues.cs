@@ -74,6 +74,12 @@ public static class GlobalValues
     public const int EmbeddedIndicatorValue = EmbeddingIndicatorChar + MinChar;
 
     /// <summary>
+    /// The message that gets displayed when an error occurs while extracting embedded configuration
+    /// from the input text.
+    /// </summary>
+    public const string EmbeddingExtractErrorMessage = "An error occurred trying to extract the embedded configuration.\nUnable to decrypt this file.\n\nIf this happened while attempting to decloak a file,\nensure the correct cloaking string was entered.";
+
+    /// <summary>
     /// A character value that is one higher than the maximum embedding indicator value.
     /// </summary>
     public const char EmbeddingIndicatorChar = (char)(MaxChar - 1);

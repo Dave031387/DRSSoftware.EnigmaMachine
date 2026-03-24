@@ -14,46 +14,6 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     private readonly IIndicatorStringGenerator _indicatorStringGenerator = indicatorStringGenerator;
 
     /// <summary>
-    /// Lock object used to ensure thread safety.
-    /// </summary>
-    private readonly Lock _lock = new();
-
-    /// <summary>
-    /// Holds a value indicating whether or not we have reached the end of the index values.
-    /// </summary>
-    private bool _endOfIndexValues;
-
-    /// <summary>
-    /// Holds a value indicating whether or not we have reached the end of the input text.
-    /// </summary>
-    private bool _endOfInputText;
-
-    /// <summary>
-    /// Holds a value indicating whether or not we have reached the end of the seed value.
-    /// </summary>
-    private bool _endOfSeedValue;
-
-    /// <summary>
-    /// An index value that points to the current index value in the list of index values.
-    /// </summary>
-    private int _indexValuesIndex;
-
-    /// <summary>
-    /// Holds a value equal to the number of index values (rotors and reflector).
-    /// </summary>
-    private int _indexValuesLength;
-
-    /// <summary>
-    /// An index value that points to the current character in the input text string.
-    /// </summary>
-    private int _inputTextIndex;
-
-    /// <summary>
-    /// An index value that points to the current character in the seed value text string.
-    /// </summary>
-    private int _seedValueIndex;
-
-    /// <summary>
     /// Embed the Enigma machine configuration details into the given text string.
     /// </summary>
     /// <remarks>
@@ -81,8 +41,12 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
             return inputText;
         }
 
-        List<char> result = [];
+        List<char> embeddedChars = [];
+        int inputTextIndex = 0;
+        bool endOfInputText = false;
         string seedValue = configuration.SeedValue;
+        int seedValueIndex = 0;
+        bool endOfSeedValue = false;
         int[] indexValues =
             [
             configuration.ReflectorIndex,
@@ -95,39 +59,31 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
             configuration.RotorIndex7,
             configuration.RotorIndex8
             ];
+        int indexValuesLength = configuration.NumberOfRotors + 1;
+        int indexValuesIndex = 0;
+        bool endOfIndexValues = false;
 
-        result.AddRange(_indicatorStringGenerator.GetIndicatorString(EmbeddingIndicatorChar));
+        embeddedChars.AddRange(_indicatorStringGenerator.GetIndicatorString(EmbeddingIndicatorChar));
 
-        lock (_lock)
+        while (!(endOfIndexValues && endOfSeedValue && endOfInputText))
         {
-            _inputTextIndex = 0;
-            _endOfInputText = false;
-            _seedValueIndex = 0;
-            _endOfSeedValue = false;
-            _indexValuesLength = configuration.NumberOfRotors + 1;
-            _indexValuesIndex = 0;
-            _endOfIndexValues = false;
-
-            while (!(_endOfIndexValues && _endOfSeedValue && _endOfInputText))
+            if (!endOfInputText)
             {
-                if (!_endOfInputText)
-                {
-                    result.AddRange(EmbedInputText(inputText));
-                }
+                embeddedChars.AddRange(EmbedNextChar(inputText, ref inputTextIndex, ref endOfInputText, ref endOfSeedValue, ref endOfIndexValues));
+            }
 
-                if (!_endOfSeedValue)
-                {
-                    result.AddRange(EmbedSeedValue(seedValue));
-                }
+            if (!endOfSeedValue)
+            {
+                embeddedChars.AddRange(EmbedNextChar(seedValue, ref seedValueIndex, ref endOfSeedValue, ref endOfInputText, ref endOfIndexValues));
+            }
 
-                if (!_endOfIndexValues)
-                {
-                    result.AddRange(EmbedIndexValues(indexValues));
-                }
+            if (!endOfIndexValues)
+            {
+                embeddedChars.AddRange(EmbedIndexValues(indexValues, indexValuesLength, ref indexValuesIndex, ref endOfIndexValues, ref endOfInputText, ref endOfSeedValue));
             }
         }
 
-        return new([.. result]);
+        return new([.. embeddedChars]);
     }
 
     /// <summary>
@@ -157,59 +113,63 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
             return embeddedText ?? string.Empty;
         }
 
-        List<char> result = [];
+        int embeddedTextIndex = IndicatorSize;
+        List<char> inputChars = [];
+        bool endOfInputText = false;
         List<char> seedChars = [];
+        bool endOfSeedValue = false;
         List<int> indexValues = [];
+        bool endOfIndexValues = false;
 
-        lock (_lock)
+        do
         {
-            _inputTextIndex = IndicatorSize;
-            _endOfInputText = false;
-            _endOfSeedValue = false;
-            _endOfIndexValues = false;
-
-            do
+            if (!endOfInputText)
             {
-                if (!_endOfInputText)
-                {
-                    result.AddRange(ExtractInputText(embeddedText));
-                }
+                inputChars.AddRange(ExtractNextChar(embeddedText, ref embeddedTextIndex, ref endOfInputText));
+            }
 
-                if (!_endOfSeedValue)
-                {
-                    seedChars.AddRange(ExtractSeedValue(embeddedText));
-                }
+            if (!endOfSeedValue)
+            {
+                seedChars.AddRange(ExtractNextChar(embeddedText, ref embeddedTextIndex, ref endOfSeedValue));
+            }
 
-                if (!_endOfIndexValues)
-                {
-                    (int indexValue, bool hasValue) = ExtractIndexValue(embeddedText);
+            if (!endOfIndexValues)
+            {
+                (int indexValue, bool hasValue) = ExtractIndexValue(embeddedText, ref embeddedTextIndex, ref endOfIndexValues);
 
-                    if (hasValue)
-                    {
-                        indexValues.Add(indexValue);
-                    }
+                if (hasValue)
+                {
+                    indexValues.Add(indexValue);
                 }
-            } while (_inputTextIndex < embeddedText.Length);
-        }
+            }
+        } while (embeddedTextIndex < embeddedText.Length);
 
         int numberOfRotors = indexValues.Count - 1;
-        configuration = new()
-        {
-            NumberOfRotors = numberOfRotors,
-            ReflectorIndex = indexValues[0],
-            RotorIndex1 = numberOfRotors > 0 ? indexValues[1] : 0,
-            RotorIndex2 = numberOfRotors > 1 ? indexValues[2] : 0,
-            RotorIndex3 = numberOfRotors > 2 ? indexValues[3] : 0,
-            RotorIndex4 = numberOfRotors > 3 ? indexValues[4] : 0,
-            RotorIndex5 = numberOfRotors > 4 ? indexValues[5] : 0,
-            RotorIndex6 = numberOfRotors > 5 ? indexValues[6] : 0,
-            RotorIndex7 = numberOfRotors > 6 ? indexValues[7] : 0,
-            RotorIndex8 = numberOfRotors > 7 ? indexValues[8] : 0,
-            SeedValue = new([.. seedChars]),
-            UseEmbeddedConfiguration = false
-        };
 
-        return new([.. result]);
+        // We assume that everything is okay as long as the number of rotors falls within the valid
+        // range and the seed string is at least the minimum valid length. This does not, however,
+        // ensure that there aren't any other problems with the extracted configuration.
+        if (numberOfRotors is >= MinRotorCount and <= MaxRotorCount && seedChars.Count >= MinStringLength)
+        {
+            configuration = new()
+            {
+                NumberOfRotors = numberOfRotors,
+                ReflectorIndex = indexValues[0],
+                RotorIndex1 = numberOfRotors > 0 ? indexValues[1] : 0,
+                RotorIndex2 = numberOfRotors > 1 ? indexValues[2] : 0,
+                RotorIndex3 = numberOfRotors > 2 ? indexValues[3] : 0,
+                RotorIndex4 = numberOfRotors > 3 ? indexValues[4] : 0,
+                RotorIndex5 = numberOfRotors > 4 ? indexValues[5] : 0,
+                RotorIndex6 = numberOfRotors > 5 ? indexValues[6] : 0,
+                RotorIndex7 = numberOfRotors > 6 ? indexValues[7] : 0,
+                RotorIndex8 = numberOfRotors > 7 ? indexValues[8] : 0,
+                SeedValue = new([.. seedChars]),
+                UseEmbeddedConfiguration = false
+            };
+            return new([.. inputChars]);
+        }
+
+        return EmbeddingExtractErrorMessage;
     }
 
     /// <summary>
@@ -245,128 +205,105 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     }
 
     /// <summary>
-    /// Determine if the current position in the given text string is the start of a Carriage
-    /// Return/Line Feed pair.
-    /// </summary>
-    /// <param name="firstChar">
-    /// The first character in the potential CR/LF pair.
-    /// </param>
-    /// <param name="text">
-    /// The text string that is being checked.
-    /// </param>
-    /// <param name="textIndex">
-    /// The index of the next character position in the text string.
-    /// </param>
-    /// <returns>
-    /// <see langword="true" /> if the current position in the given text string contains a Carriage
-    /// Return/Line Feed pair.
-    /// </returns>
-    private static bool IsCarriageReturnLineFeed(char firstChar, string text, int textIndex)
-        => firstChar is CarriageReturn && textIndex < text.Length && text[textIndex] is LineFeed;
-
-    /// <summary>
     /// Embed the next rotor or reflector index value into the embedded output string.
     /// </summary>
     /// <param name="indexValues">
     /// The list of rotor and reflector index values that are being embedded.
+    /// </param>
+    /// <param name="indexValuesLength">
+    /// The number of reflector and rotor index values stored in the <paramref name="indexValues" />
+    /// array.
+    /// </param>
+    /// <param name="indexValuesIndex">
+    /// The index position of the current value in the <paramref name="indexValues" /> array.
+    /// </param>
+    /// <param name="endOfIndexValues">
+    /// A value that indicates whether or not we have reached the end of the list of reflector and
+    /// rotor index values.
+    /// </param>
+    /// <param name="endOfOther1">
+    /// A value indicating whether or not we have reached the end of the next component of the
+    /// embedded output text string.
+    /// </param>
+    /// <param name="endOfOther2">
+    /// A value indicating whether or not we have reached the end of the last component of the
+    /// embedded output text string.
     /// </param>
     /// <returns>
     /// The string representation of the next index value to be embedded into the output string. Or,
     /// a delimiter character if we have reached the end of the list of index values but not the end
     /// of the input text or seed value.
     /// </returns>
-    private string EmbedIndexValues(int[] indexValues)
+    private static string EmbedIndexValues(int[] indexValues, int indexValuesLength, ref int indexValuesIndex, ref bool endOfIndexValues, ref bool endOfOther1, ref bool endOfOther2)
     {
-        if (_indexValuesIndex >= _indexValuesLength)
+        if (indexValuesIndex == indexValuesLength)
         {
-            _endOfIndexValues = true;
+            endOfIndexValues = true;
 
-            if (!(_endOfSeedValue && _endOfInputText))
+            if (endOfOther1 && endOfOther2)
             {
-                return new([DelimiterChar]);
+                return string.Empty;
             }
 
-            return string.Empty;
+            return new([DelimiterChar]);
         }
         else
         {
-            return new([(char)(indexValues[_indexValuesIndex++] + MinChar)]);
+            return new([(char)(indexValues[indexValuesIndex++] + MinChar)]);
         }
     }
 
     /// <summary>
-    /// Embed the next character from the input text into the embedded output text.
+    /// Embed the next character into the embedded output text string.
     /// </summary>
-    /// <param name="inputText">
-    /// The input text that is being embedded into the output text.
+    /// <param name="textValue">
+    /// The text value from which to retrieve the next character.
+    /// </param>
+    /// <param name="textIndex">
+    /// The current index position within the <paramref name="textValue" />.
+    /// </param>
+    /// <param name="isEndOfTextValue">
+    /// A value indicating whether or not we have reached the end of the
+    /// <paramref name="textValue" />.
+    /// </param>
+    /// <param name="isEndOfOther1">
+    /// A value indicating whether or not we have reached the end of the next component of the
+    /// embedded output text string.
+    /// </param>
+    /// <param name="isEndOfOther2">
+    /// A value indicating whether or not we have reached the end of the last component of the
+    /// embedded output text string.
     /// </param>
     /// <returns>
-    /// The string representation of the next character (or CR/LF pair) to be embedded into the
-    /// output string. Or, a delimiter character if we have reached the end of the input text but
-    /// not the end of the seed value or index values.
+    /// The next character from <paramref name="textValue" /> that is to be added to the embedded
+    /// output text string. <br /> If <paramref name="textIndex" /> is beyond the end of
+    /// <paramref name="textValue" /> then a delimiter character will be returned if we haven't
+    /// reached the end of the other two components. Otherwise, an empty string will be returned.
     /// </returns>
-    private string EmbedInputText(string inputText)
+    private static string EmbedNextChar(string textValue, ref int textIndex, ref bool isEndOfTextValue, ref bool isEndOfOther1, ref bool isEndOfOther2)
     {
-        if (_inputTextIndex >= inputText.Length)
+        if (textIndex == textValue.Length)
         {
-            _endOfInputText = true;
+            isEndOfTextValue = true;
 
-            if (!(_endOfIndexValues && _endOfSeedValue))
+            if (isEndOfOther1 && isEndOfOther2)
             {
-                return new([DelimiterChar]);
+                return string.Empty;
             }
 
-            return string.Empty;
+            return new([DelimiterChar]);
         }
         else
         {
-            char nextInputChar = inputText[_inputTextIndex++];
+            char nextChar = textValue[textIndex++];
 
-            if (IsCarriageReturnLineFeed(nextInputChar, inputText, _inputTextIndex))
+            if (IsCarriageReturnLineFeed(nextChar, textValue, textIndex))
             {
-                _inputTextIndex++;
+                textIndex++;
                 return CRLF;
             }
 
-            return new([nextInputChar]);
-        }
-    }
-
-    /// <summary>
-    /// Embed the next character from the seed value text into the embedded output text.
-    /// </summary>
-    /// <param name="seedValue">
-    /// The seed value text that is being embedded into the output text.
-    /// </param>
-    /// <returns>
-    /// The string representation of the next character (or CR/LF pair) to be embedded into the
-    /// output string. Or, a delimiter character if we have reached the end of the seed value text
-    /// but not the end of the input text or index values.
-    /// </returns>
-    private string EmbedSeedValue(string seedValue)
-    {
-        if (_seedValueIndex >= seedValue.Length)
-        {
-            _endOfSeedValue = true;
-
-            if (!(_endOfIndexValues && _endOfInputText))
-            {
-                return new([DelimiterChar]);
-            }
-
-            return string.Empty;
-        }
-        else
-        {
-            char nextSeedChar = seedValue[_seedValueIndex++];
-
-            if (IsCarriageReturnLineFeed(nextSeedChar, seedValue, _seedValueIndex))
-            {
-                _seedValueIndex++;
-                return CRLF;
-            }
-
-            return new([nextSeedChar]);
+            return new([nextChar]);
         }
     }
 
@@ -376,18 +313,25 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// <param name="embeddedText">
     /// The embedded text string that we're extracting the index value from.
     /// </param>
+    /// <param name="embeddedTextIndex">
+    /// The index position of the current character in the embedded text string.
+    /// </param>
+    /// <param name="endOfIndexValues">
+    /// A value indicating whether or not we have reached the end of the index values within the
+    /// embedded text string.
+    /// </param>
     /// <returns>
     /// A tuple containing an integer representing the extracted index value, and a boolean
     /// indicating whether or not we actually extracted a value. The boolean value will be set to
     /// false if we find a delimiter character instead of an index value.
     /// </returns>
-    private (int indexValue, bool hasValue) ExtractIndexValue(string embeddedText)
+    private static (int indexValue, bool hasValue) ExtractIndexValue(string embeddedText, ref int embeddedTextIndex, ref bool endOfIndexValues)
     {
-        char nextIndexChar = embeddedText[_inputTextIndex++];
+        char nextIndexChar = embeddedText[embeddedTextIndex++];
 
         if (nextIndexChar is DelimiterChar)
         {
-            _endOfIndexValues = true;
+            endOfIndexValues = true;
             return (0, false);
         }
         else
@@ -397,66 +341,60 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     }
 
     /// <summary>
-    /// Extract the next input text character from the embedded text string.
+    /// Extract the next character from the embedded text string.
     /// </summary>
     /// <param name="embeddedText">
-    /// The embedded text from which we are extracting the input text.
+    /// The embedded text from which we are extracting the next character.
+    /// </param>
+    /// <param name="embeddedTextIndex">
+    /// The index position of the current character in the embedded text string.
+    /// </param>
+    /// <param name="isEndOfString">
+    /// A boolean value that is set to <see langword="true" /> if the next character happens to be a
+    /// delimiter character.
     /// </param>
     /// <returns>
-    /// A string representing the next input text character (or CR/LF pair) to be added to the input
-    /// text string. Or, an empty string if we have found a delimiter character indicating we have
-    /// reached the end of the input text.
+    /// An empty string if the next character happens to be a delimiter character. Otherwise, the
+    /// next character converted to a string value.
     /// </returns>
-    private string ExtractInputText(string embeddedText)
+    private static string ExtractNextChar(string embeddedText, ref int embeddedTextIndex, ref bool isEndOfString)
     {
-        char nextOutputChar = embeddedText[_inputTextIndex++];
+        char nextChar = embeddedText[embeddedTextIndex++];
 
-        if (nextOutputChar is DelimiterChar)
+        if (nextChar is DelimiterChar)
         {
-            _endOfInputText = true;
+            isEndOfString = true;
             return string.Empty;
         }
         else
         {
-            if (IsCarriageReturnLineFeed(nextOutputChar, embeddedText, _inputTextIndex))
+            if (IsCarriageReturnLineFeed(nextChar, embeddedText, embeddedTextIndex))
             {
-                _inputTextIndex++;
+                embeddedTextIndex++;
                 return CRLF;
             }
 
-            return new([nextOutputChar]);
+            return new([nextChar]);
         }
     }
 
     /// <summary>
-    /// Extract the next seed value character from the embedded text string.
+    /// Determine if the current position in the given text string is the start of a Carriage
+    /// Return/Line Feed pair.
     /// </summary>
-    /// <param name="embeddedText">
-    /// The embedded text from which we are extracting the seed value.
+    /// <param name="firstChar">
+    /// The first character in the potential CR/LF pair.
+    /// </param>
+    /// <param name="textValue">
+    /// The text string that is being checked.
+    /// </param>
+    /// <param name="textIndex">
+    /// The index of the next character position in the text string.
     /// </param>
     /// <returns>
-    /// A string representing the next seed value character (or CR/LF pair) to be added to the seed
-    /// value string. Or, an empty string if we have found a delimiter character indicating we have
-    /// reached the end of the seed value string.
+    /// <see langword="true" /> if the current position in the given text string contains a Carriage
+    /// Return/Line Feed pair.
     /// </returns>
-    private string ExtractSeedValue(string embeddedText)
-    {
-        char nextSeedChar = embeddedText[_inputTextIndex++];
-
-        if (nextSeedChar is DelimiterChar)
-        {
-            _endOfSeedValue = true;
-            return string.Empty;
-        }
-        else
-        {
-            if (IsCarriageReturnLineFeed(nextSeedChar, embeddedText, _inputTextIndex))
-            {
-                _inputTextIndex++;
-                return CRLF;
-            }
-
-            return new([nextSeedChar]);
-        }
-    }
+    private static bool IsCarriageReturnLineFeed(char firstChar, string textValue, int textIndex)
+        => firstChar is CarriageReturn && textIndex < textValue.Length && textValue[textIndex] is LineFeed;
 }
