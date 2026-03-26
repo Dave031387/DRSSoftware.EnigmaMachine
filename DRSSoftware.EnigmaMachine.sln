@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 18
-VisualStudioVersion = 18.2.11415.280 d18.0
+VisualStudioVersion = 18.2.11415.280
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DRSSoftware.EnigmaMachine", "DRSSoftware.EnigmaMachine\DRSSoftware.EnigmaMachine.csproj", "{BE37F298-F66D-455D-9D40-DE43FC3CC33E}"
 EndProject
@@ -18,6 +18,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DRSSoftware.EnigmaV2.Tests", "DRSSoftware.EnigmaV2.Tests\DRSSoftware.EnigmaV2.Tests.csproj", "{8EBC9D16-78FD-4370-B2C2-2FB11AF4F768}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DRSSoftware.EnigmaMachine.Tests", "DRSSoftware.EnigmaMachine.Tests\DRSSoftware.EnigmaMachine.Tests.csproj", "{28DF674B-8F66-460F-A917-822BE9BC89B2}"
+EndProject
+Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "EnigmaSetup", "EnigmaSetup\EnigmaSetup.vdproj", "{2EC61B45-8852-58C7-B209-34A7D263BADD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,8 @@ Global
 		{28DF674B-8F66-460F-A917-822BE9BC89B2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{28DF674B-8F66-460F-A917-822BE9BC89B2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{28DF674B-8F66-460F-A917-822BE9BC89B2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2EC61B45-8852-58C7-B209-34A7D263BADD}.Debug|Any CPU.ActiveCfg = Debug
+		{2EC61B45-8852-58C7-B209-34A7D263BADD}.Release|Any CPU.ActiveCfg = Release
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
