@@ -1,9 +1,44 @@
 ﻿namespace DRSSoftware.EnigmaMachine.ViewModels;
 
+[ExcludeFromCodeCoverage]
 public class StringDialogViewModelTests
 {
+    [Theory]
+    [InlineData(null)]
+    [InlineData("")]
+    [InlineData("test")]
+    [InlineData("123456789")]
+    public void AcceptCommandCanCanExecute_ShouldReturnFalseIfInputTextIsNullOrEmptyOrInvalidLength(string? inputText)
+    {
+        // Arrange/Act
+        StringDialogViewModel viewModel = new()
+        {
+            InputText = inputText!
+        };
+
+        // Assert
+        viewModel.AcceptCommand.CanExecute(null)
+            .Should()
+            .BeFalse();
+    }
+
     [Fact]
-    public void AcceptCommand_ShouldSetCloseTriggerPropertyToTrue()
+    public void AcceptCommandCanExecute_ShouldReturnTrueIfInputTextIsValidLength()
+    {
+        // Arrange/Act
+        StringDialogViewModel viewModel = new()
+        {
+            InputText = "1234567890"
+        };
+
+        // Assert
+        viewModel.AcceptCommand.CanExecute(null)
+            .Should()
+            .BeTrue();
+    }
+
+    [Fact]
+    public void AcceptCommandExecute_ShouldSetCloseTriggerPropertyToTrue()
     {
         // Arrange
         string expected = "1234567890";
@@ -24,42 +59,23 @@ public class StringDialogViewModelTests
             .BeTrue();
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData("")]
-    [InlineData("test")]
-    [InlineData("123456789")]
-    public void CanAccept_ShouldReturnFalseIfInputTextIsNullOrEmptyOrInvalidLength(string? inputText)
-    {
-        // Arrange/Act
-        StringDialogViewModel viewModel = new()
-        {
-            InputText = inputText!
-        };
-
-        // Assert
-        viewModel.AcceptCommand.CanExecute(null)
-            .Should()
-            .BeFalse();
-    }
-
     [Fact]
-    public void CanAccept_ShouldReturnTrueIfInputTextIsValidLength()
+    public void CancelCommandCanExecute_ShouldAlwaysReturnTrue()
     {
-        // Arrange/Act
-        StringDialogViewModel viewModel = new()
-        {
-            InputText = "1234567890"
-        };
+        // Arrange
+        StringDialogViewModel viewModel = new();
+
+        // Act
+        bool actual = viewModel.CancelCommand.CanExecute(null);
 
         // Assert
-        viewModel.AcceptCommand.CanExecute(null)
+        actual
             .Should()
             .BeTrue();
     }
 
     [Fact]
-    public void CancelCommand_ShouldClearInputTextAndSetCloseTriggerToTrue()
+    public void CancelCommandExecute_ShouldClearInputTextAndSetCloseTriggerToTrue()
     {
         // Arrange
         StringDialogViewModel viewModel = new()

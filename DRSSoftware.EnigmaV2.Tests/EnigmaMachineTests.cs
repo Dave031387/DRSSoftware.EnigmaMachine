@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
+[ExcludeFromCodeCoverage]
 public class EnigmaMachineTests
 {
     private readonly Mock<IReflector> _mockReflector = new(MockBehavior.Strict);
@@ -101,6 +102,30 @@ public class EnigmaMachineTests
         action
             .Should()
             .ThrowExactly<ArgumentNullException>();
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithTooFewRotors_ShouldThrowException()
+    {
+        // Arrange/Act
+        Action action = () => _ = new EnigmaMachine(MinRotors - 1);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentOutOfRangeException>();
+    }
+
+    [Fact]
+    public void CreateNewEnigmaMachineWithTooManyRotors_ShouldThrowException()
+    {
+        // Arrange/Act
+        Action action = () => _ = new EnigmaMachine(MaxRotors + 1);
+
+        // Assert
+        action
+            .Should()
+            .ThrowExactly<ArgumentOutOfRangeException>();
     }
 
     [Fact]

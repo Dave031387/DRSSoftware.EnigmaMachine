@@ -1,5 +1,6 @@
 ﻿global using System;
 global using System.Collections.Generic;
+global using System.Diagnostics.CodeAnalysis;
 global using System.Threading.Tasks;
 global using DRSSoftware.DRSBasicDI.Interfaces;
 global using static DRSSoftware.EnigmaMachine.GlobalValues;

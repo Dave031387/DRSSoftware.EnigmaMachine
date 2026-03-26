@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
+[ExcludeFromCodeCoverage]
 public class IntegrationTests
 {
     private readonly string _plainText = "And they brought unto him also infants, that he would touch "

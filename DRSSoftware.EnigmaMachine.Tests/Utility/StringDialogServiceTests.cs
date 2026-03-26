@@ -5,6 +5,7 @@ using DRSSoftware.DRSBasicDI.Interfaces;
 using DRSSoftware.EnigmaMachine.ViewModels;
 using DRSSoftware.EnigmaMachine.Views;
 
+[ExcludeFromCodeCoverage]
 public class StringDialogServiceTests
 {
     [Theory]

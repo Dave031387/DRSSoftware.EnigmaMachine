@@ -1,5 +1,6 @@
 namespace DRSSoftware.EnigmaV2;
 
+[ExcludeFromCodeCoverage]
 public class CommonTests
 {
     [Theory]

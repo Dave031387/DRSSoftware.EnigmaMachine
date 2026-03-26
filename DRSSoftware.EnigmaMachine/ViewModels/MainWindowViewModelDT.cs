@@ -6,6 +6,7 @@ using DRSSoftware.EnigmaMachine.Commands;
 /// <summary>
 /// View model used for design-time data binding in the MainWindow view.
 /// </summary>
+[ExcludeFromCodeCoverage]
 public class MainWindowViewModelDT : ViewModelBase, IMainWindowViewModel
 {
     /// <summary>

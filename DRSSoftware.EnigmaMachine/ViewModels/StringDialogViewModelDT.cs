@@ -6,6 +6,7 @@ using DRSSoftware.EnigmaMachine.Commands;
 /// <summary>
 /// View model used for design-time data binding in the StringDialogView.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed class StringDialogViewModelDT : ViewModelBase, IStringDialogViewModel
 {
     /// <summary>

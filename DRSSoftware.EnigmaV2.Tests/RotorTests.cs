@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
+[ExcludeFromCodeCoverage]
 public class RotorTests
 {
     private readonly string _seed = "ThisIsASimpleSeedString";

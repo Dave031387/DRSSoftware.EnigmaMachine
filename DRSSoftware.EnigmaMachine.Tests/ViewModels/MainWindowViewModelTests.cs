@@ -2,6 +2,7 @@
 
 using DRSSoftware.EnigmaMachine.Utility;
 
+[ExcludeFromCodeCoverage]
 public class MainWindowViewModelTests
 {
     [Fact]
@@ -158,6 +159,23 @@ public class MainWindowViewModelTests
         viewModel.OutputText
             .Should()
             .Be(expected);
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void ConfigureCommandCanExecute_ShouldAlwaysReturnTrue()
+    {
+        // Arrange
+        StandardMocks mocks = new();
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks);
+
+        // Act
+        bool actual = viewModel.ConfigureCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeTrue();
         mocks.VerifyAll();
     }
 
@@ -478,6 +496,23 @@ public class MainWindowViewModelTests
         viewModel.InputText = inputText;
 
         // Assert
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void LoadCommandCanExecute_ShouldAlwaysReturnTrue()
+    {
+        // Arrange
+        StandardMocks mocks = new();
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks);
+
+        // Act
+        bool actual = viewModel.LoadCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeTrue();
         mocks.VerifyAll();
     }
 
@@ -1192,6 +1227,211 @@ public class MainWindowViewModelTests
     }
 
     [Fact]
+    public void TransformCommandCanExecute_ShouldReturnFalseIfEnigmaMachineNotConfigured()
+    {
+        // Arrange
+        string inputText = "sample input text";
+        StandardMocks mocks = new();
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(inputText))
+            .Returns(false)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks);
+        viewModel.InputText = inputText;
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void TransformCommandCanExecute_ShouldReturnFalseIfInputTextIsCloaked()
+    {
+        // Arrange
+        string inputText = "cloaked input text";
+        EnigmaConfiguration configuration = new()
+        {
+            SeedValue = "sample seed value"
+        };
+        StandardMocks mocks = new();
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(inputText))
+            .Returns(true)
+            .Verifiable(Times.Once);
+        mocks.MockConfigurationDialogService
+            .Setup(m => m.GetConfiguration(mocks.EnigmaConfiguration))
+            .Returns(configuration)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks, configuration);
+        viewModel.ConfigureCommand.Execute(null);
+        viewModel.InputText = inputText;
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void TransformCommandCanExecute_ShouldReturnFalseIfInputTextIsEmpty()
+    {
+        // Arrange
+        EnigmaConfiguration configuration = new()
+        {
+            SeedValue = "sample seed value"
+        };
+        StandardMocks mocks = new();
+        mocks.MockConfigurationDialogService
+            .Setup(m => m.GetConfiguration(mocks.EnigmaConfiguration))
+            .Returns(configuration)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks, configuration);
+        viewModel.ConfigureCommand.Execute(null);
+        viewModel.InputText = string.Empty;
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mocks.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData(" \r\n\t")]
+    public void TransformCommandCanExecute_ShouldReturnFalseIfInputTextIsNullOrWhiteSpace(string? inputText)
+    {
+        // Arrange
+        EnigmaConfiguration configuration = new()
+        {
+            SeedValue = "sample seed value"
+        };
+        StandardMocks mocks = new();
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(inputText!))
+            .Returns(false)
+            .Verifiable(Times.Once);
+        mocks.MockConfigurationDialogService
+            .Setup(m => m.GetConfiguration(mocks.EnigmaConfiguration))
+            .Returns(configuration)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks, configuration);
+        viewModel.ConfigureCommand.Execute(null);
+        viewModel.InputText = inputText!;
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void TransformCommandCanExecute_ShouldReturnFalseIfTransformAlreadyExecuted()
+    {
+        // Arrange
+        string initialString = "initial string";
+        string transformedString = "transfromed string";
+        EnigmaConfiguration configuration = new()
+        {
+            SeedValue = "sample seed value"
+        };
+        StandardMocks mocks = new();
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(initialString))
+            .Returns(false)
+            .Verifiable(Times.Once);
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(transformedString))
+            .Returns(false)
+            .Verifiable(Times.Once);
+        mocks.MockConfigurationDialogService
+            .Setup(m => m.GetConfiguration(mocks.EnigmaConfiguration))
+            .Returns(configuration)
+            .Verifiable(Times.Once);
+        mocks.MockNewEnigmaMachine
+            .Setup(m => m.Transform(initialString))
+            .Returns(transformedString)
+            .Verifiable(Times.Once);
+        mocks.MockNewEnigmaMachine
+            .SetupGet(m => m.Rotor1!.CipherIndex)
+            .Returns(1)
+            .Verifiable(Times.Once);
+        mocks.MockNewEnigmaMachine
+            .SetupGet(m => m.Rotor2!.CipherIndex)
+            .Returns(2)
+            .Verifiable(Times.Once);
+        mocks.MockNewEnigmaMachine
+            .SetupGet(m => m.Rotor3!.CipherIndex)
+            .Returns(3)
+            .Verifiable(Times.Once);
+        mocks.MockNewEnigmaMachine
+            .SetupGet(m => m.Reflector!.CipherIndex)
+            .Returns(4)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks, configuration);
+        viewModel.ConfigureCommand.Execute(null);
+        viewModel.InputText = initialString;
+        viewModel.TransformCommand.Execute(null);
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mocks.VerifyAll();
+    }
+
+    [Fact]
+    public void TransformCommandCanExecute_ShouldReturnTrueIfEnigmaMachineIsConfiguredAndInputTextIsAvailableAndNotCloakedAndTransformNotExecuted()
+    {
+        // Arrange
+        string inputText = "input text";
+        EnigmaConfiguration configuration = new()
+        {
+            SeedValue = "sample seed value"
+        };
+        StandardMocks mocks = new();
+        mocks.MockCloakingService
+            .Setup(m => m.HasIndicatorString(inputText))
+            .Returns(false)
+            .Verifiable(Times.Once);
+        mocks.MockConfigurationDialogService
+            .Setup(m => m.GetConfiguration(mocks.EnigmaConfiguration))
+            .Returns(configuration)
+            .Verifiable(Times.Once);
+        MainWindowViewModel viewModel = GetMainWindowViewModel(mocks, configuration);
+        viewModel.ConfigureCommand.Execute(null);
+        viewModel.InputText = inputText;
+
+        // Act
+        bool actual = viewModel.TransformCommand.CanExecute(null);
+
+        // Assert
+        actual
+            .Should()
+            .BeTrue();
+        mocks.VerifyAll();
+    }
+
+    [Fact]
     public void TransformCommandExecute_ShouldEmbedConfigurationWhenSelected()
     {
         // Arrange
@@ -1498,6 +1738,7 @@ public class MainWindowViewModelTests
     }
 }
 
+[ExcludeFromCodeCoverage]
 public class StandardMocks
 {
     public ICloakingService CloakingService => MockCloakingService.Object;

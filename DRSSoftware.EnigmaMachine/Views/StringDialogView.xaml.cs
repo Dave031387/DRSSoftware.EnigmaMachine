@@ -5,6 +5,7 @@ using System.Windows;
 /// <summary>
 /// Interaction logic for GetStringView.xaml
 /// </summary>
+[ExcludeFromCodeCoverage]
 public partial class StringDialogView : Window, IDialogView
 {
     /// <summary>

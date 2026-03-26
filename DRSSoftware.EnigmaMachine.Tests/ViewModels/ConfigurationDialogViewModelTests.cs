@@ -2,10 +2,55 @@
 
 using DRSSoftware.EnigmaMachine.Utility;
 
+[ExcludeFromCodeCoverage]
 public class ConfigurationDialogViewModelTests
 {
+    [Theory]
+    [InlineData(null)]
+    [InlineData(" \r\n\t")]
+    [InlineData("ABCDEFGHI")]
+    [InlineData("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345")]
+    public void AcceptCommandCanExecute_ShouldBeFalseIfSeedValueIsNullOrWhiteSpaceOrInvalidLength(string? seedValue)
+    {
+        // Arrange
+        Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
+
+        // Act
+        ConfigurationDialogViewModel viewModel = new(mockNumberGenerator.Object)
+        {
+            SeedValue = seedValue!
+        };
+
+        // Assert
+        viewModel.AcceptCommand.CanExecute(null)
+            .Should()
+            .BeFalse();
+        mockNumberGenerator.VerifyAll();
+    }
+
+    [Theory]
+    [InlineData("ABCDEFGHIJ")]
+    [InlineData("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234")]
+    public void AcceptCommandCanExecute_ShouldBeTrueIfSeedValueIsValidLength(string seedValue)
+    {
+        // Arrange
+        Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
+
+        // Act
+        ConfigurationDialogViewModel viewModel = new(mockNumberGenerator.Object)
+        {
+            SeedValue = seedValue
+        };
+
+        // Assert
+        viewModel.AcceptCommand.CanExecute(null)
+            .Should()
+            .BeTrue();
+        mockNumberGenerator.VerifyAll();
+    }
+
     [Fact]
-    public void AcceptCommand_ShouldSaveConfigurationAndSetCloseTriggerPropertyToTrue()
+    public void AcceptCommandExecute_ShouldSaveConfigurationAndSetCloseTriggerPropertyToTrue()
     {
         // Arrange
         int numberOfRotors = 5;
@@ -66,52 +111,25 @@ public class ConfigurationDialogViewModelTests
         mockNumberGenerator.VerifyAll();
     }
 
-    [Theory]
-    [InlineData(null)]
-    [InlineData(" \r\n\t")]
-    [InlineData("ABCDEFGHI")]
-    [InlineData("12345678901234567890123456789012345678901234567890123456789012345678901234567890123456789012345")]
-    public void CanAccept_ShouldBeFalseIfSeedValueIsNullOrWhiteSpaceOrInvalidLength(string? seedValue)
+    [Fact]
+    public void CancelCommandCanExecute_ShouldAlwaysReturnTrue()
     {
         // Arrange
         Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
+        ConfigurationDialogViewModel viewModel = new(mockNumberGenerator.Object);
 
         // Act
-        ConfigurationDialogViewModel viewModel = new(mockNumberGenerator.Object)
-        {
-            SeedValue = seedValue!
-        };
+        bool actual = viewModel.CancelCommand.CanExecute(null);
 
         // Assert
-        viewModel.AcceptCommand.CanExecute(null)
-            .Should()
-            .BeFalse();
-        mockNumberGenerator.VerifyAll();
-    }
-
-    [Theory]
-    [InlineData("ABCDEFGHIJ")]
-    [InlineData("1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234")]
-    public void CanAccept_ShouldBeTrueIfSeedValueIsValidLength(string seedValue)
-    {
-        // Arrange
-        Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
-
-        // Act
-        ConfigurationDialogViewModel viewModel = new(mockNumberGenerator.Object)
-        {
-            SeedValue = seedValue
-        };
-
-        // Assert
-        viewModel.AcceptCommand.CanExecute(null)
+        actual
             .Should()
             .BeTrue();
         mockNumberGenerator.VerifyAll();
     }
 
     [Fact]
-    public void CancelCommand_ShouldSetCloseTriggerPropertyToTrueWithoutSavingTheConfiguration()
+    public void CancelCommandExecute_ShouldSetCloseTriggerPropertyToTrueWithoutSavingTheConfiguration()
     {
         // Arrange
         Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
@@ -152,7 +170,7 @@ public class ConfigurationDialogViewModelTests
     [InlineData("", true)]
     [InlineData("", false)]
     [InlineData("seed value", true)]
-    public void CanClear_ShouldBeFalseIfSeedIsNullOrEmptyOrIsAutoSeedSelectedIsTrue(string? seedValue, bool isAutoSeedSelected)
+    public void ClearCommandCanExecute_ShouldBeFalseIfSeedIsNullOrEmptyOrIsAutoSeedSelectedIsTrue(string? seedValue, bool isAutoSeedSelected)
     {
         // Arrange
         List<int> sequence = ['s', 'e', 'e', 'd', ' ', 'v', 'a', 'l', 'u', 'e'];
@@ -186,7 +204,7 @@ public class ConfigurationDialogViewModelTests
     }
 
     [Fact]
-    public void CanClear_ShouldBeTrueIfSeedIsNotNullOrEmptyAndIsAutoSeedSelectedIsFalse()
+    public void ClearCommandCanExecute_ShouldBeTrueIfSeedIsNotNullOrEmptyAndIsAutoSeedSelectedIsFalse()
     {
         // Arrange
         Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);
@@ -205,7 +223,7 @@ public class ConfigurationDialogViewModelTests
     }
 
     [Fact]
-    public void ClearCommand_ShouldSetTheSeedValuePropertyToAnEmptyString()
+    public void ClearCommandExecute_ShouldSetTheSeedValuePropertyToAnEmptyString()
     {
         // Arrange
         Mock<ISecureNumberGenerator> mockNumberGenerator = new(MockBehavior.Strict);

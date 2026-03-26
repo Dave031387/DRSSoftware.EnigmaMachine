@@ -7,6 +7,7 @@ using Microsoft.Win32;
 /// <summary>
 /// This class is a wrapper around the <see cref="OpenFileDialog" /> class.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed class OpenFileService : IOpenFileService
 {
     /// <summary>

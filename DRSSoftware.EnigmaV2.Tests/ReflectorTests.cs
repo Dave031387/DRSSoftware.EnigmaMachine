@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
+[ExcludeFromCodeCoverage]
 public class ReflectorTests
 {
     private readonly int _cycleSize = 3;

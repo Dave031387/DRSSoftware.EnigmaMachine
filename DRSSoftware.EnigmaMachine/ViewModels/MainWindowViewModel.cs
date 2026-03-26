@@ -163,7 +163,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
             if (field.Equals(value, StringComparison.Ordinal) is false)
             {
                 field = value;
-                InputTextIsCloaked = _cloakingService.HasIndicatorString(field);
+                IsInputTextCloaked = _cloakingService.HasIndicatorString(field);
                 OnPropertyChanged();
             }
         }
@@ -514,7 +514,7 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// <returns>
     /// A value indicating whether or not the Decloak command can be executed.
     /// </returns>
-    private bool CanDecloak => InputTextIsAvailable && InputTextIsCloaked;
+    private bool CanDecloak => IsInputTextAvailable && IsInputTextCloaked;
 
     /// <summary>
     /// Gets a value that indicates whether or not the Transform command can be executed.
@@ -522,17 +522,17 @@ internal sealed class MainWindowViewModel : ViewModelBase, IMainWindowViewModel
     /// <returns>
     /// A value indicating whether or not the Transform command can be executed.
     /// </returns>
-    private bool CanTransform => IsConfigured && InputTextIsAvailable && !IsTransformExecuted && !CanDecloak;
+    private bool CanTransform => IsConfigured && IsInputTextAvailable && !IsTransformExecuted && !CanDecloak;
 
     /// <summary>
     /// Gets a value indicating whether or not the input text is available for processing.
     /// </summary>
-    private bool InputTextIsAvailable => !string.IsNullOrWhiteSpace(InputText);
+    private bool IsInputTextAvailable => !string.IsNullOrWhiteSpace(InputText);
 
     /// <summary>
     /// Gets or sets a value indicating whether or not the input text is cloaked.
     /// </summary>
-    private bool InputTextIsCloaked
+    private bool IsInputTextCloaked
     {
         get;
         set;

@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+[ExcludeFromCodeCoverage]
 public class InputOutputServiceTests
 {
     private readonly string _defaultDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);

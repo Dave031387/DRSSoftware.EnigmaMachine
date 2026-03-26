@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+[ExcludeFromCodeCoverage]
 public class CloakingServiceTests
 {
     [Fact]

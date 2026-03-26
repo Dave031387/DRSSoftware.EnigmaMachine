@@ -5,6 +5,7 @@ using System.Windows;
 /// <summary>
 /// Interaction logic for ConfigurationDialog.xaml
 /// </summary>
+[ExcludeFromCodeCoverage]
 public partial class ConfigurationDialogView : Window, IDialogView
 {
     /// <summary>

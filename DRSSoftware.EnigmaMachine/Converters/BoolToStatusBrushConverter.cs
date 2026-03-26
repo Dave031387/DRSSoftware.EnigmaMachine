@@ -6,6 +6,7 @@ using System.Windows.Data;
 /// <summary>
 /// Converts a boolean value to a System.Windows.Visibility enumeration value.
 /// </summary>
+[ExcludeFromCodeCoverage]
 [ValueConversion(typeof(bool), typeof(System.Windows.Media.Brush))]
 public class BoolToStatusBrushConverter : IValueConverter
 {

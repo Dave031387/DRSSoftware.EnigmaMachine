@@ -1,7 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaV2;
 
-using System.Diagnostics.CodeAnalysis;
-
+[ExcludeFromCodeCoverage]
 public class CipherWheelTests
 {
     [Theory]

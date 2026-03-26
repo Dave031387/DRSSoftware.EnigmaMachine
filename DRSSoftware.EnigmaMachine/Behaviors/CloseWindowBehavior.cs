@@ -12,6 +12,7 @@ using Microsoft.Xaml.Behaviors;
 /// a bound property, such as from a view model. <br /> This is useful in MVVM scenarios where the
 /// view model needs to initiate window closure without direct reference to the view.
 /// </remarks>
+[ExcludeFromCodeCoverage]
 public class CloseWindowBehavior : Behavior<Window>
 {
     /// <summary>

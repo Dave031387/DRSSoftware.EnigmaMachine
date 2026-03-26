@@ -1,5 +1,6 @@
 ﻿namespace DRSSoftware.EnigmaMachine.Utility;
 
+[ExcludeFromCodeCoverage]
 public class EmbeddingServiceTests
 {
     [Fact]
@@ -397,6 +398,77 @@ public class EmbeddingServiceTests
         mockGenerator.VerifyAll();
     }
 
+    [Fact]
+    public void HasIndicatorString_ShouldReturnFalseIfTextDoesNotStartWithAnIndicatorString()
+    {
+        // Arrange
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        EmbeddingService embeddingService = new(mockGenerator.Object);
+        string text = new string('x', IndicatorSize) + "sample text";
+
+        // Act
+        bool actual = embeddingService.HasIndicatorString(text);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mockGenerator.VerifyAll();
+    }
+
+    [Fact]
+    public void HasIndicatorString_ShouldReturnFalseIfTextIsNull()
+    {
+        // Arrange
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        EmbeddingService embeddingService = new(mockGenerator.Object);
+
+        // Act
+        bool actual = embeddingService.HasIndicatorString(null!);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mockGenerator.VerifyAll();
+    }
+
+    [Fact]
+    public void HasIndicatorString_ShouldReturnFalseIfTextLengthIsLessThanTheIndicatorStringSize()
+    {
+        // Arrange
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        EmbeddingService embeddingService = new(mockGenerator.Object);
+        string text = new('x', IndicatorSize - 1);
+
+        // Act
+        bool actual = embeddingService.HasIndicatorString(text);
+
+        // Assert
+        actual
+            .Should()
+            .BeFalse();
+        mockGenerator.VerifyAll();
+    }
+
+    [Fact]
+    public void HasIndicatorString_ShouldReturnTrueIfTextDoesStartWithAnIndicatorString()
+    {
+        // Arrange
+        Mock<IIndicatorStringGenerator> mockGenerator = new(MockBehavior.Strict);
+        EmbeddingService embeddingService = new(mockGenerator.Object);
+        string text = GetIndicatorString('a') + "sample text";
+
+        // Act
+        bool actual = embeddingService.HasIndicatorString(text);
+
+        // Assert
+        actual
+            .Should()
+            .BeTrue();
+        mockGenerator.VerifyAll();
+    }
+
     private static void AssertEnigmaConfiguration(EnigmaConfiguration? configuration, string expectedSeedValue, int expectedNumberOfRotors)
     {
         configuration
@@ -553,6 +625,7 @@ public class EmbeddingServiceTests
     }
 }
 
+[ExcludeFromCodeCoverage]
 public class EmbeddedText
 {
     private readonly char[] _indexValueChars = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9'];

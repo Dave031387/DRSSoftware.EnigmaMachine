@@ -8,6 +8,7 @@ using DRSSoftware.EnigmaMachine.Utility;
 /// <summary>
 /// View model used for design-time data binding in the ConfigurationDialogView.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed class ConfigurationDialogViewModelDT : ViewModelBase, IConfigurationDialogViewModel
 {
     /// <summary>

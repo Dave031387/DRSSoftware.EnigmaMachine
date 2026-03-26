@@ -7,6 +7,7 @@ using Microsoft.Win32;
 /// <summary>
 /// This class is a wrapper around the <see cref="SaveFileDialog" /> class.
 /// </summary>
+[ExcludeFromCodeCoverage]
 internal sealed class SaveFileService : ISaveFileService
 {
     /// <summary>
