@@ -121,7 +121,7 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
         List<int> indexValues = [];
         bool endOfIndexValues = false;
 
-        do
+        while (embeddedTextIndex < embeddedText.Length)
         {
             if (!endOfInputText)
             {
@@ -142,7 +142,7 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
                     indexValues.Add(indexValue);
                 }
             }
-        } while (embeddedTextIndex < embeddedText.Length);
+        }
 
         int numberOfRotors = indexValues.Count - 1;
 
@@ -236,7 +236,7 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     private static string EmbedIndexValues(int[] indexValues, int indexValuesLength, ref int indexValuesIndex, ref bool endOfIndexValues, ref bool endOfOther1, ref bool endOfOther2)
     {
-        if (indexValuesIndex == indexValuesLength)
+        if (indexValuesIndex >= indexValuesLength)
         {
             endOfIndexValues = true;
 
@@ -282,7 +282,7 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     private static string EmbedNextChar(string textValue, ref int textIndex, ref bool isEndOfTextValue, ref bool isEndOfOther1, ref bool isEndOfOther2)
     {
-        if (textIndex == textValue.Length)
+        if (textIndex >= textValue.Length)
         {
             isEndOfTextValue = true;
 
@@ -327,6 +327,12 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     private static (int indexValue, bool hasValue) ExtractIndexValue(string embeddedText, ref int embeddedTextIndex, ref bool endOfIndexValues)
     {
+        if (embeddedTextIndex >= embeddedText.Length)
+        {
+            endOfIndexValues = true;
+            return (0, false);
+        }
+
         char nextIndexChar = embeddedText[embeddedTextIndex++];
 
         if (nextIndexChar is DelimiterChar)
@@ -359,6 +365,12 @@ internal sealed class EmbeddingService(IIndicatorStringGenerator indicatorString
     /// </returns>
     private static string ExtractNextChar(string embeddedText, ref int embeddedTextIndex, ref bool isEndOfString)
     {
+        if (embeddedTextIndex >= embeddedText.Length)
+        {
+            isEndOfString = true;
+            return string.Empty;
+        }
+
         char nextChar = embeddedText[embeddedTextIndex++];
 
         if (nextChar is DelimiterChar)
